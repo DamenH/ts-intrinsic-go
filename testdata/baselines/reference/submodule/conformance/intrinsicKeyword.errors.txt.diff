@@ -1,0 +1,39 @@
+--- old.intrinsicKeyword.errors.txt
++++ new.intrinsicKeyword.errors.txt
+@@= skipped -0, +0 lines =@@
+-intrinsicKeyword.ts(1,9): error TS2304: Cannot find name 'intrinsic'.
+-intrinsicKeyword.ts(2,22): error TS2304: Cannot find name 'intrinsic'.
+-intrinsicKeyword.ts(3,13): error TS2304: Cannot find name 'intrinsic'.
++intrinsicKeyword.ts(1,9): error TS2552: Cannot find name 'intrinsic'. Did you mean 'Intrinsic'?
++intrinsicKeyword.ts(2,22): error TS2552: Cannot find name 'intrinsic'. Did you mean 'Intrinsic'?
++intrinsicKeyword.ts(3,13): error TS2552: Cannot find name 'intrinsic'. Did you mean 'Intrinsic'?
+ intrinsicKeyword.ts(4,23): error TS2795: The 'intrinsic' keyword can only be used to declare compiler provided intrinsic types.
+-intrinsicKeyword.ts(5,20): error TS2304: Cannot find name 'intrinsic'.
++intrinsicKeyword.ts(5,20): error TS2552: Cannot find name 'intrinsic'. Did you mean 'Intrinsic'?
+ intrinsicKeyword.ts(6,28): error TS2313: Type parameter 'intrinsic' has a circular constraint.
+ intrinsicKeyword.ts(6,41): error TS2795: The 'intrinsic' keyword can only be used to declare compiler provided intrinsic types.
+ intrinsicKeyword.ts(7,28): error TS2313: Type parameter 'intrinsic' has a circular constraint.
+@@= skipped -11, +11 lines =@@
+ ==== intrinsicKeyword.ts (9 errors) ====
+     let e1: intrinsic;
+             ~~~~~~~~~
+-!!! error TS2304: Cannot find name 'intrinsic'.
++!!! error TS2552: Cannot find name 'intrinsic'. Did you mean 'Intrinsic'?
+     let e2: { intrinsic: intrinsic };
+                          ~~~~~~~~~
+-!!! error TS2304: Cannot find name 'intrinsic'.
++!!! error TS2552: Cannot find name 'intrinsic'. Did you mean 'Intrinsic'?
+     type TE1 = (intrinsic);
+                 ~~~~~~~~~
+-!!! error TS2304: Cannot find name 'intrinsic'.
++!!! error TS2552: Cannot find name 'intrinsic'. Did you mean 'Intrinsic'?
+     type TE2<intrinsic> = intrinsic;
+                           ~~~~~~~~~
+ !!! error TS2795: The 'intrinsic' keyword can only be used to declare compiler provided intrinsic types.
+     type TE3<T extends intrinsic> = T;
+                        ~~~~~~~~~
+-!!! error TS2304: Cannot find name 'intrinsic'.
++!!! error TS2552: Cannot find name 'intrinsic'. Did you mean 'Intrinsic'?
+     type TE4<intrinsic extends intrinsic> = intrinsic;
+                                ~~~~~~~~~
+ !!! error TS2313: Type parameter 'intrinsic' has a circular constraint.

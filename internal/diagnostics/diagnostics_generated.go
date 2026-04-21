@@ -4308,6 +4308,16 @@ var Remove_Unused_Imports = &Message{code: 100017, category: CategoryMessage, ke
 
 var Sort_Imports = &Message{code: 100018, category: CategoryMessage, key: "Sort_Imports_100018", text: "Sort Imports"}
 
+var Intrinsic_type_parse_error_Colon_0 = &Message{code: 95200, category: CategoryError, key: "Intrinsic_type_parse_error_Colon_0_95200", text: "Intrinsic type parse error: {0}"}
+
+var Intrinsic_type_evaluation_budget_exceeded = &Message{code: 95201, category: CategoryError, key: "Intrinsic_type_evaluation_budget_exceeded_95201", text: "Intrinsic type evaluation exceeded computation budget."}
+
+var Intrinsic_type_runtime_error_Colon_0 = &Message{code: 95202, category: CategoryError, key: "Intrinsic_type_runtime_error_Colon_0_95202", text: "Intrinsic type runtime error: {0}"}
+
+var Intrinsic_type_validation_error_Colon_0 = &Message{code: 95203, category: CategoryError, key: "Intrinsic_type_validation_error_Colon_0_95203", text: "{0}"}
+
+var Intrinsic_type_requires_a_function_type = &Message{code: 95204, category: CategoryError, key: "Intrinsic_type_requires_a_function_type_95204", text: "Intrinsic type requires a function type."}
+
 func keyToMessage(key Key) *Message {
 	switch key {
 	case "Unterminated_string_literal_1002":
@@ -4398,6 +4408,8 @@ func keyToMessage(key Key) *Message {
 		return Accessors_are_only_available_when_targeting_ECMAScript_5_and_higher
 	case "The_return_type_of_an_async_function_must_either_be_a_valid_promise_or_must_not_contain_a_callable_t_1058":
 		return The_return_type_of_an_async_function_must_either_be_a_valid_promise_or_must_not_contain_a_callable_then_member
+	case "Intrinsic_type_requires_a_function_type_95204":
+		return Intrinsic_type_requires_a_function_type
 	case "A_promise_must_have_a_then_method_1059":
 		return A_promise_must_have_a_then_method
 	case "The_first_parameter_of_the_then_method_of_a_promise_must_be_a_callback_1060":

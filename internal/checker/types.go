@@ -370,39 +370,39 @@ type TypeFlags uint32
 // conditional types should sort last as those types are potentially recursive and possibly infinite.
 
 const (
-	TypeFlagsNone            TypeFlags = 0
-	TypeFlagsAny             TypeFlags = 1 << 0
-	TypeFlagsUnknown         TypeFlags = 1 << 1
-	TypeFlagsUndefined       TypeFlags = 1 << 2
-	TypeFlagsNull            TypeFlags = 1 << 3
-	TypeFlagsVoid            TypeFlags = 1 << 4
-	TypeFlagsString          TypeFlags = 1 << 5
-	TypeFlagsNumber          TypeFlags = 1 << 6
-	TypeFlagsBigInt          TypeFlags = 1 << 7
-	TypeFlagsBoolean         TypeFlags = 1 << 8
-	TypeFlagsESSymbol        TypeFlags = 1 << 9 // Type of symbol primitive introduced in ES6
-	TypeFlagsStringLiteral   TypeFlags = 1 << 10
-	TypeFlagsNumberLiteral   TypeFlags = 1 << 11
-	TypeFlagsBigIntLiteral   TypeFlags = 1 << 12
-	TypeFlagsBooleanLiteral  TypeFlags = 1 << 13
-	TypeFlagsUniqueESSymbol  TypeFlags = 1 << 14 // unique symbol
-	TypeFlagsEnumLiteral     TypeFlags = 1 << 15 // Always combined with StringLiteral, NumberLiteral, or Union
-	TypeFlagsEnum            TypeFlags = 1 << 16 // Numeric computed enum member value (must be right after EnumLiteral, see getSortOrderFlags)
-	TypeFlagsNonPrimitive    TypeFlags = 1 << 17 // intrinsic object type
-	TypeFlagsNever           TypeFlags = 1 << 18 // Never type
-	TypeFlagsTypeParameter   TypeFlags = 1 << 19 // Type parameter
-	TypeFlagsObject          TypeFlags = 1 << 20 // Object type
-	TypeFlagsIndex           TypeFlags = 1 << 21 // keyof T
-	TypeFlagsTemplateLiteral TypeFlags = 1 << 22 // Template literal type
-	TypeFlagsStringMapping   TypeFlags = 1 << 23 // Uppercase/Lowercase type
-	TypeFlagsSubstitution    TypeFlags = 1 << 24 // Type parameter substitution
-	TypeFlagsIndexedAccess   TypeFlags = 1 << 25 // T[K]
-	TypeFlagsConditional     TypeFlags = 1 << 26 // T extends U ? X : Y
-	TypeFlagsUnion           TypeFlags = 1 << 27 // Union (T | U)
-	TypeFlagsIntersection    TypeFlags = 1 << 28 // Intersection (T & U)
-	TypeFlagsReserved1       TypeFlags = 1 << 29 // Used by union/intersection type construction
-	TypeFlagsReserved2       TypeFlags = 1 << 30 // Used by union/intersection type construction
-	TypeFlagsReserved3       TypeFlags = 1 << 31
+	TypeFlagsNone              TypeFlags = 0
+	TypeFlagsAny               TypeFlags = 1 << 0
+	TypeFlagsUnknown           TypeFlags = 1 << 1
+	TypeFlagsUndefined         TypeFlags = 1 << 2
+	TypeFlagsNull              TypeFlags = 1 << 3
+	TypeFlagsVoid              TypeFlags = 1 << 4
+	TypeFlagsString            TypeFlags = 1 << 5
+	TypeFlagsNumber            TypeFlags = 1 << 6
+	TypeFlagsBigInt            TypeFlags = 1 << 7
+	TypeFlagsBoolean           TypeFlags = 1 << 8
+	TypeFlagsESSymbol          TypeFlags = 1 << 9 // Type of symbol primitive introduced in ES6
+	TypeFlagsStringLiteral     TypeFlags = 1 << 10
+	TypeFlagsNumberLiteral     TypeFlags = 1 << 11
+	TypeFlagsBigIntLiteral     TypeFlags = 1 << 12
+	TypeFlagsBooleanLiteral    TypeFlags = 1 << 13
+	TypeFlagsUniqueESSymbol    TypeFlags = 1 << 14 // unique symbol
+	TypeFlagsEnumLiteral       TypeFlags = 1 << 15 // Always combined with StringLiteral, NumberLiteral, or Union
+	TypeFlagsEnum              TypeFlags = 1 << 16 // Numeric computed enum member value (must be right after EnumLiteral, see getSortOrderFlags)
+	TypeFlagsNonPrimitive      TypeFlags = 1 << 17 // intrinsic object type
+	TypeFlagsNever             TypeFlags = 1 << 18 // Never type
+	TypeFlagsTypeParameter     TypeFlags = 1 << 19 // Type parameter
+	TypeFlagsObject            TypeFlags = 1 << 20 // Object type
+	TypeFlagsIndex             TypeFlags = 1 << 21 // keyof T
+	TypeFlagsTemplateLiteral   TypeFlags = 1 << 22 // Template literal type
+	TypeFlagsStringMapping     TypeFlags = 1 << 23 // Uppercase/Lowercase type
+	TypeFlagsSubstitution      TypeFlags = 1 << 24 // Type parameter substitution
+	TypeFlagsIndexedAccess     TypeFlags = 1 << 25 // T[K]
+	TypeFlagsConditional       TypeFlags = 1 << 26 // T extends U ? X : Y
+	TypeFlagsUnion             TypeFlags = 1 << 27 // Union (T | U)
+	TypeFlagsIntersection      TypeFlags = 1 << 28 // Intersection (T & U)
+	TypeFlagsReserved1         TypeFlags = 1 << 29 // Used by union/intersection type construction
+	TypeFlagsReserved2         TypeFlags = 1 << 30 // Used by union/intersection type construction
+	TypeFlagsDeferredIntrinsic TypeFlags = 1 << 31 // Deferred custom intrinsic evaluation
 
 	TypeFlagsAnyOrUnknown                  = TypeFlagsAny | TypeFlagsUnknown
 	TypeFlagsNullable                      = TypeFlagsUndefined | TypeFlagsNull
@@ -428,7 +428,7 @@ const (
 	TypeFlagsStructuredType                = TypeFlagsObject | TypeFlagsUnion | TypeFlagsIntersection
 	TypeFlagsTypeVariable                  = TypeFlagsTypeParameter | TypeFlagsIndexedAccess
 	TypeFlagsInstantiableNonPrimitive      = TypeFlagsTypeVariable | TypeFlagsConditional | TypeFlagsSubstitution
-	TypeFlagsInstantiablePrimitive         = TypeFlagsIndex | TypeFlagsTemplateLiteral | TypeFlagsStringMapping
+	TypeFlagsInstantiablePrimitive         = TypeFlagsIndex | TypeFlagsTemplateLiteral | TypeFlagsStringMapping | TypeFlagsDeferredIntrinsic
 	TypeFlagsInstantiable                  = TypeFlagsInstantiableNonPrimitive | TypeFlagsInstantiablePrimitive
 	TypeFlagsStructuredOrInstantiable      = TypeFlagsStructuredType | TypeFlagsInstantiable
 	TypeFlagsObjectFlagsType               = TypeFlagsAny | TypeFlagsNullable | TypeFlagsNever | TypeFlagsObject | TypeFlagsUnion | TypeFlagsIntersection
@@ -574,8 +574,11 @@ func (t *Type) AsIndexType() *IndexType                     { return t.data.(*In
 func (t *Type) AsIndexedAccessType() *IndexedAccessType     { return t.data.(*IndexedAccessType) }
 func (t *Type) AsTemplateLiteralType() *TemplateLiteralType { return t.data.(*TemplateLiteralType) }
 func (t *Type) AsStringMappingType() *StringMappingType     { return t.data.(*StringMappingType) }
-func (t *Type) AsSubstitutionType() *SubstitutionType       { return t.data.(*SubstitutionType) }
-func (t *Type) AsConditionalType() *ConditionalType         { return t.data.(*ConditionalType) }
+func (t *Type) AsDeferredIntrinsicType() *DeferredIntrinsicType {
+	return t.data.(*DeferredIntrinsicType)
+}
+func (t *Type) AsSubstitutionType() *SubstitutionType { return t.data.(*SubstitutionType) }
+func (t *Type) AsConditionalType() *ConditionalType   { return t.data.(*ConditionalType) }
 
 // Casts for embedded struct types
 
@@ -1067,6 +1070,14 @@ type StringMappingType struct {
 }
 
 func (t *StringMappingType) Target() *Type { return t.target }
+
+// DeferredIntrinsicType represents an unevaluated Intrinsic<Fun, Args> with generic arguments.
+type DeferredIntrinsicType struct {
+	ConstrainedType
+	innerTypes []*Type
+}
+
+func (t *DeferredIntrinsicType) InnerTypes() []*Type { return t.innerTypes }
 
 type SubstitutionType struct {
 	ConstrainedType

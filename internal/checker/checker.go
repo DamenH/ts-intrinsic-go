@@ -353,6 +353,7 @@ const (
 	IntrinsicTypeKindCapitalize
 	IntrinsicTypeKindUncapitalize
 	IntrinsicTypeKindNoInfer
+	IntrinsicTypeKindIntrinsic // Custom Intrinsic<Fun, Args>
 )
 
 var intrinsicTypeKinds = map[string]IntrinsicTypeKind{
@@ -361,6 +362,7 @@ var intrinsicTypeKinds = map[string]IntrinsicTypeKind{
 	"Capitalize":   IntrinsicTypeKindCapitalize,
 	"Uncapitalize": IntrinsicTypeKindUncapitalize,
 	"NoInfer":      IntrinsicTypeKindNoInfer,
+	"Intrinsic":    IntrinsicTypeKindIntrinsic,
 }
 
 type MappedTypeModifiers uint32
@@ -617,6 +619,9 @@ type Checker struct {
 	indexedAccessTypes                          map[CacheHashKey]*Type
 	templateLiteralTypes                        map[CacheHashKey]*Type
 	stringMappingTypes                          map[StringMappingKey]*Type
+	deferredIntrinsicTypes                      map[CacheHashKey]*Type
+	intrinsicAstCache                           any // map[string]*intrinsicdsl.Node, typed in intrinsics.go
+	intrinsicResultCache                        map[string]*Type
 	uniqueESSymbolTypes                         map[*ast.Symbol]*Type
 	thisExpandoKinds                            map[*ast.Symbol]thisAssignmentDeclarationKind
 	thisExpandoLocations                        map[*ast.Symbol]*ast.Node
@@ -6681,7 +6686,7 @@ func (c *Checker) checkTypeAliasDeclaration(node *ast.Node) {
 	c.checkTypeParameters(typeParameters)
 	if typeNode != nil && typeNode.Kind == ast.KindIntrinsicKeyword {
 		if !(len(typeParameters) == 0 && node.Name().Text() == "BuiltinIteratorReturn" ||
-			len(typeParameters) == 1 && intrinsicTypeKinds[node.Name().Text()] != IntrinsicTypeKindUnknown) {
+			intrinsicTypeKinds[node.Name().Text()] != IntrinsicTypeKindUnknown) {
 			c.error(typeNode, diagnostics.The_intrinsic_keyword_can_only_be_used_to_declare_compiler_provided_intrinsic_types)
 		}
 		return
@@ -21802,6 +21807,14 @@ func (c *Checker) instantiateTypeWorker(t *Type, m *TypeMapper, alias *TypeAlias
 		return c.getTemplateLiteralType(t.AsTemplateLiteralType().texts, c.instantiateTypes(t.AsTemplateLiteralType().types, m))
 	case flags&TypeFlagsStringMapping != 0:
 		return c.getStringMappingType(t.symbol, c.instantiateType(t.AsStringMappingType().target, m))
+	case flags&TypeFlagsDeferredIntrinsic != 0:
+		d := t.AsDeferredIntrinsicType()
+		newTypes := c.instantiateTypes(d.innerTypes, m)
+		first := c.resolveIntrinsicArg(newTypes[0])
+		if len(newTypes) == 1 {
+			return c.getStringMappingType(t.symbol, first)
+		}
+		return c.applyCustomIntrinsic(t.symbol, newTypes[0], newTypes[1])
 	case flags&TypeFlagsConditional != 0:
 		return c.getConditionalTypeInstantiation(t, c.combineTypeMappers(t.AsConditionalType().mapper, m), false /*forConstraint*/, alias)
 	case flags&TypeFlagsSubstitution != 0:
@@ -23170,14 +23183,20 @@ func (c *Checker) getTypeFromTypeAliasReference(node *ast.Node, symbol *ast.Symb
 
 func (c *Checker) getTypeAliasInstantiation(symbol *ast.Symbol, typeArguments []*Type, alias *TypeAlias) *Type {
 	t := c.getDeclaredTypeOfSymbol(symbol)
-	if t == c.intrinsicMarkerType {
-		if typeKind, ok := intrinsicTypeKinds[symbol.Name]; ok && len(typeArguments) == 1 {
+	if t == c.intrinsicMarkerType && len(typeArguments) > 0 {
+		typeKind, ok := intrinsicTypeKinds[symbol.Name]
+		if ok && len(typeArguments) == 1 {
 			switch typeKind {
 			case IntrinsicTypeKindNoInfer:
 				return c.getNoInferType(typeArguments[0])
+			case IntrinsicTypeKindIntrinsic:
+				return c.resolveIntrinsicArg(typeArguments[0])
 			default:
 				return c.getStringMappingType(symbol, typeArguments[0])
 			}
+		}
+		if ok && typeKind == IntrinsicTypeKindIntrinsic && len(typeArguments) == 2 {
+			return c.applyCustomIntrinsic(symbol, typeArguments[0], typeArguments[1])
 		}
 	}
 	links := c.typeAliasLinks.Get(symbol)
@@ -26878,7 +26897,7 @@ func (c *Checker) getBaseConstraintOrType(t *Type) *Type {
 }
 
 func (c *Checker) getBaseConstraintOfType(t *Type) *Type {
-	if t.flags&(TypeFlagsInstantiableNonPrimitive|TypeFlagsUnionOrIntersection|TypeFlagsTemplateLiteral|TypeFlagsStringMapping|TypeFlagsIndex) != 0 || c.isGenericTupleType(t) {
+	if t.flags&(TypeFlagsInstantiableNonPrimitive|TypeFlagsUnionOrIntersection|TypeFlagsTemplateLiteral|TypeFlagsStringMapping|TypeFlagsDeferredIntrinsic|TypeFlagsIndex) != 0 || c.isGenericTupleType(t) {
 		constraint := c.getResolvedBaseConstraint(t, nil)
 		if constraint != c.noConstraintType && constraint != c.circularConstraintType {
 			return constraint
@@ -26991,6 +27010,21 @@ func (c *Checker) computeBaseConstraint(t *Type, stack []RecursionId) *Type {
 			return c.getStringMappingType(t.symbol, constraint)
 		}
 		return c.stringType
+	case t.flags&TypeFlagsDeferredIntrinsic != 0:
+		d := t.AsDeferredIntrinsicType()
+		constraints := make([]*Type, len(d.innerTypes))
+		for i, inner := range d.innerTypes {
+			ct := c.getNextBaseConstraint(inner, stack)
+			if ct == nil {
+				return nil
+			}
+			constraints[i] = ct
+		}
+		first := c.resolveIntrinsicArg(constraints[0])
+		if len(constraints) == 1 {
+			return c.getStringMappingType(t.symbol, first)
+		}
+		return c.applyCustomIntrinsic(t.symbol, constraints[0], constraints[1])
 	case t.flags&TypeFlagsIndexedAccess != 0:
 		if c.isMappedTypeGenericIndexedAccess(t) {
 			// For indexed access types of the form { [P in K]: E }[X], where K is non-generic and X is generic,

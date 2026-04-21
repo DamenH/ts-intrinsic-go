@@ -287,6 +287,63 @@ export const cleanBuilt = task({
     run: () => rimraf("built"),
 });
 
+const playgroundDir = path.join(__dirname, "playground");
+const playgroundPublicDir = path.join(playgroundDir, "public");
+const playgroundWasmOut = path.join(playgroundPublicDir, "tsgo.wasm");
+const playgroundWasmExecOut = path.join(playgroundDir, "src", "wasm-exec.js");
+
+export const playgroundWasm = task({
+    name: "playground:wasm",
+    description: "Builds tsgo.wasm into playground/public/ and syncs wasm_exec.js into playground/src/.",
+    run: async () => {
+        await fs.promises.mkdir(playgroundPublicDir, { recursive: true });
+
+        // Build wasm with embedded libs (no `noembed` tag) so the compiler
+        // can find lib.*.d.ts with no runtime filesystem dependency.
+        const env = {
+            ...process.env,
+            GOOS: "js",
+            GOARCH: "wasm",
+            CGO_ENABLED: "0",
+        };
+        await $({ env })`go build ${getReleaseBuildFlags()} -o ${playgroundWasmOut} ./cmd/tsgo`;
+
+        // Pull wasm_exec.js from the Go toolchain that just built the wasm,
+        // so the JS glue matches the runtime it's driving. The source file
+        // in the toolchain module cache is read-only, so we rm the dest
+        // (previous copy inherited those perms) and rewrite.
+        const { stdout: goroot } = await _$`go env GOROOT`;
+        const src = path.join(goroot.trim(), "lib", "wasm", "wasm_exec.js");
+        const content = await fs.promises.readFile(src);
+        await fs.promises.rm(playgroundWasmExecOut, { force: true });
+        await fs.promises.writeFile(playgroundWasmExecOut, content, { mode: 0o644 });
+
+        const { size } = await fs.promises.stat(playgroundWasmOut);
+        console.log(pc.green(`playground:wasm: wrote ${path.relative(__dirname, playgroundWasmOut)} (${(size / 1024 / 1024).toFixed(1)} MB)`));
+    },
+});
+
+export const playgroundBuild = task({
+    name: "playground:build",
+    description: "Produces a static deployable build of the playground in playground/dist.",
+    dependencies: [playgroundWasm],
+    run: async () => {
+        await $({ cwd: playgroundDir })`pnpm install --frozen-lockfile=false`;
+        await $({ cwd: playgroundDir })`pnpm run build`;
+        console.log(pc.green(`playground:build: wrote ${path.relative(__dirname, path.join(playgroundDir, "dist"))}`));
+    },
+});
+
+export const playgroundDev = task({
+    name: "playground:dev",
+    description: "Builds tsgo.wasm and starts the playground dev server.",
+    dependencies: [playgroundWasm],
+    run: async () => {
+        await $({ cwd: playgroundDir, stdio: "inherit" })`pnpm install --frozen-lockfile=false`;
+        await $({ cwd: playgroundDir, stdio: "inherit" })`pnpm run dev`;
+    },
+});
+
 export const generate = task({
     name: "generate",
     description: "Runs go generate on the project.",

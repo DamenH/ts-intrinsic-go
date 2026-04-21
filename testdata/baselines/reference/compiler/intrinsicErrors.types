@@ -1,0 +1,183 @@
+//// [tests/cases/compiler/intrinsic/intrinsicErrors.ts] ////
+
+=== intrinsicErrors.ts ===
+const NeverType = Symbol.for("tsi.never") as any;
+>NeverType : any
+>Symbol.for("tsi.never") as any : any
+>Symbol.for("tsi.never") : symbol
+>Symbol.for : (key: string) => symbol
+>Symbol : SymbolConstructor
+>for : (key: string) => symbol
+>"tsi.never" : "tsi.never"
+
+// switch: not supported
+const withSwitch = (x: any) => {
+>withSwitch : (x: any) => any
+>(x: any) => {    switch (typeof x) {        case 'string': return x;        default: return NeverType;    }} : (x: any) => any
+>x : any
+
+    switch (typeof x) {
+>typeof x : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>x : any
+
+        case 'string': return x;
+>'string' : "string"
+>x : string
+
+        default: return NeverType;
+>NeverType : any
+    }
+};
+type E1 = Intrinsic<typeof withSwitch, ["hello"]>;
+>E1 : any
+>withSwitch : (x: any) => any
+
+// const (only let is supported)
+const withConst = (x: number) => {
+>withConst : (x: number) => number
+>(x: number) => {    const y = x + 1;    return y;} : (x: number) => number
+>x : number
+
+    const y = x + 1;
+>y : number
+>x + 1 : number
+>x : number
+>1 : 1
+
+    return y;
+>y : number
+
+};
+type E2 = Intrinsic<typeof withConst, [5]>;
+>E2 : any
+>withConst : (x: number) => number
+
+// optional chaining: not supported
+const withOptional = (x: any) => x?.name;
+>withOptional : (x: any) => any
+>(x: any) => x?.name : (x: any) => any
+>x : any
+>x?.name : any
+>x : any
+>name : any
+
+type E3 = Intrinsic<typeof withOptional, [{ name: "Alice" }]>;
+>E3 : any
+>withOptional : (x: any) => any
+>name : "Alice"
+
+// destructured params: not supported
+const withDestructure = ({name, age}: {name: string, age: number}) => name;
+>withDestructure : ({ name, age }: { name: string; age: number; }) => string
+>({name, age}: {name: string, age: number}) => name : ({ name, age }: { name: string; age: number; }) => string
+>name : string
+>age : number
+>name : string
+>age : number
+>name : string
+
+type E4 = Intrinsic<typeof withDestructure, [{ name: "Alice", age: 30 }]>;
+>E4 : any
+>withDestructure : ({ name, age }: { name: string; age: number; }) => string
+>name : "Alice"
+>age : 30
+
+// === (only == is supported)
+const withStrict = (x: any) => x === 'hello' ? x : NeverType;
+>withStrict : (x: any) => any
+>(x: any) => x === 'hello' ? x : NeverType : (x: any) => any
+>x : any
+>x === 'hello' ? x : NeverType : any
+>x === 'hello' : boolean
+>x : any
+>'hello' : "hello"
+>x : any
+>NeverType : any
+
+type E5 = Intrinsic<typeof withStrict, ["hello"]>;
+>E5 : any
+>withStrict : (x: any) => any
+
+// nullish coalescing: not supported
+const withNullish = (x: any) => x ?? 'default';
+>withNullish : (x: any) => any
+>(x: any) => x ?? 'default' : (x: any) => any
+>x : any
+>x ?? 'default' : any
+>x : any
+>'default' : "default"
+
+type E6 = Intrinsic<typeof withNullish, [null]>;
+>E6 : any
+>withNullish : (x: any) => any
+
+// template literal: not supported
+const withTemplate = (name: string) => `hello ${name}`;
+>withTemplate : (name: string) => string
+>(name: string) => `hello ${name}` : (name: string) => string
+>name : string
+>`hello ${name}` : string
+>name : string
+
+type E7 = Intrinsic<typeof withTemplate, ["world"]>;
+>E7 : "hello ${name}"
+>withTemplate : (name: string) => string
+
+// string form is not supported
+type E8 = Intrinsic<"not valid dsl at all", [42]>;
+>E8 : any
+
+// runtime error: division by zero produces Infinity, not an error
+const divByZero = (n: number) => n / 0;
+>divByZero : (n: number) => number
+>(n: number) => n / 0 : (n: number) => number
+>n : number
+>n / 0 : number
+>n : number
+>0 : 0
+
+type E9 = Intrinsic<typeof divByZero, [42]>;
+>E9 : Infinity
+>divByZero : (n: number) => number
+
+// runtime error: property access on number
+const badAccess = (n: any) => n.foo;
+>badAccess : (n: any) => any
+>(n: any) => n.foo : (n: any) => any
+>n : any
+>n.foo : any
+>n : any
+>foo : any
+
+type E10 = Intrinsic<typeof badAccess, [42]>;
+>E10 : any
+>badAccess : (n: any) => any
+
+// budget exceeded: infinite loop
+const infinite = (n: number) => {
+>infinite : (n: number) => number
+>(n: number) => {    let i: number = 0;    while (i < n) { i = i + 1; }    return i;} : (n: number) => number
+>n : number
+
+    let i: number = 0;
+>i : number
+>0 : 0
+
+    while (i < n) { i = i + 1; }
+>i < n : boolean
+>i : number
+>n : number
+>i = i + 1 : number
+>i : number
+>i + 1 : number
+>i : number
+>1 : 1
+
+    return i;
+>i : number
+
+};
+type E11 = Intrinsic<typeof infinite, [100000]>;
+>E11 : any
+>infinite : (n: number) => number
+

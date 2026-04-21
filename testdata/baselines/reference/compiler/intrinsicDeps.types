@@ -1,0 +1,409 @@
+//// [tests/cases/compiler/intrinsic/intrinsicDeps.ts] ////
+
+=== intrinsicDeps.ts ===
+// Same-file dependency resolution for intrinsic functions.
+
+const double = (n: number) => n * 2;
+>double : (n: number) => number
+>(n: number) => n * 2 : (n: number) => number
+>n : number
+>n * 2 : number
+>n : number
+>2 : 2
+
+const useDouble = (x: number) => double(x) + 1;
+>useDouble : (x: number) => number
+>(x: number) => double(x) + 1 : (x: number) => number
+>x : number
+>double(x) + 1 : number
+>double(x) : number
+>double : (n: number) => number
+>x : number
+>1 : 1
+
+type D1 = Intrinsic<typeof useDouble, [5]>;  // 11
+>D1 : 11
+>useDouble : (x: number) => number
+
+// Transitive: add4 -> add2 -> add1
+const add1 = (n: number) => n + 1;
+>add1 : (n: number) => number
+>(n: number) => n + 1 : (n: number) => number
+>n : number
+>n + 1 : number
+>n : number
+>1 : 1
+
+const add2 = (n: number) => add1(add1(n));
+>add2 : (n: number) => number
+>(n: number) => add1(add1(n)) : (n: number) => number
+>n : number
+>add1(add1(n)) : number
+>add1 : (n: number) => number
+>add1(n) : number
+>add1 : (n: number) => number
+>n : number
+
+const add4 = (n: number) => add2(add2(n));
+>add4 : (n: number) => number
+>(n: number) => add2(add2(n)) : (n: number) => number
+>n : number
+>add2(add2(n)) : number
+>add2 : (n: number) => number
+>add2(n) : number
+>add2 : (n: number) => number
+>n : number
+
+type D2 = Intrinsic<typeof add4, [10]>;  // 14
+>D2 : 14
+>add4 : (n: number) => number
+
+// Shared helper
+const normalize = (s: string) => s.trim().toLowerCase();
+>normalize : (s: string) => string
+>(s: string) => s.trim().toLowerCase() : (s: string) => string
+>s : string
+>s.trim().toLowerCase() : string
+>s.trim().toLowerCase : () => string
+>s.trim() : string
+>s.trim : () => string
+>s : string
+>trim : () => string
+>toLowerCase : () => string
+
+const greet = (name: string) => "hello " + normalize(name);
+>greet : (name: string) => string
+>(name: string) => "hello " + normalize(name) : (name: string) => string
+>name : string
+>"hello " + normalize(name) : string
+>"hello " : "hello "
+>normalize(name) : string
+>normalize : (s: string) => string
+>name : string
+
+type D3 = Intrinsic<typeof greet, ["  World  "]>;  // "hello world"
+>D3 : "hello world"
+>greet : (name: string) => string
+
+const shout = (name: string) => normalize(name).toUpperCase();
+>shout : (name: string) => string
+>(name: string) => normalize(name).toUpperCase() : (name: string) => string
+>name : string
+>normalize(name).toUpperCase() : string
+>normalize(name).toUpperCase : () => string
+>normalize(name) : string
+>normalize : (s: string) => string
+>name : string
+>toUpperCase : () => string
+
+type D4 = Intrinsic<typeof shout, ["  World  "]>;  // "WORLD"
+>D4 : "WORLD"
+>shout : (name: string) => string
+
+// Const value dependency
+const PREFIX = "test_";
+>PREFIX : "test_"
+>"test_" : "test_"
+
+const withPrefix = (s: string) => PREFIX + s;
+>withPrefix : (s: string) => string
+>(s: string) => PREFIX + s : (s: string) => string
+>s : string
+>PREFIX + s : string
+>PREFIX : "test_"
+>s : string
+
+type D5 = Intrinsic<typeof withPrefix, ["hello"]>;  // "test_hello"
+>D5 : "test_hello"
+>withPrefix : (s: string) => string
+
+// Multiple helpers
+const square = (n: number) => n * n;
+>square : (n: number) => number
+>(n: number) => n * n : (n: number) => number
+>n : number
+>n * n : number
+>n : number
+>n : number
+
+const negate = (n: number) => 0 - n;
+>negate : (n: number) => number
+>(n: number) => 0 - n : (n: number) => number
+>n : number
+>0 - n : number
+>0 : 0
+>n : number
+
+const negSquare = (x: number) => negate(square(x));
+>negSquare : (x: number) => number
+>(x: number) => negate(square(x)) : (x: number) => number
+>x : number
+>negate(square(x)) : number
+>negate : (n: number) => number
+>square(x) : number
+>square : (n: number) => number
+>x : number
+
+type D6 = Intrinsic<typeof negSquare, [3]>;  // -9
+>D6 : -9
+>negSquare : (x: number) => number
+
+// Helper referenced inside a closure
+const isEven = (n: number) => n % 2 == 0;
+>isEven : (n: number) => boolean
+>(n: number) => n % 2 == 0 : (n: number) => boolean
+>n : number
+>n % 2 == 0 : boolean
+>n % 2 : number
+>n : number
+>2 : 2
+>0 : 0
+
+const filterEvens = (arr: number[]) => arr.filter((x: number) => isEven(x));
+>filterEvens : (arr: number[]) => number[]
+>(arr: number[]) => arr.filter((x: number) => isEven(x)) : (arr: number[]) => number[]
+>arr : number[]
+>arr.filter((x: number) => isEven(x)) : number[]
+>arr.filter : { <S extends number>(predicate: (value: number, index: number, array: number[]) => value is S, thisArg?: any): S[]; (predicate: (value: number, index: number, array: number[]) => unknown, thisArg?: any): number[]; }
+>arr : number[]
+>filter : { <S extends number>(predicate: (value: number, index: number, array: number[]) => value is S, thisArg?: any): S[]; (predicate: (value: number, index: number, array: number[]) => unknown, thisArg?: any): number[]; }
+>(x: number) => isEven(x) : (x: number) => boolean
+>x : number
+>isEven(x) : boolean
+>isEven : (n: number) => boolean
+>x : number
+
+type D7 = Intrinsic<typeof filterEvens, [[1, 2, 3, 4, 5, 6]]>;  // [2, 4, 6]
+>D7 : [2, 4, 6]
+>filterEvens : (arr: number[]) => number[]
+
+// Object return
+const makePoint = (x: number, y: number) => {
+>makePoint : (x: number, y: number) => Record<string, any>
+>(x: number, y: number) => {    let result: Record<string, any> = {};    result["x"] = x;    result["y"] = y;    return result;} : (x: number, y: number) => Record<string, any>
+>x : number
+>y : number
+
+    let result: Record<string, any> = {};
+>result : Record<string, any>
+>{} : {}
+
+    result["x"] = x;
+>result["x"] = x : number
+>result["x"] : any
+>result : Record<string, any>
+>"x" : "x"
+>x : number
+
+    result["y"] = y;
+>result["y"] = y : number
+>result["y"] : any
+>result : Record<string, any>
+>"y" : "y"
+>y : number
+
+    return result;
+>result : Record<string, any>
+
+};
+const shiftPoint = (x: number, y: number, dx: number, dy: number) => makePoint(x + dx, y + dy);
+>shiftPoint : (x: number, y: number, dx: number, dy: number) => Record<string, any>
+>(x: number, y: number, dx: number, dy: number) => makePoint(x + dx, y + dy) : (x: number, y: number, dx: number, dy: number) => Record<string, any>
+>x : number
+>y : number
+>dx : number
+>dy : number
+>makePoint(x + dx, y + dy) : Record<string, any>
+>makePoint : (x: number, y: number) => Record<string, any>
+>x + dx : number
+>x : number
+>dx : number
+>y + dy : number
+>y : number
+>dy : number
+
+type D8 = Intrinsic<typeof shiftPoint, [1, 2, 10, 20]>;  // { x: 11, y: 22 }
+>D8 : { x: 11; y: 22; }
+>shiftPoint : (x: number, y: number, dx: number, dy: number) => Record<string, any>
+
+// Diamond: combined -> doubleInc -> inc, combined -> tripleInc -> inc
+const inc = (n: number) => n + 1;
+>inc : (n: number) => number
+>(n: number) => n + 1 : (n: number) => number
+>n : number
+>n + 1 : number
+>n : number
+>1 : 1
+
+const doubleInc = (n: number) => inc(n) * 2;
+>doubleInc : (n: number) => number
+>(n: number) => inc(n) * 2 : (n: number) => number
+>n : number
+>inc(n) * 2 : number
+>inc(n) : number
+>inc : (n: number) => number
+>n : number
+>2 : 2
+
+const tripleInc = (n: number) => inc(n) * 3;
+>tripleInc : (n: number) => number
+>(n: number) => inc(n) * 3 : (n: number) => number
+>n : number
+>inc(n) * 3 : number
+>inc(n) : number
+>inc : (n: number) => number
+>n : number
+>3 : 3
+
+const combined = (n: number) => doubleInc(n) + tripleInc(n);
+>combined : (n: number) => number
+>(n: number) => doubleInc(n) + tripleInc(n) : (n: number) => number
+>n : number
+>doubleInc(n) + tripleInc(n) : number
+>doubleInc(n) : number
+>doubleInc : (n: number) => number
+>n : number
+>tripleInc(n) : number
+>tripleInc : (n: number) => number
+>n : number
+
+type D9 = Intrinsic<typeof combined, [4]>;  // 10 + 15 = 25
+>D9 : 25
+>combined : (n: number) => number
+
+// Helper calling helper
+const capitalize = (s: string) => {
+>capitalize : (s: string) => string
+>(s: string) => {    if (s.length == 0) return s;    return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();} : (s: string) => string
+>s : string
+
+    if (s.length == 0) return s;
+>s.length == 0 : boolean
+>s.length : number
+>s : string
+>length : number
+>0 : 0
+>s : string
+
+    return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+>s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : string
+>s.charAt(0).toUpperCase() : string
+>s.charAt(0).toUpperCase : () => string
+>s.charAt(0) : string
+>s.charAt : (pos: number) => string
+>s : string
+>charAt : (pos: number) => string
+>0 : 0
+>toUpperCase : () => string
+>s.slice(1).toLowerCase() : string
+>s.slice(1).toLowerCase : () => string
+>s.slice(1) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>1 : 1
+>toLowerCase : () => string
+
+};
+const titleCase = (s: string) => s.split(" ").map((w: string) => capitalize(w)).join(" ");
+>titleCase : (s: string) => string
+>(s: string) => s.split(" ").map((w: string) => capitalize(w)).join(" ") : (s: string) => string
+>s : string
+>s.split(" ").map((w: string) => capitalize(w)).join(" ") : string
+>s.split(" ").map((w: string) => capitalize(w)).join : (separator?: string) => string
+>s.split(" ").map((w: string) => capitalize(w)) : string[]
+>s.split(" ").map : <U>(callbackfn: (value: string, index: number, array: string[]) => U, thisArg?: any) => U[]
+>s.split(" ") : string[]
+>s.split : { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }
+>s : string
+>split : { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }
+>" " : " "
+>map : <U>(callbackfn: (value: string, index: number, array: string[]) => U, thisArg?: any) => U[]
+>(w: string) => capitalize(w) : (w: string) => string
+>w : string
+>capitalize(w) : string
+>capitalize : (s: string) => string
+>w : string
+>join : (separator?: string) => string
+>" " : " "
+
+type D10 = Intrinsic<typeof titleCase, ["hello world foo"]>;  // "Hello World Foo"
+>D10 : "Hello World Foo"
+>titleCase : (s: string) => string
+
+// Comments in function bodies
+const withLineComments = (n: number) => {
+>withLineComments : (n: number) => number
+>(n: number) => {    // double it    let x: number = n * 2;    // then add one    return x + 1;} : (n: number) => number
+>n : number
+
+    // double it
+    let x: number = n * 2;
+>x : number
+>n * 2 : number
+>n : number
+>2 : 2
+
+    // then add one
+    return x + 1;
+>x + 1 : number
+>x : number
+>1 : 1
+
+};
+type D11 = Intrinsic<typeof withLineComments, [5]>;  // 11
+>D11 : 11
+>withLineComments : (n: number) => number
+
+const withBlockComments = (n: number) => {
+>withBlockComments : (n: number) => number
+>(n: number) => {    let x: number = n /* input */ + 1;    /* square */    return x * x;} : (n: number) => number
+>n : number
+
+    let x: number = n /* input */ + 1;
+>x : number
+>n /* input */ + 1 : number
+>n : number
+>1 : 1
+
+    /* square */
+    return x * x;
+>x * x : number
+>x : number
+>x : number
+
+};
+type D12 = Intrinsic<typeof withBlockComments, [3]>;  // 16
+>D12 : 16
+>withBlockComments : (n: number) => number
+
+const commented_helper = (s: string) => {
+>commented_helper : (s: string) => string
+>(s: string) => {    // trim and lowercase    return s.trim().toLowerCase();} : (s: string) => string
+>s : string
+
+    // trim and lowercase
+    return s.trim().toLowerCase();
+>s.trim().toLowerCase() : string
+>s.trim().toLowerCase : () => string
+>s.trim() : string
+>s.trim : () => string
+>s : string
+>trim : () => string
+>toLowerCase : () => string
+
+};
+const use_commented = (s: string) => commented_helper(s) + "!";
+>use_commented : (s: string) => string
+>(s: string) => commented_helper(s) + "!" : (s: string) => string
+>s : string
+>commented_helper(s) + "!" : string
+>commented_helper(s) : string
+>commented_helper : (s: string) => string
+>s : string
+>"!" : "!"
+
+type D13 = Intrinsic<typeof use_commented, ["  HI  "]>;  // "hi!"
+>D13 : "hi!"
+>use_commented : (s: string) => string
+

@@ -1,0 +1,423 @@
+//// [tests/cases/compiler/intrinsic/comparison.ts] ////
+
+=== comparison.ts ===
+// Side-by-side: conditional types vs Intrinsic for the same problems.
+
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+>capitalize : Symbol(capitalize, Decl(comparison.ts, 2, 5))
+>s : Symbol(s, Decl(comparison.ts, 2, 20))
+>s.charAt(0).toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>s.charAt : Symbol(String.charAt, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(comparison.ts, 2, 20))
+>charAt : Symbol(String.charAt, Decl(lib.es5.d.ts, --, --))
+>toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(comparison.ts, 2, 20))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+
+function range(startOrEnd: number, end?: number): number[] {
+>range : Symbol(range, Decl(comparison.ts, 2, 73))
+>startOrEnd : Symbol(startOrEnd, Decl(comparison.ts, 3, 15))
+>end : Symbol(end, Decl(comparison.ts, 3, 34))
+
+    const s = end === undefined ? 0 : startOrEnd;
+>s : Symbol(s, Decl(comparison.ts, 4, 9))
+>end : Symbol(end, Decl(comparison.ts, 3, 34))
+>undefined : Symbol(undefined)
+>startOrEnd : Symbol(startOrEnd, Decl(comparison.ts, 3, 15))
+
+    const e = end === undefined ? startOrEnd : end;
+>e : Symbol(e, Decl(comparison.ts, 5, 9))
+>end : Symbol(end, Decl(comparison.ts, 3, 34))
+>undefined : Symbol(undefined)
+>startOrEnd : Symbol(startOrEnd, Decl(comparison.ts, 3, 15))
+>end : Symbol(end, Decl(comparison.ts, 3, 34))
+
+    return Array.from({ length: Math.max(e - s, 0) }, (_, i) => s + i);
+>Array.from : Symbol(ArrayConstructor.from, Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.iterable.d.ts, --, --), Decl(lib.es2015.iterable.d.ts, --, --))
+>Array : Symbol(Array, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.iterable.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --) ... and 4 more)
+>from : Symbol(ArrayConstructor.from, Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.iterable.d.ts, --, --), Decl(lib.es2015.iterable.d.ts, --, --))
+>length : Symbol(length, Decl(comparison.ts, 6, 23))
+>Math.max : Symbol(Math.max, Decl(lib.es5.d.ts, --, --))
+>Math : Symbol(Math, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --), Decl(lib.es2025.float16.d.ts, --, --))
+>max : Symbol(Math.max, Decl(lib.es5.d.ts, --, --))
+>e : Symbol(e, Decl(comparison.ts, 5, 9))
+>s : Symbol(s, Decl(comparison.ts, 4, 9))
+>_ : Symbol(_, Decl(comparison.ts, 6, 55))
+>i : Symbol(i, Decl(comparison.ts, 6, 57))
+>s : Symbol(s, Decl(comparison.ts, 4, 9))
+>i : Symbol(i, Decl(comparison.ts, 6, 57))
+}
+
+// --- CamelCase: conditional types hit recursion limits ---
+
+type CamelCaseCond<S extends string> =
+>CamelCaseCond : Symbol(CamelCaseCond, Decl(comparison.ts, 7, 1))
+>S : Symbol(S, Decl(comparison.ts, 11, 19))
+
+    S extends `${infer F}_${infer R}`
+>S : Symbol(S, Decl(comparison.ts, 11, 19))
+>F : Symbol(F, Decl(comparison.ts, 12, 22))
+>R : Symbol(R, Decl(comparison.ts, 12, 33))
+
+        ? `${F}${Capitalize<CamelCaseCond<R>>}`
+>F : Symbol(F, Decl(comparison.ts, 12, 22))
+>Capitalize : Symbol(Capitalize, Decl(lib.es5.d.ts, --, --))
+>CamelCaseCond : Symbol(CamelCaseCond, Decl(comparison.ts, 7, 1))
+>R : Symbol(R, Decl(comparison.ts, 12, 33))
+
+        : S;
+>S : Symbol(S, Decl(comparison.ts, 11, 19))
+
+type CC1 = CamelCaseCond<"user_name">;
+>CC1 : Symbol(CC1, Decl(comparison.ts, 14, 12))
+>CamelCaseCond : Symbol(CamelCaseCond, Decl(comparison.ts, 7, 1))
+
+type CC2 = CamelCaseCond<"get_all_items">;
+>CC2 : Symbol(CC2, Decl(comparison.ts, 16, 38))
+>CamelCaseCond : Symbol(CamelCaseCond, Decl(comparison.ts, 7, 1))
+
+const toCamel = (s: string) => {
+>toCamel : Symbol(toCamel, Decl(comparison.ts, 19, 5))
+>s : Symbol(s, Decl(comparison.ts, 19, 17))
+
+    let [first, ...rest] = s.split('_');
+>first : Symbol(first, Decl(comparison.ts, 20, 9))
+>rest : Symbol(rest, Decl(comparison.ts, 20, 15))
+>s.split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+>s : Symbol(s, Decl(comparison.ts, 19, 17))
+>split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+
+    return first + rest.map((p: string) => p.charAt(0).toUpperCase() + p.slice(1)).join('');
+>first : Symbol(first, Decl(comparison.ts, 20, 9))
+>rest.map((p: string) => p.charAt(0).toUpperCase() + p.slice(1)).join : Symbol(Array.join, Decl(lib.es5.d.ts, --, --))
+>rest.map : Symbol(Array.map, Decl(lib.es5.d.ts, --, --))
+>rest : Symbol(rest, Decl(comparison.ts, 20, 15))
+>map : Symbol(Array.map, Decl(lib.es5.d.ts, --, --))
+>p : Symbol(p, Decl(comparison.ts, 21, 29))
+>p.charAt(0).toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>p.charAt : Symbol(String.charAt, Decl(lib.es5.d.ts, --, --))
+>p : Symbol(p, Decl(comparison.ts, 21, 29))
+>charAt : Symbol(String.charAt, Decl(lib.es5.d.ts, --, --))
+>toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>p.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>p : Symbol(p, Decl(comparison.ts, 21, 29))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>join : Symbol(Array.join, Decl(lib.es5.d.ts, --, --))
+
+};
+type CamelCaseI<S extends string> = Intrinsic<typeof toCamel, [S]>;
+>CamelCaseI : Symbol(CamelCaseI, Decl(comparison.ts, 22, 2))
+>S : Symbol(S, Decl(comparison.ts, 23, 16))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>toCamel : Symbol(toCamel, Decl(comparison.ts, 19, 5))
+>S : Symbol(S, Decl(comparison.ts, 23, 16))
+
+type CI1 = CamelCaseI<"user_name">;
+>CI1 : Symbol(CI1, Decl(comparison.ts, 23, 67))
+>CamelCaseI : Symbol(CamelCaseI, Decl(comparison.ts, 22, 2))
+
+type CI2 = CamelCaseI<"get_all_items">;
+>CI2 : Symbol(CI2, Decl(comparison.ts, 25, 35))
+>CamelCaseI : Symbol(CamelCaseI, Decl(comparison.ts, 22, 2))
+
+// Would hit TS2589 with conditional types at 35+ segments
+type CI3 = CamelCaseI<"a_b_c_d_e_f_g_h_i_j_k_l_m_n_o_p_q_r_s_t_u_v_w_x_y_z_a_b_c_d_e_f_g_h_i_j_k_l_m_n_o">;
+>CI3 : Symbol(CI3, Decl(comparison.ts, 26, 39))
+>CamelCaseI : Symbol(CamelCaseI, Decl(comparison.ts, 22, 2))
+
+
+// --- String length: not possible with conditional types ---
+
+const strLen = (s: string) => s.length;
+>strLen : Symbol(strLen, Decl(comparison.ts, 33, 5))
+>s : Symbol(s, Decl(comparison.ts, 33, 16))
+>s.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(comparison.ts, 33, 16))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+type StringLength<S extends string> = Intrinsic<typeof strLen, [S]>;
+>StringLength : Symbol(StringLength, Decl(comparison.ts, 33, 39))
+>S : Symbol(S, Decl(comparison.ts, 34, 18))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>strLen : Symbol(strLen, Decl(comparison.ts, 33, 5))
+>S : Symbol(S, Decl(comparison.ts, 34, 18))
+
+type L1 = StringLength<"hello">;                   // 5
+>L1 : Symbol(L1, Decl(comparison.ts, 34, 68))
+>StringLength : Symbol(StringLength, Decl(comparison.ts, 33, 39))
+
+type L2 = StringLength<"">;                        // 0
+>L2 : Symbol(L2, Decl(comparison.ts, 36, 32))
+>StringLength : Symbol(StringLength, Decl(comparison.ts, 33, 39))
+
+type L3 = StringLength<"a longer string to measure">;  // 26
+>L3 : Symbol(L3, Decl(comparison.ts, 37, 27))
+>StringLength : Symbol(StringLength, Decl(comparison.ts, 33, 39))
+
+
+// --- Numeric arithmetic ---
+
+const add = (a: number, b: number) => a + b;
+>add : Symbol(add, Decl(comparison.ts, 43, 5))
+>a : Symbol(a, Decl(comparison.ts, 43, 13))
+>b : Symbol(b, Decl(comparison.ts, 43, 23))
+>a : Symbol(a, Decl(comparison.ts, 43, 13))
+>b : Symbol(b, Decl(comparison.ts, 43, 23))
+
+const clamp = (n: number, lo: number, hi: number) => Math.min(Math.max(n, lo), hi);
+>clamp : Symbol(clamp, Decl(comparison.ts, 44, 5))
+>n : Symbol(n, Decl(comparison.ts, 44, 15))
+>lo : Symbol(lo, Decl(comparison.ts, 44, 25))
+>hi : Symbol(hi, Decl(comparison.ts, 44, 37))
+>Math.min : Symbol(Math.min, Decl(lib.es5.d.ts, --, --))
+>Math : Symbol(Math, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --), Decl(lib.es2025.float16.d.ts, --, --))
+>min : Symbol(Math.min, Decl(lib.es5.d.ts, --, --))
+>Math.max : Symbol(Math.max, Decl(lib.es5.d.ts, --, --))
+>Math : Symbol(Math, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --), Decl(lib.es2025.float16.d.ts, --, --))
+>max : Symbol(Math.max, Decl(lib.es5.d.ts, --, --))
+>n : Symbol(n, Decl(comparison.ts, 44, 15))
+>lo : Symbol(lo, Decl(comparison.ts, 44, 25))
+>hi : Symbol(hi, Decl(comparison.ts, 44, 37))
+
+type Add<A extends number, B extends number> = Intrinsic<typeof add, [A, B]>;
+>Add : Symbol(Add, Decl(comparison.ts, 44, 83))
+>A : Symbol(A, Decl(comparison.ts, 46, 9))
+>B : Symbol(B, Decl(comparison.ts, 46, 26))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>add : Symbol(add, Decl(comparison.ts, 43, 5))
+>A : Symbol(A, Decl(comparison.ts, 46, 9))
+>B : Symbol(B, Decl(comparison.ts, 46, 26))
+
+type Clamp<N extends number, Lo extends number, Hi extends number> = Intrinsic<typeof clamp, [N, Lo, Hi]>;
+>Clamp : Symbol(Clamp, Decl(comparison.ts, 46, 77))
+>N : Symbol(N, Decl(comparison.ts, 47, 11))
+>Lo : Symbol(Lo, Decl(comparison.ts, 47, 28))
+>Hi : Symbol(Hi, Decl(comparison.ts, 47, 47))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>clamp : Symbol(clamp, Decl(comparison.ts, 44, 5))
+>N : Symbol(N, Decl(comparison.ts, 47, 11))
+>Lo : Symbol(Lo, Decl(comparison.ts, 47, 28))
+>Hi : Symbol(Hi, Decl(comparison.ts, 47, 47))
+
+type A1 = Add<100, 200>;                           // 300
+>A1 : Symbol(A1, Decl(comparison.ts, 47, 106))
+>Add : Symbol(Add, Decl(comparison.ts, 44, 83))
+
+type A2 = Add<999, 1>;                             // 1000
+>A2 : Symbol(A2, Decl(comparison.ts, 49, 24))
+>Add : Symbol(Add, Decl(comparison.ts, 44, 83))
+
+type C1 = Clamp<-50, 0, 255>;                      // 0
+>C1 : Symbol(C1, Decl(comparison.ts, 50, 22))
+>Clamp : Symbol(Clamp, Decl(comparison.ts, 46, 77))
+
+type C2 = Clamp<300, 0, 255>;                      // 255
+>C2 : Symbol(C2, Decl(comparison.ts, 51, 29))
+>Clamp : Symbol(Clamp, Decl(comparison.ts, 46, 77))
+
+type C3 = Clamp<128, 0, 255>;                      // 128
+>C3 : Symbol(C3, Decl(comparison.ts, 52, 29))
+>Clamp : Symbol(Clamp, Decl(comparison.ts, 46, 77))
+
+
+// --- String parsing ---
+
+type IsDateLike<S extends string> =
+>IsDateLike : Symbol(IsDateLike, Decl(comparison.ts, 53, 29))
+>S : Symbol(S, Decl(comparison.ts, 58, 16))
+
+    S extends `${infer Y}${infer Y2}${infer Y3}${infer Y4}-${infer M}${infer M2}-${infer D}${infer D2}`
+>S : Symbol(S, Decl(comparison.ts, 58, 16))
+>Y : Symbol(Y, Decl(comparison.ts, 59, 22))
+>Y2 : Symbol(Y2, Decl(comparison.ts, 59, 32))
+>Y3 : Symbol(Y3, Decl(comparison.ts, 59, 43))
+>Y4 : Symbol(Y4, Decl(comparison.ts, 59, 54))
+>M : Symbol(M, Decl(comparison.ts, 59, 66))
+>M2 : Symbol(M2, Decl(comparison.ts, 59, 76))
+>D : Symbol(D, Decl(comparison.ts, 59, 88))
+>D2 : Symbol(D2, Decl(comparison.ts, 59, 98))
+
+        ? true : false;
+
+const parseDate = (s: any) => {
+>parseDate : Symbol(parseDate, Decl(comparison.ts, 62, 5))
+>s : Symbol(s, Decl(comparison.ts, 62, 19))
+
+    if (typeof s != 'string' || s.length != 10) return void "never";
+>s : Symbol(s, Decl(comparison.ts, 62, 19))
+>s.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(comparison.ts, 62, 19))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+    if (s.slice(4, 5) != '-' || s.slice(7, 8) != '-') return void "never";
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(comparison.ts, 62, 19))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(comparison.ts, 62, 19))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+
+    let digits: string = '0123456789';
+>digits : Symbol(digits, Decl(comparison.ts, 65, 7))
+
+    for (let p of [0, 1, 2, 3, 5, 6, 8, 9]) {
+>p : Symbol(p, Decl(comparison.ts, 66, 12))
+
+        if (!digits.includes(s.slice(p, p + 1))) return void "never";
+>digits.includes : Symbol(String.includes, Decl(lib.es2015.core.d.ts, --, --))
+>digits : Symbol(digits, Decl(comparison.ts, 65, 7))
+>includes : Symbol(String.includes, Decl(lib.es2015.core.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(comparison.ts, 62, 19))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>p : Symbol(p, Decl(comparison.ts, 66, 12))
+>p : Symbol(p, Decl(comparison.ts, 66, 12))
+    }
+    let year: number = digits.indexOf(s.slice(0, 1)) * 1000 + digits.indexOf(s.slice(1, 2)) * 100 + digits.indexOf(s.slice(2, 3)) * 10 + digits.indexOf(s.slice(3, 4));
+>year : Symbol(year, Decl(comparison.ts, 69, 7))
+>digits.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>digits : Symbol(digits, Decl(comparison.ts, 65, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(comparison.ts, 62, 19))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>digits.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>digits : Symbol(digits, Decl(comparison.ts, 65, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(comparison.ts, 62, 19))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>digits.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>digits : Symbol(digits, Decl(comparison.ts, 65, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(comparison.ts, 62, 19))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>digits.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>digits : Symbol(digits, Decl(comparison.ts, 65, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(comparison.ts, 62, 19))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+
+    let month: number = digits.indexOf(s.slice(5, 6)) * 10 + digits.indexOf(s.slice(6, 7));
+>month : Symbol(month, Decl(comparison.ts, 70, 7))
+>digits.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>digits : Symbol(digits, Decl(comparison.ts, 65, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(comparison.ts, 62, 19))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>digits.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>digits : Symbol(digits, Decl(comparison.ts, 65, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(comparison.ts, 62, 19))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+
+    let day: number = digits.indexOf(s.slice(8, 9)) * 10 + digits.indexOf(s.slice(9, 10));
+>day : Symbol(day, Decl(comparison.ts, 71, 7))
+>digits.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>digits : Symbol(digits, Decl(comparison.ts, 65, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(comparison.ts, 62, 19))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>digits.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>digits : Symbol(digits, Decl(comparison.ts, 65, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(comparison.ts, 62, 19))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+
+    if (month < 1 || month > 12 || day < 1 || day > 31) return void "never";
+>month : Symbol(month, Decl(comparison.ts, 70, 7))
+>month : Symbol(month, Decl(comparison.ts, 70, 7))
+>day : Symbol(day, Decl(comparison.ts, 71, 7))
+>day : Symbol(day, Decl(comparison.ts, 71, 7))
+
+    let result: Record<string, any> = {};
+>result : Symbol(result, Decl(comparison.ts, 73, 7))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+    result['year'] = year;
+>result : Symbol(result, Decl(comparison.ts, 73, 7))
+>year : Symbol(year, Decl(comparison.ts, 69, 7))
+
+    result['month'] = month;
+>result : Symbol(result, Decl(comparison.ts, 73, 7))
+>month : Symbol(month, Decl(comparison.ts, 70, 7))
+
+    result['day'] = day;
+>result : Symbol(result, Decl(comparison.ts, 73, 7))
+>day : Symbol(day, Decl(comparison.ts, 71, 7))
+
+    return result;
+>result : Symbol(result, Decl(comparison.ts, 73, 7))
+
+};
+type ParseDate<S extends string> = Intrinsic<typeof parseDate, [S]>;
+>ParseDate : Symbol(ParseDate, Decl(comparison.ts, 78, 2))
+>S : Symbol(S, Decl(comparison.ts, 79, 15))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>parseDate : Symbol(parseDate, Decl(comparison.ts, 62, 5))
+>S : Symbol(S, Decl(comparison.ts, 79, 15))
+
+type D1 = ParseDate<"2024-03-15">;                 // { year: 2024, month: 3, day: 15 }
+>D1 : Symbol(D1, Decl(comparison.ts, 79, 68))
+>ParseDate : Symbol(ParseDate, Decl(comparison.ts, 78, 2))
+
+type D2 = ParseDate<"2024-13-01">;                 // never (month 13)
+>D2 : Symbol(D2, Decl(comparison.ts, 81, 34))
+>ParseDate : Symbol(ParseDate, Decl(comparison.ts, 78, 2))
+
+type D3 = ParseDate<"not-a-date">;                 // never
+>D3 : Symbol(D3, Decl(comparison.ts, 82, 34))
+>ParseDate : Symbol(ParseDate, Decl(comparison.ts, 78, 2))
+
+
+// --- Composition through generics ---
+
+type Apply<F, T> = Intrinsic<F, [T]>;
+>Apply : Symbol(Apply, Decl(comparison.ts, 83, 34))
+>F : Symbol(F, Decl(comparison.ts, 88, 11))
+>T : Symbol(T, Decl(comparison.ts, 88, 13))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>F : Symbol(F, Decl(comparison.ts, 88, 11))
+>T : Symbol(T, Decl(comparison.ts, 88, 13))
+
+const parsePositive = (n: any) => {
+>parsePositive : Symbol(parsePositive, Decl(comparison.ts, 90, 5))
+>n : Symbol(n, Decl(comparison.ts, 90, 23))
+
+    if (typeof n != 'number' || n <= 0) return void "never";
+>n : Symbol(n, Decl(comparison.ts, 90, 23))
+>n : Symbol(n, Decl(comparison.ts, 90, 23))
+
+    return n;
+>n : Symbol(n, Decl(comparison.ts, 90, 23))
+
+};
+const toUpper = (s: string) => s.toUpperCase();
+>toUpper : Symbol(toUpper, Decl(comparison.ts, 94, 5))
+>s : Symbol(s, Decl(comparison.ts, 94, 17))
+>s.toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(comparison.ts, 94, 17))
+>toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+
+type P1 = Apply<typeof parsePositive, 42>;            // 42
+>P1 : Symbol(P1, Decl(comparison.ts, 94, 47))
+>Apply : Symbol(Apply, Decl(comparison.ts, 83, 34))
+>parsePositive : Symbol(parsePositive, Decl(comparison.ts, 90, 5))
+
+type P2 = Apply<typeof parsePositive, -1>;            // never
+>P2 : Symbol(P2, Decl(comparison.ts, 96, 42))
+>Apply : Symbol(Apply, Decl(comparison.ts, 83, 34))
+>parsePositive : Symbol(parsePositive, Decl(comparison.ts, 90, 5))
+
+type P3 = Apply<typeof toUpper, "hello">;          // "HELLO"
+>P3 : Symbol(P3, Decl(comparison.ts, 97, 42))
+>Apply : Symbol(Apply, Decl(comparison.ts, 83, 34))
+>toUpper : Symbol(toUpper, Decl(comparison.ts, 94, 5))
+

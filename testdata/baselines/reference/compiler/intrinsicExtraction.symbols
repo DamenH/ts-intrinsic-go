@@ -1,0 +1,289 @@
+//// [tests/cases/compiler/intrinsic/intrinsicExtraction.ts] ////
+
+=== extraction.ts ===
+// Multiline function body
+const multiline = (n: number) => {
+>multiline : Symbol(multiline, Decl(extraction.ts, 1, 5))
+>n : Symbol(n, Decl(extraction.ts, 1, 19))
+
+    let x: number = n
+>x : Symbol(x, Decl(extraction.ts, 2, 7))
+>n : Symbol(n, Decl(extraction.ts, 1, 19))
+
+        + 1;
+    let y: number = x
+>y : Symbol(y, Decl(extraction.ts, 4, 7))
+>x : Symbol(x, Decl(extraction.ts, 2, 7))
+
+        * 2;
+    return y;
+>y : Symbol(y, Decl(extraction.ts, 4, 7))
+
+};
+type EX1 = Intrinsic<typeof multiline, [5]>;  // 12
+>EX1 : Symbol(EX1, Decl(extraction.ts, 7, 2))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>multiline : Symbol(multiline, Decl(extraction.ts, 1, 5))
+
+// Type annotations on parameters and locals
+const annotated = (
+>annotated : Symbol(annotated, Decl(extraction.ts, 11, 5))
+
+    s: string,
+>s : Symbol(s, Decl(extraction.ts, 11, 19))
+
+    n: number,
+>n : Symbol(n, Decl(extraction.ts, 12, 14))
+
+    flag: boolean
+>flag : Symbol(flag, Decl(extraction.ts, 13, 14))
+
+) => {
+    let result: string = s;
+>result : Symbol(result, Decl(extraction.ts, 16, 7))
+>s : Symbol(s, Decl(extraction.ts, 11, 19))
+
+    let count: number = n;
+>count : Symbol(count, Decl(extraction.ts, 17, 7))
+>n : Symbol(n, Decl(extraction.ts, 12, 14))
+
+    if (flag) return result + count;
+>flag : Symbol(flag, Decl(extraction.ts, 13, 14))
+>result : Symbol(result, Decl(extraction.ts, 16, 7))
+>count : Symbol(count, Decl(extraction.ts, 17, 7))
+
+    return result;
+>result : Symbol(result, Decl(extraction.ts, 16, 7))
+
+};
+type EX2 = Intrinsic<typeof annotated, ["x", 3, true]>;  // "x3"
+>EX2 : Symbol(EX2, Decl(extraction.ts, 20, 2))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>annotated : Symbol(annotated, Decl(extraction.ts, 11, 5))
+
+type EX3 = Intrinsic<typeof annotated, ["x", 3, false]>; // "x"
+>EX3 : Symbol(EX3, Decl(extraction.ts, 21, 55))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>annotated : Symbol(annotated, Decl(extraction.ts, 11, 5))
+
+// Complex type annotations (generics, arrays, unions)
+const complexTypes = (
+>complexTypes : Symbol(complexTypes, Decl(extraction.ts, 25, 5))
+
+    arr: number[],
+>arr : Symbol(arr, Decl(extraction.ts, 25, 22))
+
+    obj: Record<string, any>,
+>obj : Symbol(obj, Decl(extraction.ts, 26, 18))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+    tuple: [string, number]
+>tuple : Symbol(tuple, Decl(extraction.ts, 27, 29))
+
+) => {
+    return arr[0] + obj['x'] + tuple[1];
+>arr : Symbol(arr, Decl(extraction.ts, 25, 22))
+>obj : Symbol(obj, Decl(extraction.ts, 26, 18))
+>tuple : Symbol(tuple, Decl(extraction.ts, 27, 29))
+>1 : Symbol(1)
+
+};
+type EX4 = Intrinsic<typeof complexTypes, [[10], { x: 20 }, ["a", 30]]>;  // 60
+>EX4 : Symbol(EX4, Decl(extraction.ts, 31, 2))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>complexTypes : Symbol(complexTypes, Decl(extraction.ts, 25, 5))
+>x : Symbol(x, Decl(extraction.ts, 32, 50))
+
+// Single-expression arrow (no braces)
+const oneliner = (a: number, b: number) => a * b + 1;
+>oneliner : Symbol(oneliner, Decl(extraction.ts, 35, 5))
+>a : Symbol(a, Decl(extraction.ts, 35, 18))
+>b : Symbol(b, Decl(extraction.ts, 35, 28))
+>a : Symbol(a, Decl(extraction.ts, 35, 18))
+>b : Symbol(b, Decl(extraction.ts, 35, 28))
+
+type EX5 = Intrinsic<typeof oneliner, [3, 4]>;  // 13
+>EX5 : Symbol(EX5, Decl(extraction.ts, 35, 53))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>oneliner : Symbol(oneliner, Decl(extraction.ts, 35, 5))
+
+// Deeply nested ternary
+const nested = (n: number) => n > 100 ? "big" : n > 10 ? "medium" : n > 0 ? "small" : "zero";
+>nested : Symbol(nested, Decl(extraction.ts, 39, 5))
+>n : Symbol(n, Decl(extraction.ts, 39, 16))
+>n : Symbol(n, Decl(extraction.ts, 39, 16))
+>n : Symbol(n, Decl(extraction.ts, 39, 16))
+>n : Symbol(n, Decl(extraction.ts, 39, 16))
+
+type EX6 = Intrinsic<typeof nested, [50]>;   // "medium"
+>EX6 : Symbol(EX6, Decl(extraction.ts, 39, 93))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>nested : Symbol(nested, Decl(extraction.ts, 39, 5))
+
+type EX7 = Intrinsic<typeof nested, [0]>;    // "zero"
+>EX7 : Symbol(EX7, Decl(extraction.ts, 40, 42))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>nested : Symbol(nested, Decl(extraction.ts, 39, 5))
+
+// Function with no parameters
+const noParams = () => 42;
+>noParams : Symbol(noParams, Decl(extraction.ts, 44, 5))
+
+type EX8 = Intrinsic<typeof noParams, []>;  // 42
+>EX8 : Symbol(EX8, Decl(extraction.ts, 44, 26))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>noParams : Symbol(noParams, Decl(extraction.ts, 44, 5))
+
+// String with special characters (quotes, backslashes, newlines)
+const specials = (s: string) => s.split('\n').join('|');
+>specials : Symbol(specials, Decl(extraction.ts, 48, 5))
+>s : Symbol(s, Decl(extraction.ts, 48, 18))
+>s.split('\n').join : Symbol(Array.join, Decl(lib.es5.d.ts, --, --))
+>s.split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+>s : Symbol(s, Decl(extraction.ts, 48, 18))
+>split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+>join : Symbol(Array.join, Decl(lib.es5.d.ts, --, --))
+
+type EX9 = Intrinsic<typeof specials, ["a\nb\nc"]>;  // "a|b|c"
+>EX9 : Symbol(EX9, Decl(extraction.ts, 48, 56))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>specials : Symbol(specials, Decl(extraction.ts, 48, 5))
+
+// Trailing comma in parameter list
+const trailing = (a: number, b: number,) => a + b;
+>trailing : Symbol(trailing, Decl(extraction.ts, 52, 5))
+>a : Symbol(a, Decl(extraction.ts, 52, 18))
+>b : Symbol(b, Decl(extraction.ts, 52, 28))
+>a : Symbol(a, Decl(extraction.ts, 52, 18))
+>b : Symbol(b, Decl(extraction.ts, 52, 28))
+
+type EX10 = Intrinsic<typeof trailing, [1, 2]>;  // 3
+>EX10 : Symbol(EX10, Decl(extraction.ts, 52, 50))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>trailing : Symbol(trailing, Decl(extraction.ts, 52, 5))
+
+// Function expression: DSL only parses arrow syntax, so this is a parse error
+const funcExpr = function(n: number) { return n * 2; };
+>funcExpr : Symbol(funcExpr, Decl(extraction.ts, 56, 5))
+>n : Symbol(n, Decl(extraction.ts, 56, 26))
+>n : Symbol(n, Decl(extraction.ts, 56, 26))
+
+type EX11 = Intrinsic<typeof funcExpr, [5]>;
+>EX11 : Symbol(EX11, Decl(extraction.ts, 56, 55))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>funcExpr : Symbol(funcExpr, Decl(extraction.ts, 56, 5))
+
+// Comments inside the function body
+const withComments = (n: number) => {
+>withComments : Symbol(withComments, Decl(extraction.ts, 60, 5))
+>n : Symbol(n, Decl(extraction.ts, 60, 22))
+
+    // line comment
+    let x: number = n + 1; /* inline */
+>x : Symbol(x, Decl(extraction.ts, 62, 7))
+>n : Symbol(n, Decl(extraction.ts, 60, 22))
+
+    /*
+       block
+    */
+    return x * 2;
+>x : Symbol(x, Decl(extraction.ts, 62, 7))
+
+};
+type EX12 = Intrinsic<typeof withComments, [4]>;  // 10
+>EX12 : Symbol(EX12, Decl(extraction.ts, 67, 2))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>withComments : Symbol(withComments, Decl(extraction.ts, 60, 5))
+
+// Nested arrow functions (closures)
+const outer = (n: number) => {
+>outer : Symbol(outer, Decl(extraction.ts, 71, 5))
+>n : Symbol(n, Decl(extraction.ts, 71, 15))
+
+    let inner = (x: number) => x * 2;
+>inner : Symbol(inner, Decl(extraction.ts, 72, 7))
+>x : Symbol(x, Decl(extraction.ts, 72, 17))
+>x : Symbol(x, Decl(extraction.ts, 72, 17))
+
+    return inner(n) + inner(n + 1);
+>inner : Symbol(inner, Decl(extraction.ts, 72, 7))
+>n : Symbol(n, Decl(extraction.ts, 71, 15))
+>inner : Symbol(inner, Decl(extraction.ts, 72, 7))
+>n : Symbol(n, Decl(extraction.ts, 71, 15))
+
+};
+type EX13 = Intrinsic<typeof outer, [3]>;  // 6 + 8 = 14
+>EX13 : Symbol(EX13, Decl(extraction.ts, 74, 2))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>outer : Symbol(outer, Decl(extraction.ts, 71, 5))
+
+// Unusual whitespace and formatting
+const   weirdSpacing   =   (   a  :  number  ,  b  :  number  )   =>   a   +   b  ;
+>weirdSpacing : Symbol(weirdSpacing, Decl(extraction.ts, 78, 5))
+>a : Symbol(a, Decl(extraction.ts, 78, 28))
+>b : Symbol(b, Decl(extraction.ts, 78, 46))
+>a : Symbol(a, Decl(extraction.ts, 78, 28))
+>b : Symbol(b, Decl(extraction.ts, 78, 46))
+
+type EX14 = Intrinsic<typeof weirdSpacing, [10, 20]>;  // 30
+>EX14 : Symbol(EX14, Decl(extraction.ts, 78, 83))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>weirdSpacing : Symbol(weirdSpacing, Decl(extraction.ts, 78, 5))
+
+
+=== extraction_errors.ts ===
+// as const in dependency (not extractable, runtime error)
+const AS_CONST = "hello" as const;
+>AS_CONST : Symbol(AS_CONST, Decl(extraction_errors.ts, 1, 5))
+>const : Symbol(const)
+
+const usesAsConst = (s: string) => s + AS_CONST;
+>usesAsConst : Symbol(usesAsConst, Decl(extraction_errors.ts, 2, 5))
+>s : Symbol(s, Decl(extraction_errors.ts, 2, 21))
+>s : Symbol(s, Decl(extraction_errors.ts, 2, 21))
+>AS_CONST : Symbol(AS_CONST, Decl(extraction_errors.ts, 1, 5))
+
+type ERR1 = Intrinsic<typeof usesAsConst, ["x"]>;
+>ERR1 : Symbol(ERR1, Decl(extraction_errors.ts, 2, 48))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>usesAsConst : Symbol(usesAsConst, Decl(extraction_errors.ts, 2, 5))
+
+// Function declaration (not const arrow, not extractable as dep)
+function helperFn(n: number): number { return n + 1; }
+>helperFn : Symbol(helperFn, Decl(extraction_errors.ts, 3, 49))
+>n : Symbol(n, Decl(extraction_errors.ts, 6, 18))
+>n : Symbol(n, Decl(extraction_errors.ts, 6, 18))
+
+const usesFunc = (n: number) => helperFn(n);
+>usesFunc : Symbol(usesFunc, Decl(extraction_errors.ts, 7, 5))
+>n : Symbol(n, Decl(extraction_errors.ts, 7, 18))
+>helperFn : Symbol(helperFn, Decl(extraction_errors.ts, 3, 49))
+>n : Symbol(n, Decl(extraction_errors.ts, 7, 18))
+
+type ERR2 = Intrinsic<typeof usesFunc, [5]>;
+>ERR2 : Symbol(ERR2, Decl(extraction_errors.ts, 7, 44))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>usesFunc : Symbol(usesFunc, Decl(extraction_errors.ts, 7, 5))
+
+// Class method (not an arrow function)
+class Foo { bar(n: number) { return n; } }
+>Foo : Symbol(Foo, Decl(extraction_errors.ts, 8, 44))
+>bar : Symbol(Foo.bar, Decl(extraction_errors.ts, 11, 11))
+>n : Symbol(n, Decl(extraction_errors.ts, 11, 16))
+>n : Symbol(n, Decl(extraction_errors.ts, 11, 16))
+
+const foo = new Foo();
+>foo : Symbol(foo, Decl(extraction_errors.ts, 12, 5))
+>Foo : Symbol(Foo, Decl(extraction_errors.ts, 8, 44))
+
+// Function declaration: source extraction requires arrow or function expression
+function regularFn(n: number) { return n * 2; }
+>regularFn : Symbol(regularFn, Decl(extraction_errors.ts, 12, 22))
+>n : Symbol(n, Decl(extraction_errors.ts, 15, 19))
+>n : Symbol(n, Decl(extraction_errors.ts, 15, 19))
+
+type ERR3 = Intrinsic<typeof regularFn, [5]>;  // deferred (can't extract source)
+>ERR3 : Symbol(ERR3, Decl(extraction_errors.ts, 15, 47))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>regularFn : Symbol(regularFn, Decl(extraction_errors.ts, 12, 22))
+

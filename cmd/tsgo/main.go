@@ -18,6 +18,8 @@ func runMain() int {
 			return runLSP(args[1:])
 		case "--api":
 			return runAPI(args[1:])
+		case "--dumpTypes":
+			return runDumpTypes(args[1:])
 		}
 	}
 	result := execute.CommandLine(newSystem(), args, nil)

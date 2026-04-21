@@ -1678,6 +1678,12 @@ type Uncapitalize<S extends string> = intrinsic;
 type NoInfer<T> = intrinsic;
 
 /**
+ * Compile-time type computation. Evaluates a statically extractable function
+ * with the provided type arguments and returns the computed type.
+ */
+type Intrinsic<Fun, Args extends any[] = []> = intrinsic;
+
+/**
  * Marker for contextual 'this' type
  */
 interface ThisType<T> {}

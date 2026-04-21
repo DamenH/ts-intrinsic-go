@@ -1,0 +1,520 @@
+//// [tests/cases/compiler/intrinsic/comparison.ts] ////
+
+=== comparison.ts ===
+// Side-by-side: conditional types vs Intrinsic for the same problems.
+
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+>capitalize : (s: string) => string
+>(s: string) => s.charAt(0).toUpperCase() + s.slice(1) : (s: string) => string
+>s : string
+>s.charAt(0).toUpperCase() + s.slice(1) : string
+>s.charAt(0).toUpperCase() : string
+>s.charAt(0).toUpperCase : () => string
+>s.charAt(0) : string
+>s.charAt : (pos: number) => string
+>s : string
+>charAt : (pos: number) => string
+>0 : 0
+>toUpperCase : () => string
+>s.slice(1) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>1 : 1
+
+function range(startOrEnd: number, end?: number): number[] {
+>range : (startOrEnd: number, end?: number) => number[]
+>startOrEnd : number
+>end : number | undefined
+
+    const s = end === undefined ? 0 : startOrEnd;
+>s : number
+>end === undefined ? 0 : startOrEnd : number
+>end === undefined : boolean
+>end : number | undefined
+>undefined : undefined
+>0 : 0
+>startOrEnd : number
+
+    const e = end === undefined ? startOrEnd : end;
+>e : number
+>end === undefined ? startOrEnd : end : number
+>end === undefined : boolean
+>end : number | undefined
+>undefined : undefined
+>startOrEnd : number
+>end : number
+
+    return Array.from({ length: Math.max(e - s, 0) }, (_, i) => s + i);
+>Array.from({ length: Math.max(e - s, 0) }, (_, i) => s + i) : number[]
+>Array.from : { <T>(arrayLike: ArrayLike<T>): T[]; <T, U>(arrayLike: ArrayLike<T>, mapfn: (v: T, k: number) => U, thisArg?: any): U[]; <T>(iterable: Iterable<T> | ArrayLike<T>): T[]; <T, U>(iterable: Iterable<T> | ArrayLike<T>, mapfn: (v: T, k: number) => U, thisArg?: any): U[]; }
+>Array : ArrayConstructor
+>from : { <T>(arrayLike: ArrayLike<T>): T[]; <T, U>(arrayLike: ArrayLike<T>, mapfn: (v: T, k: number) => U, thisArg?: any): U[]; <T>(iterable: Iterable<T> | ArrayLike<T>): T[]; <T, U>(iterable: Iterable<T> | ArrayLike<T>, mapfn: (v: T, k: number) => U, thisArg?: any): U[]; }
+>{ length: Math.max(e - s, 0) } : { length: number; }
+>length : number
+>Math.max(e - s, 0) : number
+>Math.max : (...values: number[]) => number
+>Math : Math
+>max : (...values: number[]) => number
+>e - s : number
+>e : number
+>s : number
+>0 : 0
+>(_, i) => s + i : (_: unknown, i: number) => number
+>_ : unknown
+>i : number
+>s + i : number
+>s : number
+>i : number
+}
+
+// --- CamelCase: conditional types hit recursion limits ---
+
+type CamelCaseCond<S extends string> =
+>CamelCaseCond : CamelCaseCond<S>
+
+    S extends `${infer F}_${infer R}`
+        ? `${F}${Capitalize<CamelCaseCond<R>>}`
+        : S;
+
+type CC1 = CamelCaseCond<"user_name">;
+>CC1 : "userName"
+
+type CC2 = CamelCaseCond<"get_all_items">;
+>CC2 : "getAllItems"
+
+const toCamel = (s: string) => {
+>toCamel : (s: string) => string
+>(s: string) => {    let [first, ...rest] = s.split('_');    return first + rest.map((p: string) => p.charAt(0).toUpperCase() + p.slice(1)).join('');} : (s: string) => string
+>s : string
+
+    let [first, ...rest] = s.split('_');
+>first : string
+>rest : string[]
+>s.split('_') : string[]
+>s.split : { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }
+>s : string
+>split : { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }
+>'_' : "_"
+
+    return first + rest.map((p: string) => p.charAt(0).toUpperCase() + p.slice(1)).join('');
+>first + rest.map((p: string) => p.charAt(0).toUpperCase() + p.slice(1)).join('') : string
+>first : string
+>rest.map((p: string) => p.charAt(0).toUpperCase() + p.slice(1)).join('') : string
+>rest.map((p: string) => p.charAt(0).toUpperCase() + p.slice(1)).join : (separator?: string) => string
+>rest.map((p: string) => p.charAt(0).toUpperCase() + p.slice(1)) : string[]
+>rest.map : <U>(callbackfn: (value: string, index: number, array: string[]) => U, thisArg?: any) => U[]
+>rest : string[]
+>map : <U>(callbackfn: (value: string, index: number, array: string[]) => U, thisArg?: any) => U[]
+>(p: string) => p.charAt(0).toUpperCase() + p.slice(1) : (p: string) => string
+>p : string
+>p.charAt(0).toUpperCase() + p.slice(1) : string
+>p.charAt(0).toUpperCase() : string
+>p.charAt(0).toUpperCase : () => string
+>p.charAt(0) : string
+>p.charAt : (pos: number) => string
+>p : string
+>charAt : (pos: number) => string
+>0 : 0
+>toUpperCase : () => string
+>p.slice(1) : string
+>p.slice : (start?: number, end?: number) => string
+>p : string
+>slice : (start?: number, end?: number) => string
+>1 : 1
+>join : (separator?: string) => string
+>'' : ""
+
+};
+type CamelCaseI<S extends string> = Intrinsic<typeof toCamel, [S]>;
+>CamelCaseI : intrinsic
+>toCamel : (s: string) => string
+
+type CI1 = CamelCaseI<"user_name">;
+>CI1 : "userName"
+
+type CI2 = CamelCaseI<"get_all_items">;
+>CI2 : "getAllItems"
+
+// Would hit TS2589 with conditional types at 35+ segments
+type CI3 = CamelCaseI<"a_b_c_d_e_f_g_h_i_j_k_l_m_n_o_p_q_r_s_t_u_v_w_x_y_z_a_b_c_d_e_f_g_h_i_j_k_l_m_n_o">;
+>CI3 : "aBCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNO"
+
+
+// --- String length: not possible with conditional types ---
+
+const strLen = (s: string) => s.length;
+>strLen : (s: string) => number
+>(s: string) => s.length : (s: string) => number
+>s : string
+>s.length : number
+>s : string
+>length : number
+
+type StringLength<S extends string> = Intrinsic<typeof strLen, [S]>;
+>StringLength : intrinsic
+>strLen : (s: string) => number
+
+type L1 = StringLength<"hello">;                   // 5
+>L1 : 5
+
+type L2 = StringLength<"">;                        // 0
+>L2 : 0
+
+type L3 = StringLength<"a longer string to measure">;  // 26
+>L3 : 26
+
+
+// --- Numeric arithmetic ---
+
+const add = (a: number, b: number) => a + b;
+>add : (a: number, b: number) => number
+>(a: number, b: number) => a + b : (a: number, b: number) => number
+>a : number
+>b : number
+>a + b : number
+>a : number
+>b : number
+
+const clamp = (n: number, lo: number, hi: number) => Math.min(Math.max(n, lo), hi);
+>clamp : (n: number, lo: number, hi: number) => number
+>(n: number, lo: number, hi: number) => Math.min(Math.max(n, lo), hi) : (n: number, lo: number, hi: number) => number
+>n : number
+>lo : number
+>hi : number
+>Math.min(Math.max(n, lo), hi) : number
+>Math.min : (...values: number[]) => number
+>Math : Math
+>min : (...values: number[]) => number
+>Math.max(n, lo) : number
+>Math.max : (...values: number[]) => number
+>Math : Math
+>max : (...values: number[]) => number
+>n : number
+>lo : number
+>hi : number
+
+type Add<A extends number, B extends number> = Intrinsic<typeof add, [A, B]>;
+>Add : intrinsic
+>add : (a: number, b: number) => number
+
+type Clamp<N extends number, Lo extends number, Hi extends number> = Intrinsic<typeof clamp, [N, Lo, Hi]>;
+>Clamp : intrinsic
+>clamp : (n: number, lo: number, hi: number) => number
+
+type A1 = Add<100, 200>;                           // 300
+>A1 : 300
+
+type A2 = Add<999, 1>;                             // 1000
+>A2 : 1000
+
+type C1 = Clamp<-50, 0, 255>;                      // 0
+>C1 : 0
+>-50 : -50
+>50 : 50
+
+type C2 = Clamp<300, 0, 255>;                      // 255
+>C2 : 255
+
+type C3 = Clamp<128, 0, 255>;                      // 128
+>C3 : 128
+
+
+// --- String parsing ---
+
+type IsDateLike<S extends string> =
+>IsDateLike : IsDateLike<S>
+
+    S extends `${infer Y}${infer Y2}${infer Y3}${infer Y4}-${infer M}${infer M2}-${infer D}${infer D2}`
+        ? true : false;
+>true : true
+>false : false
+
+const parseDate = (s: any) => {
+>parseDate : (s: any) => Record<string, any> | undefined
+>(s: any) => {    if (typeof s != 'string' || s.length != 10) return void "never";    if (s.slice(4, 5) != '-' || s.slice(7, 8) != '-') return void "never";    let digits: string = '0123456789';    for (let p of [0, 1, 2, 3, 5, 6, 8, 9]) {        if (!digits.includes(s.slice(p, p + 1))) return void "never";    }    let year: number = digits.indexOf(s.slice(0, 1)) * 1000 + digits.indexOf(s.slice(1, 2)) * 100 + digits.indexOf(s.slice(2, 3)) * 10 + digits.indexOf(s.slice(3, 4));    let month: number = digits.indexOf(s.slice(5, 6)) * 10 + digits.indexOf(s.slice(6, 7));    let day: number = digits.indexOf(s.slice(8, 9)) * 10 + digits.indexOf(s.slice(9, 10));    if (month < 1 || month > 12 || day < 1 || day > 31) return void "never";    let result: Record<string, any> = {};    result['year'] = year;    result['month'] = month;    result['day'] = day;    return result;} : (s: any) => Record<string, any> | undefined
+>s : any
+
+    if (typeof s != 'string' || s.length != 10) return void "never";
+>typeof s != 'string' || s.length != 10 : boolean
+>typeof s != 'string' : boolean
+>typeof s : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>s : any
+>'string' : "string"
+>s.length != 10 : boolean
+>s.length : number
+>s : string
+>length : number
+>10 : 10
+>void "never" : undefined
+>"never" : "never"
+
+    if (s.slice(4, 5) != '-' || s.slice(7, 8) != '-') return void "never";
+>s.slice(4, 5) != '-' || s.slice(7, 8) != '-' : boolean
+>s.slice(4, 5) != '-' : boolean
+>s.slice(4, 5) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>4 : 4
+>5 : 5
+>'-' : "-"
+>s.slice(7, 8) != '-' : boolean
+>s.slice(7, 8) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>7 : 7
+>8 : 8
+>'-' : "-"
+>void "never" : undefined
+>"never" : "never"
+
+    let digits: string = '0123456789';
+>digits : string
+>'0123456789' : "0123456789"
+
+    for (let p of [0, 1, 2, 3, 5, 6, 8, 9]) {
+>p : number
+>[0, 1, 2, 3, 5, 6, 8, 9] : number[]
+>0 : 0
+>1 : 1
+>2 : 2
+>3 : 3
+>5 : 5
+>6 : 6
+>8 : 8
+>9 : 9
+
+        if (!digits.includes(s.slice(p, p + 1))) return void "never";
+>!digits.includes(s.slice(p, p + 1)) : boolean
+>digits.includes(s.slice(p, p + 1)) : boolean
+>digits.includes : (searchString: string, position?: number) => boolean
+>digits : string
+>includes : (searchString: string, position?: number) => boolean
+>s.slice(p, p + 1) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>p : number
+>p + 1 : number
+>p : number
+>1 : 1
+>void "never" : undefined
+>"never" : "never"
+    }
+    let year: number = digits.indexOf(s.slice(0, 1)) * 1000 + digits.indexOf(s.slice(1, 2)) * 100 + digits.indexOf(s.slice(2, 3)) * 10 + digits.indexOf(s.slice(3, 4));
+>year : number
+>digits.indexOf(s.slice(0, 1)) * 1000 + digits.indexOf(s.slice(1, 2)) * 100 + digits.indexOf(s.slice(2, 3)) * 10 + digits.indexOf(s.slice(3, 4)) : number
+>digits.indexOf(s.slice(0, 1)) * 1000 + digits.indexOf(s.slice(1, 2)) * 100 + digits.indexOf(s.slice(2, 3)) * 10 : number
+>digits.indexOf(s.slice(0, 1)) * 1000 + digits.indexOf(s.slice(1, 2)) * 100 : number
+>digits.indexOf(s.slice(0, 1)) * 1000 : number
+>digits.indexOf(s.slice(0, 1)) : number
+>digits.indexOf : (searchString: string, position?: number) => number
+>digits : string
+>indexOf : (searchString: string, position?: number) => number
+>s.slice(0, 1) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>0 : 0
+>1 : 1
+>1000 : 1000
+>digits.indexOf(s.slice(1, 2)) * 100 : number
+>digits.indexOf(s.slice(1, 2)) : number
+>digits.indexOf : (searchString: string, position?: number) => number
+>digits : string
+>indexOf : (searchString: string, position?: number) => number
+>s.slice(1, 2) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>1 : 1
+>2 : 2
+>100 : 100
+>digits.indexOf(s.slice(2, 3)) * 10 : number
+>digits.indexOf(s.slice(2, 3)) : number
+>digits.indexOf : (searchString: string, position?: number) => number
+>digits : string
+>indexOf : (searchString: string, position?: number) => number
+>s.slice(2, 3) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>2 : 2
+>3 : 3
+>10 : 10
+>digits.indexOf(s.slice(3, 4)) : number
+>digits.indexOf : (searchString: string, position?: number) => number
+>digits : string
+>indexOf : (searchString: string, position?: number) => number
+>s.slice(3, 4) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>3 : 3
+>4 : 4
+
+    let month: number = digits.indexOf(s.slice(5, 6)) * 10 + digits.indexOf(s.slice(6, 7));
+>month : number
+>digits.indexOf(s.slice(5, 6)) * 10 + digits.indexOf(s.slice(6, 7)) : number
+>digits.indexOf(s.slice(5, 6)) * 10 : number
+>digits.indexOf(s.slice(5, 6)) : number
+>digits.indexOf : (searchString: string, position?: number) => number
+>digits : string
+>indexOf : (searchString: string, position?: number) => number
+>s.slice(5, 6) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>5 : 5
+>6 : 6
+>10 : 10
+>digits.indexOf(s.slice(6, 7)) : number
+>digits.indexOf : (searchString: string, position?: number) => number
+>digits : string
+>indexOf : (searchString: string, position?: number) => number
+>s.slice(6, 7) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>6 : 6
+>7 : 7
+
+    let day: number = digits.indexOf(s.slice(8, 9)) * 10 + digits.indexOf(s.slice(9, 10));
+>day : number
+>digits.indexOf(s.slice(8, 9)) * 10 + digits.indexOf(s.slice(9, 10)) : number
+>digits.indexOf(s.slice(8, 9)) * 10 : number
+>digits.indexOf(s.slice(8, 9)) : number
+>digits.indexOf : (searchString: string, position?: number) => number
+>digits : string
+>indexOf : (searchString: string, position?: number) => number
+>s.slice(8, 9) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>8 : 8
+>9 : 9
+>10 : 10
+>digits.indexOf(s.slice(9, 10)) : number
+>digits.indexOf : (searchString: string, position?: number) => number
+>digits : string
+>indexOf : (searchString: string, position?: number) => number
+>s.slice(9, 10) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>9 : 9
+>10 : 10
+
+    if (month < 1 || month > 12 || day < 1 || day > 31) return void "never";
+>month < 1 || month > 12 || day < 1 || day > 31 : boolean
+>month < 1 || month > 12 || day < 1 : boolean
+>month < 1 || month > 12 : boolean
+>month < 1 : boolean
+>month : number
+>1 : 1
+>month > 12 : boolean
+>month : number
+>12 : 12
+>day < 1 : boolean
+>day : number
+>1 : 1
+>day > 31 : boolean
+>day : number
+>31 : 31
+>void "never" : undefined
+>"never" : "never"
+
+    let result: Record<string, any> = {};
+>result : Record<string, any>
+>{} : {}
+
+    result['year'] = year;
+>result['year'] = year : number
+>result['year'] : any
+>result : Record<string, any>
+>'year' : "year"
+>year : number
+
+    result['month'] = month;
+>result['month'] = month : number
+>result['month'] : any
+>result : Record<string, any>
+>'month' : "month"
+>month : number
+
+    result['day'] = day;
+>result['day'] = day : number
+>result['day'] : any
+>result : Record<string, any>
+>'day' : "day"
+>day : number
+
+    return result;
+>result : Record<string, any>
+
+};
+type ParseDate<S extends string> = Intrinsic<typeof parseDate, [S]>;
+>ParseDate : intrinsic
+>parseDate : (s: any) => Record<string, any> | undefined
+
+type D1 = ParseDate<"2024-03-15">;                 // { year: 2024, month: 3, day: 15 }
+>D1 : { year: 2024; month: 3; day: 15; }
+
+type D2 = ParseDate<"2024-13-01">;                 // never (month 13)
+>D2 : never
+
+type D3 = ParseDate<"not-a-date">;                 // never
+>D3 : never
+
+
+// --- Composition through generics ---
+
+type Apply<F, T> = Intrinsic<F, [T]>;
+>Apply : intrinsic
+
+const parsePositive = (n: any) => {
+>parsePositive : (n: any) => number | undefined
+>(n: any) => {    if (typeof n != 'number' || n <= 0) return void "never";    return n;} : (n: any) => number | undefined
+>n : any
+
+    if (typeof n != 'number' || n <= 0) return void "never";
+>typeof n != 'number' || n <= 0 : boolean
+>typeof n != 'number' : boolean
+>typeof n : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>n : any
+>'number' : "number"
+>n <= 0 : boolean
+>n : number
+>0 : 0
+>void "never" : undefined
+>"never" : "never"
+
+    return n;
+>n : number
+
+};
+const toUpper = (s: string) => s.toUpperCase();
+>toUpper : (s: string) => string
+>(s: string) => s.toUpperCase() : (s: string) => string
+>s : string
+>s.toUpperCase() : string
+>s.toUpperCase : () => string
+>s : string
+>toUpperCase : () => string
+
+type P1 = Apply<typeof parsePositive, 42>;            // 42
+>P1 : 42
+>parsePositive : (n: any) => number | undefined
+
+type P2 = Apply<typeof parsePositive, -1>;            // never
+>P2 : never
+>parsePositive : (n: any) => number | undefined
+>-1 : -1
+>1 : 1
+
+type P3 = Apply<typeof toUpper, "hello">;          // "HELLO"
+>P3 : "HELLO"
+>toUpper : (s: string) => string
+

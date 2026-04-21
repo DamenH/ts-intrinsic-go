@@ -1,0 +1,186 @@
+intrinsicEdgeCases.ts(7,6): error TS2456: Type alias 'Recursive' circularly references itself.
+intrinsicEdgeCases.ts(7,24): error TS2315: Type 'Recursive' is not generic.
+intrinsicEdgeCases.ts(10,6): error TS2456: Type alias 'PingPong' circularly references itself.
+intrinsicEdgeCases.ts(10,23): error TS2315: Type 'PongPing' is not generic.
+intrinsicEdgeCases.ts(11,6): error TS2456: Type alias 'PongPing' circularly references itself.
+intrinsicEdgeCases.ts(11,23): error TS2315: Type 'PingPong' is not generic.
+intrinsicEdgeCases.ts(71,11): error TS95202: Intrinsic type runtime error: * requires a number, got number
+intrinsicEdgeCases.ts(76,11): error TS95202: Intrinsic type runtime error: 'toUpperCase' is not a method on string
+intrinsicEdgeCases.ts(88,43): error TS2344: Type 'intrinsic' does not satisfy the constraint 'number'.
+intrinsicEdgeCases.ts(109,11): error TS95202: Intrinsic type runtime error: + requires a number, got undefined
+intrinsicEdgeCases.ts(111,11): error TS95202: Intrinsic type runtime error: cannot concatenate undefined with string
+intrinsicEdgeCases.ts(112,11): error TS95202: Intrinsic type runtime error: cannot concatenate string with string
+
+
+==== intrinsicEdgeCases.ts (12 errors) ====
+    // --- Circular / self-referencing type arguments ---
+    
+    const identity = (x: any) => x;
+    type Id<T> = Intrinsic<typeof identity, [T]>;
+    
+    // Self-referencing (should not infinite-loop)
+    type Recursive<T> = Id<Recursive<T>>;
+         ~~~~~~~~~
+!!! error TS2456: Type alias 'Recursive' circularly references itself.
+                           ~~~~~~~~~~~~
+!!! error TS2315: Type 'Recursive' is not generic.
+    
+    // Mutual recursion
+    type PingPong<T> = Id<PongPing<T>>;
+         ~~~~~~~~
+!!! error TS2456: Type alias 'PingPong' circularly references itself.
+                          ~~~~~~~~~~~
+!!! error TS2315: Type 'PongPing' is not generic.
+    type PongPing<T> = Id<PingPong<T>>;
+         ~~~~~~~~
+!!! error TS2456: Type alias 'PongPing' circularly references itself.
+                          ~~~~~~~~~~~
+!!! error TS2315: Type 'PingPong' is not generic.
+    
+    // Concrete nested use
+    type R1 = Id<Id<Id<42>>>;  // 42
+    
+    
+    // --- Deeply nested closures ---
+    
+    const nestedClosures = (n: number) => {
+        let a = (x: number) => {
+            let b = (y: number) => {
+                let c = (z: number) => {
+                    let d = (w: number) => w + z + y + x;
+                    return d(1);
+                };
+                return c(2);
+            };
+            return b(3);
+        };
+        return a(n);
+    };
+    type NC1 = Intrinsic<typeof nestedClosures, [10]>;  // 10 + 3 + 2 + 1 = 16
+    
+    // Closure that builds and calls functions in a loop
+    const closureLoop = (n: number) => {
+        let result: number = 0;
+        let i: number = 0;
+        while (i < n) {
+            let captured: number = i;
+            let f = (x: number) => x + captured;
+            result = f(result);
+            i = i + 1;
+        }
+        return result;
+    };
+    type NC2 = Intrinsic<typeof closureLoop, [10]>;  // 0+0+1+2+...+9 = 45
+    
+    
+    // --- Closing over top-level const values ---
+    
+    const MULTIPLIER = 3;
+    const scaleUp = (n: number) => n * MULTIPLIER;
+    type CL1 = Intrinsic<typeof scaleUp, [7]>;  // 21
+    
+    const OFFSET = 100;
+    const addOffset = (n: number) => n + OFFSET;
+    type CL2 = Intrinsic<typeof addOffset, [10]>;  // 110
+    
+    const GREETING = "hi";
+    const greetWith = (name: string) => GREETING + " " + name;
+    type CL3 = Intrinsic<typeof greetWith, ["world"]>;  // "hi world"
+    
+    
+    // --- Union types as arguments ---
+    
+    const double = (n: number) => n * 2;
+    type Double<T> = Intrinsic<typeof double, [T]>;
+    
+    type U1 = Double<5>;          // 10
+    type U2 = Double<1 | 2 | 3>;  // distribution over union
+    type U3 = Double<number>;     // deferred (non-literal)
+              ~~~~~~~~~~~~~~
+!!! error TS95202: Intrinsic type runtime error: * requires a number, got number
+    
+    const toUpper = (s: string) => s.toUpperCase();
+    type Upper<T> = Intrinsic<typeof toUpper, [T]>;
+    type U4 = Upper<"a" | "b" | "c">;
+    type U5 = Upper<string>;  // deferred
+              ~~~~~~~~~~~~~
+!!! error TS95202: Intrinsic type runtime error: 'toUpperCase' is not a method on string
+    
+    
+    // --- Type parameter forwarding ---
+    
+    const add = (a: number, b: number) => a + b;
+    type Add<A extends number, B extends number> = Intrinsic<typeof add, [A, B]>;
+    
+    type Increment<N extends number> = Add<N, 1>;
+    type I1 = Increment<41>;  // 42
+    
+    type AddTen<N extends number> = Add<N, 10>;
+    type AddTwenty<N extends number> = AddTen<AddTen<N>>;
+                                              ~~~~~~~~~
+!!! error TS2344: Type 'intrinsic' does not satisfy the constraint 'number'.
+    type F1 = AddTwenty<0>;   // 20
+    type F2 = AddTwenty<5>;   // 25
+    
+    function incr<N extends number>(n: N): Increment<N> {
+        return undefined!;
+    }
+    
+    type PositiveOrZero<N extends number> = Add<N, 0> extends never ? 0 : Add<N, 0>;
+    type PZ1 = PositiveOrZero<5>;  // 5
+    
+    
+    // --- Argument count and type mismatches ---
+    
+    const greet = (name: string) => "hello " + name;
+    type Greet<T> = Intrinsic<typeof greet, [T]>;
+    
+    type A1 = Greet<"world">;  // "hello world"
+    type A2 = Greet<42>;       // "hello 42" (string + number coercion)
+    
+    const needsTwo = (a: number, b: number) => a + b;
+    type A3 = Intrinsic<typeof needsTwo, [5]>;        // second arg is undefined
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!!! error TS95202: Intrinsic type runtime error: + requires a number, got undefined
+    type A4 = Intrinsic<typeof greet, ["world", 42]>; // extra arg ignored
+    type A5 = Intrinsic<typeof greet, []>;             // no args
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!!! error TS95202: Intrinsic type runtime error: cannot concatenate undefined with string
+    type A6 = Greet<string>;                           // deferred (non-literal)
+              ~~~~~~~~~~~~~
+!!! error TS95202: Intrinsic type runtime error: cannot concatenate string with string
+    
+    
+    // --- Semantic mismatches that should stay explicit ---
+    
+    const kindOf = (x: any) => typeof x;
+    
+    type S1 = Intrinsic<typeof kindOf, [null]>;        // "null" (not JS "object")
+    type S2 = Intrinsic<typeof kindOf, [undefined]>;   // "undefined"
+    type S3 = Intrinsic<typeof kindOf, [[1, 2, 3]]>;   // "tuple" (not JS "object")
+    type S4 = Intrinsic<typeof kindOf, [{ a: 1 }]>;    // "object"
+    
+    const kindOfLocalFn = () => {
+        let f = (x: number) => x + 1;
+        return typeof f;
+    };
+    
+    type S5 = Intrinsic<typeof kindOfLocalFn, []>;     // "function"
+    
+    const looseEq = (a: any, b: any) => a == b;
+    
+    type S6 = Intrinsic<typeof looseEq, [0, "0"]>;       // false (not JS true)
+    type S7 = Intrinsic<typeof looseEq, [false, 0]>;      // false (not JS true)
+    type S8 = Intrinsic<typeof looseEq, [null, undefined]>; // false (not JS true)
+    type S9 = Intrinsic<typeof looseEq, ["", 0]>;        // false (not JS true)
+    type S10 = Intrinsic<typeof looseEq, [[1, 2], [1, 2]]>; // true (not JS reference equality)
+    
+    const objectWithFn = () => {
+        let r: any = {};
+        r['x'] = 1;
+        r['fn'] = (n: number) => n + 1;
+        return r;
+    };
+    
+    type S11 = Intrinsic<typeof objectWithFn, []>;     // { x: 1, fn: never }
+    

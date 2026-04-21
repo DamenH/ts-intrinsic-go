@@ -3311,6 +3311,21 @@ func (r *Relater) structuredTypeRelatedToWorker(source *Type, target *Type, repo
 			if source.AsStringMappingType().Symbol() == target.AsStringMappingType().Symbol() {
 				return r.isRelatedTo(source.AsStringMappingType().target, target.AsStringMappingType().target, RecursionFlagsBoth, false /*reportErrors*/)
 			}
+		case source.flags&TypeFlagsDeferredIntrinsic != 0:
+			if target.flags&TypeFlagsDeferredIntrinsic != 0 && source.symbol == target.symbol {
+				sourceTypes := source.AsDeferredIntrinsicType().innerTypes
+				targetTypes := target.AsDeferredIntrinsicType().innerTypes
+				if len(sourceTypes) == len(targetTypes) {
+					result = TernaryTrue
+					for i := range sourceTypes {
+						result &= r.isRelatedTo(sourceTypes[i], targetTypes[i], RecursionFlagsBoth, false /*reportErrors*/)
+						if result == TernaryFalse {
+							return result
+						}
+					}
+					return result
+				}
+			}
 		}
 		if source.flags&TypeFlagsObject == 0 {
 			return TernaryFalse

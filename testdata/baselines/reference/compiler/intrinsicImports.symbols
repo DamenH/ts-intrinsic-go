@@ -1,0 +1,316 @@
+//// [tests/cases/compiler/intrinsic/intrinsicImports.ts] ////
+
+=== helpers.ts ===
+export const double = (n: number) => n * 2;
+>double : Symbol(double, Decl(helpers.ts, 0, 12))
+>n : Symbol(n, Decl(helpers.ts, 0, 23))
+>n : Symbol(n, Decl(helpers.ts, 0, 23))
+
+export const add1 = (n: number) => n + 1;
+>add1 : Symbol(add1, Decl(helpers.ts, 1, 12))
+>n : Symbol(n, Decl(helpers.ts, 1, 21))
+>n : Symbol(n, Decl(helpers.ts, 1, 21))
+
+export const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+>capitalize : Symbol(capitalize, Decl(helpers.ts, 2, 12))
+>s : Symbol(s, Decl(helpers.ts, 2, 27))
+>s.charAt(0).toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>s.charAt : Symbol(String.charAt, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(helpers.ts, 2, 27))
+>charAt : Symbol(String.charAt, Decl(lib.es5.d.ts, --, --))
+>toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(helpers.ts, 2, 27))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+
+export const normalize = (s: string) => s.trim().toLowerCase();
+>normalize : Symbol(normalize, Decl(helpers.ts, 3, 12))
+>s : Symbol(s, Decl(helpers.ts, 3, 26))
+>s.trim().toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+>s.trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(helpers.ts, 3, 26))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+
+=== validators.ts ===
+import { capitalize, normalize } from './helpers';
+>capitalize : Symbol(capitalize, Decl(validators.ts, 0, 8))
+>normalize : Symbol(normalize, Decl(validators.ts, 0, 20))
+
+const _toCamelCase = (s: string) => {
+>_toCamelCase : Symbol(_toCamelCase, Decl(validators.ts, 2, 5))
+>s : Symbol(s, Decl(validators.ts, 2, 22))
+
+    let [first, ...rest] = s.split('_');
+>first : Symbol(first, Decl(validators.ts, 3, 9))
+>rest : Symbol(rest, Decl(validators.ts, 3, 15))
+>s.split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+>s : Symbol(s, Decl(validators.ts, 2, 22))
+>split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+
+    return first + rest.map((p: string) => capitalize(p)).join('');
+>first : Symbol(first, Decl(validators.ts, 3, 9))
+>rest.map((p: string) => capitalize(p)).join : Symbol(Array.join, Decl(lib.es5.d.ts, --, --))
+>rest.map : Symbol(Array.map, Decl(lib.es5.d.ts, --, --))
+>rest : Symbol(rest, Decl(validators.ts, 3, 15))
+>map : Symbol(Array.map, Decl(lib.es5.d.ts, --, --))
+>p : Symbol(p, Decl(validators.ts, 4, 29))
+>capitalize : Symbol(capitalize, Decl(validators.ts, 0, 8))
+>p : Symbol(p, Decl(validators.ts, 4, 29))
+>join : Symbol(Array.join, Decl(lib.es5.d.ts, --, --))
+
+};
+
+const _clean = (s: string) => normalize(s) + "!";
+>_clean : Symbol(_clean, Decl(validators.ts, 7, 5))
+>s : Symbol(s, Decl(validators.ts, 7, 16))
+>normalize : Symbol(normalize, Decl(validators.ts, 0, 20))
+>s : Symbol(s, Decl(validators.ts, 7, 16))
+
+const _positive = (n: any) => {
+>_positive : Symbol(_positive, Decl(validators.ts, 9, 5))
+>n : Symbol(n, Decl(validators.ts, 9, 19))
+
+    if (typeof n != 'number' || n <= 0) return void "never";
+>n : Symbol(n, Decl(validators.ts, 9, 19))
+>n : Symbol(n, Decl(validators.ts, 9, 19))
+
+    return n;
+>n : Symbol(n, Decl(validators.ts, 9, 19))
+
+};
+
+const _email = (s: any) => {
+>_email : Symbol(_email, Decl(validators.ts, 14, 5))
+>s : Symbol(s, Decl(validators.ts, 14, 16))
+
+    if (typeof s != 'string') return void "never";
+>s : Symbol(s, Decl(validators.ts, 14, 16))
+
+    let at: number = s.indexOf('@');
+>at : Symbol(at, Decl(validators.ts, 16, 7))
+>s.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(validators.ts, 14, 16))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+
+    if (at < 1) return void "never";
+>at : Symbol(at, Decl(validators.ts, 16, 7))
+
+    let domain: string = s.slice(at + 1);
+>domain : Symbol(domain, Decl(validators.ts, 18, 7))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(validators.ts, 14, 16))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>at : Symbol(at, Decl(validators.ts, 16, 7))
+
+    if (domain.length < 3 || !domain.includes('.')) return void "never";
+>domain.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>domain : Symbol(domain, Decl(validators.ts, 18, 7))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>domain.includes : Symbol(String.includes, Decl(lib.es2015.core.d.ts, --, --))
+>domain : Symbol(domain, Decl(validators.ts, 18, 7))
+>includes : Symbol(String.includes, Decl(lib.es2015.core.d.ts, --, --))
+
+    return s;
+>s : Symbol(s, Decl(validators.ts, 14, 16))
+
+};
+
+export type ToCamelCase<T> = Intrinsic<typeof _toCamelCase, [T]>;
+>ToCamelCase : Symbol(ToCamelCase, Decl(validators.ts, 21, 2))
+>T : Symbol(T, Decl(validators.ts, 23, 24))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_toCamelCase : Symbol(_toCamelCase, Decl(validators.ts, 2, 5))
+>T : Symbol(T, Decl(validators.ts, 23, 24))
+
+export type Clean<T> = Intrinsic<typeof _clean, [T]>;
+>Clean : Symbol(Clean, Decl(validators.ts, 23, 65))
+>T : Symbol(T, Decl(validators.ts, 24, 18))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_clean : Symbol(_clean, Decl(validators.ts, 7, 5))
+>T : Symbol(T, Decl(validators.ts, 24, 18))
+
+export type Positive<T> = Intrinsic<typeof _positive, [T]>;
+>Positive : Symbol(Positive, Decl(validators.ts, 24, 53))
+>T : Symbol(T, Decl(validators.ts, 25, 21))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_positive : Symbol(_positive, Decl(validators.ts, 9, 5))
+>T : Symbol(T, Decl(validators.ts, 25, 21))
+
+export type Email<T> = Intrinsic<typeof _email, [T]>;
+>Email : Symbol(Email, Decl(validators.ts, 25, 59))
+>T : Symbol(T, Decl(validators.ts, 26, 18))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_email : Symbol(_email, Decl(validators.ts, 14, 5))
+>T : Symbol(T, Decl(validators.ts, 26, 18))
+
+=== chain.ts ===
+import { capitalize } from './helpers';
+>capitalize : Symbol(capitalize, Decl(chain.ts, 0, 8))
+
+const _titleCase = (s: string) => s.split(" ").map((w: string) => capitalize(w)).join(" ");
+>_titleCase : Symbol(_titleCase, Decl(chain.ts, 2, 5))
+>s : Symbol(s, Decl(chain.ts, 2, 20))
+>s.split(" ").map((w: string) => capitalize(w)).join : Symbol(Array.join, Decl(lib.es5.d.ts, --, --))
+>s.split(" ").map : Symbol(Array.map, Decl(lib.es5.d.ts, --, --))
+>s.split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+>s : Symbol(s, Decl(chain.ts, 2, 20))
+>split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+>map : Symbol(Array.map, Decl(lib.es5.d.ts, --, --))
+>w : Symbol(w, Decl(chain.ts, 2, 52))
+>capitalize : Symbol(capitalize, Decl(chain.ts, 0, 8))
+>w : Symbol(w, Decl(chain.ts, 2, 52))
+>join : Symbol(Array.join, Decl(lib.es5.d.ts, --, --))
+
+export type TitleCase<T> = Intrinsic<typeof _titleCase, [T]>;
+>TitleCase : Symbol(TitleCase, Decl(chain.ts, 2, 91))
+>T : Symbol(T, Decl(chain.ts, 4, 22))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_titleCase : Symbol(_titleCase, Decl(chain.ts, 2, 5))
+>T : Symbol(T, Decl(chain.ts, 4, 22))
+
+=== local_with_import.ts ===
+import { double, add1 } from './helpers';
+>double : Symbol(double, Decl(local_with_import.ts, 0, 8))
+>add1 : Symbol(add1, Decl(local_with_import.ts, 0, 16))
+
+const triple = (n: number) => n * 3;
+>triple : Symbol(triple, Decl(local_with_import.ts, 2, 5))
+>n : Symbol(n, Decl(local_with_import.ts, 2, 16))
+>n : Symbol(n, Decl(local_with_import.ts, 2, 16))
+
+const _compute = (n: number) => double(n) + triple(n) + add1(0);
+>_compute : Symbol(_compute, Decl(local_with_import.ts, 4, 5))
+>n : Symbol(n, Decl(local_with_import.ts, 4, 18))
+>double : Symbol(double, Decl(local_with_import.ts, 0, 8))
+>n : Symbol(n, Decl(local_with_import.ts, 4, 18))
+>triple : Symbol(triple, Decl(local_with_import.ts, 2, 5))
+>n : Symbol(n, Decl(local_with_import.ts, 4, 18))
+>add1 : Symbol(add1, Decl(local_with_import.ts, 0, 16))
+
+export type Compute<T> = Intrinsic<typeof _compute, [T]>;
+>Compute : Symbol(Compute, Decl(local_with_import.ts, 4, 64))
+>T : Symbol(T, Decl(local_with_import.ts, 6, 20))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_compute : Symbol(_compute, Decl(local_with_import.ts, 4, 5))
+>T : Symbol(T, Decl(local_with_import.ts, 6, 20))
+
+=== re_export.ts ===
+export { double, capitalize } from './helpers';
+>double : Symbol(double, Decl(re_export.ts, 0, 8))
+>capitalize : Symbol(capitalize, Decl(re_export.ts, 0, 16))
+
+=== uses_re_export.ts ===
+import { double, capitalize } from './re_export';
+>double : Symbol(double, Decl(uses_re_export.ts, 0, 8))
+>capitalize : Symbol(capitalize, Decl(uses_re_export.ts, 0, 16))
+
+const _doubleAndCap = (s: string) => capitalize(s) + double(1);
+>_doubleAndCap : Symbol(_doubleAndCap, Decl(uses_re_export.ts, 2, 5))
+>s : Symbol(s, Decl(uses_re_export.ts, 2, 23))
+>capitalize : Symbol(capitalize, Decl(uses_re_export.ts, 0, 16))
+>s : Symbol(s, Decl(uses_re_export.ts, 2, 23))
+>double : Symbol(double, Decl(uses_re_export.ts, 0, 8))
+
+export type DoubleAndCap<T> = Intrinsic<typeof _doubleAndCap, [T]>;
+>DoubleAndCap : Symbol(DoubleAndCap, Decl(uses_re_export.ts, 2, 63))
+>T : Symbol(T, Decl(uses_re_export.ts, 4, 25))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_doubleAndCap : Symbol(_doubleAndCap, Decl(uses_re_export.ts, 2, 5))
+>T : Symbol(T, Decl(uses_re_export.ts, 4, 25))
+
+=== consumer.ts ===
+import type { ToCamelCase, Clean, Positive, Email } from './validators';
+>ToCamelCase : Symbol(ToCamelCase, Decl(consumer.ts, 0, 13))
+>Clean : Symbol(Clean, Decl(consumer.ts, 0, 26))
+>Positive : Symbol(Positive, Decl(consumer.ts, 0, 33))
+>Email : Symbol(Email, Decl(consumer.ts, 0, 43))
+
+import type { TitleCase } from './chain';
+>TitleCase : Symbol(TitleCase, Decl(consumer.ts, 1, 13))
+
+import type { Compute } from './local_with_import';
+>Compute : Symbol(Compute, Decl(consumer.ts, 2, 13))
+
+import type { DoubleAndCap } from './uses_re_export';
+>DoubleAndCap : Symbol(DoubleAndCap, Decl(consumer.ts, 3, 13))
+
+type C1 = ToCamelCase<"user_first_name">;    // "userFirstName"
+>C1 : Symbol(C1, Decl(consumer.ts, 3, 53))
+>ToCamelCase : Symbol(ToCamelCase, Decl(consumer.ts, 0, 13))
+
+type C2 = ToCamelCase<"get_all_items">;       // "getAllItems"
+>C2 : Symbol(C2, Decl(consumer.ts, 5, 41))
+>ToCamelCase : Symbol(ToCamelCase, Decl(consumer.ts, 0, 13))
+
+type C3 = Clean<"  HELLO  ">;                // "hello!"
+>C3 : Symbol(C3, Decl(consumer.ts, 6, 39))
+>Clean : Symbol(Clean, Decl(consumer.ts, 0, 26))
+
+type C4 = Clean<"  World  ">;                // "world!"
+>C4 : Symbol(C4, Decl(consumer.ts, 7, 29))
+>Clean : Symbol(Clean, Decl(consumer.ts, 0, 26))
+
+type C5 = Positive<5>;                       // 5
+>C5 : Symbol(C5, Decl(consumer.ts, 8, 29))
+>Positive : Symbol(Positive, Decl(consumer.ts, 0, 33))
+
+type C6 = Positive<-1>;                      // never
+>C6 : Symbol(C6, Decl(consumer.ts, 9, 22))
+>Positive : Symbol(Positive, Decl(consumer.ts, 0, 33))
+
+type C7 = Positive<0>;                       // never
+>C7 : Symbol(C7, Decl(consumer.ts, 10, 23))
+>Positive : Symbol(Positive, Decl(consumer.ts, 0, 33))
+
+type C8 = Email<"user@example.com">;          // "user@example.com"
+>C8 : Symbol(C8, Decl(consumer.ts, 11, 22))
+>Email : Symbol(Email, Decl(consumer.ts, 0, 43))
+
+type C9 = Email<"bad">;                       // never
+>C9 : Symbol(C9, Decl(consumer.ts, 12, 36))
+>Email : Symbol(Email, Decl(consumer.ts, 0, 43))
+
+type C10 = TitleCase<"hello world foo">;      // "Hello World Foo"
+>C10 : Symbol(C10, Decl(consumer.ts, 13, 23))
+>TitleCase : Symbol(TitleCase, Decl(consumer.ts, 1, 13))
+
+type C11 = Compute<3>;                        // 6 + 9 + 1 = 16
+>C11 : Symbol(C11, Decl(consumer.ts, 14, 40))
+>Compute : Symbol(Compute, Decl(consumer.ts, 2, 13))
+
+type C12 = DoubleAndCap<"hello">;             // "Hello2"
+>C12 : Symbol(C12, Decl(consumer.ts, 15, 22))
+>DoubleAndCap : Symbol(DoubleAndCap, Decl(consumer.ts, 3, 13))
+
+=== non_const_export.ts ===
+export let mutableHelper = (n: number) => n + 1;
+>mutableHelper : Symbol(mutableHelper, Decl(non_const_export.ts, 0, 10))
+>n : Symbol(n, Decl(non_const_export.ts, 0, 28))
+>n : Symbol(n, Decl(non_const_export.ts, 0, 28))
+
+=== error_cases.ts ===
+import { mutableHelper } from './non_const_export';
+>mutableHelper : Symbol(mutableHelper, Decl(error_cases.ts, 0, 8))
+
+const _usesMutable = (x: number) => mutableHelper(x);
+>_usesMutable : Symbol(_usesMutable, Decl(error_cases.ts, 2, 5))
+>x : Symbol(x, Decl(error_cases.ts, 2, 22))
+>mutableHelper : Symbol(mutableHelper, Decl(error_cases.ts, 0, 8))
+>x : Symbol(x, Decl(error_cases.ts, 2, 22))
+
+type E1 = Intrinsic<typeof _usesMutable, [5]>;
+>E1 : Symbol(E1, Decl(error_cases.ts, 2, 53))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_usesMutable : Symbol(_usesMutable, Decl(error_cases.ts, 2, 5))
+
+const _usesGhost = (x: number) => ghostFn(x);
+>_usesGhost : Symbol(_usesGhost, Decl(error_cases.ts, 5, 5))
+>x : Symbol(x, Decl(error_cases.ts, 5, 20))
+>x : Symbol(x, Decl(error_cases.ts, 5, 20))
+
+type E2 = Intrinsic<typeof _usesGhost, [5]>;
+>E2 : Symbol(E2, Decl(error_cases.ts, 5, 45))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_usesGhost : Symbol(_usesGhost, Decl(error_cases.ts, 5, 5))
+

@@ -1,0 +1,2453 @@
+//// [tests/cases/compiler/intrinsic/sql.ts] ////
+
+=== sql_helpers.ts ===
+// Shared helpers for compile-time SQL validation and parsing via Intrinsic<>.
+
+export const ne = { $never$: {} } ;
+>ne : { $never$: {}; }
+>{ $never$: {} } : { $never$: {}; }
+>$never$ : {}
+>{} : {}
+
+export function range(startOrEnd: number, end?: number): number[] {
+>range : (startOrEnd: number, end?: number) => number[]
+>startOrEnd : number
+>end : number | undefined
+
+    const s = end === undefined ? 0 : startOrEnd;
+>s : number
+>end === undefined ? 0 : startOrEnd : number
+>end === undefined : boolean
+>end : number | undefined
+>undefined : undefined
+>0 : 0
+>startOrEnd : number
+
+    const e = end === undefined ? startOrEnd : end;
+>e : number
+>end === undefined ? startOrEnd : end : number
+>end === undefined : boolean
+>end : number | undefined
+>undefined : undefined
+>startOrEnd : number
+>end : number
+
+    return Array.from({ length: Math.max(e - s, 0) }, (_, i) => s + i);
+>Array.from({ length: Math.max(e - s, 0) }, (_, i) => s + i) : number[]
+>Array.from : { <T>(arrayLike: ArrayLike<T>): T[]; <T, U>(arrayLike: ArrayLike<T>, mapfn: (v: T, k: number) => U, thisArg?: any): U[]; <T>(iterable: Iterable<T> | ArrayLike<T>): T[]; <T, U>(iterable: Iterable<T> | ArrayLike<T>, mapfn: (v: T, k: number) => U, thisArg?: any): U[]; }
+>Array : ArrayConstructor
+>from : { <T>(arrayLike: ArrayLike<T>): T[]; <T, U>(arrayLike: ArrayLike<T>, mapfn: (v: T, k: number) => U, thisArg?: any): U[]; <T>(iterable: Iterable<T> | ArrayLike<T>): T[]; <T, U>(iterable: Iterable<T> | ArrayLike<T>, mapfn: (v: T, k: number) => U, thisArg?: any): U[]; }
+>{ length: Math.max(e - s, 0) } : { length: number; }
+>length : number
+>Math.max(e - s, 0) : number
+>Math.max : (...values: number[]) => number
+>Math : Math
+>max : (...values: number[]) => number
+>e - s : number
+>e : number
+>s : number
+>0 : 0
+>(_, i) => s + i : (_: unknown, i: number) => number
+>_ : unknown
+>i : number
+>s + i : number
+>s : number
+>i : number
+}
+
+// Collapse runs of whitespace to a single space, preserving single-quoted strings.
+export const normalizeSql = (sql: string) => {
+>normalizeSql : (sql: string) => string
+>(sql: string) => {    let norm: string = '';    let lastWasSpace: boolean = true;    let inStr: boolean = false;    let i = 0;    while (i < sql.length) {        let c: string = sql.slice(i, i + 1);        if (c == "'") { inStr = !inStr; norm = norm + c; lastWasSpace = false; }        else if (inStr) { norm = norm + c; lastWasSpace = false; }        else if (c == ' ' || c == '\n' || c == '\t') {            if (!lastWasSpace) { norm = norm + ' '; lastWasSpace = true; }        } else { norm = norm + c; lastWasSpace = false; }        i = i + 1;    }    return norm.trim();} : (sql: string) => string
+>sql : string
+
+    let norm: string = '';
+>norm : string
+>'' : ""
+
+    let lastWasSpace: boolean = true;
+>lastWasSpace : boolean
+>true : true
+
+    let inStr: boolean = false;
+>inStr : boolean
+>false : false
+
+    let i = 0;
+>i : number
+>0 : 0
+
+    while (i < sql.length) {
+>i < sql.length : boolean
+>i : number
+>sql.length : number
+>sql : string
+>length : number
+
+        let c: string = sql.slice(i, i + 1);
+>c : string
+>sql.slice(i, i + 1) : string
+>sql.slice : (start?: number, end?: number) => string
+>sql : string
+>slice : (start?: number, end?: number) => string
+>i : number
+>i + 1 : number
+>i : number
+>1 : 1
+
+        if (c == "'") { inStr = !inStr; norm = norm + c; lastWasSpace = false; }
+>c == "'" : boolean
+>c : string
+>"'" : "'"
+>inStr = !inStr : boolean
+>inStr : boolean
+>!inStr : boolean
+>inStr : boolean
+>norm = norm + c : string
+>norm : string
+>norm + c : string
+>norm : string
+>c : "'"
+>lastWasSpace = false : false
+>lastWasSpace : boolean
+>false : false
+
+        else if (inStr) { norm = norm + c; lastWasSpace = false; }
+>inStr : boolean
+>norm = norm + c : string
+>norm : string
+>norm + c : string
+>norm : string
+>c : string
+>lastWasSpace = false : false
+>lastWasSpace : boolean
+>false : false
+
+        else if (c == ' ' || c == '\n' || c == '\t') {
+>c == ' ' || c == '\n' || c == '\t' : boolean
+>c == ' ' || c == '\n' : boolean
+>c == ' ' : boolean
+>c : string
+>' ' : " "
+>c == '\n' : boolean
+>c : string
+>'\n' : "\n"
+>c == '\t' : boolean
+>c : string
+>'\t' : "\t"
+
+            if (!lastWasSpace) { norm = norm + ' '; lastWasSpace = true; }
+>!lastWasSpace : boolean
+>lastWasSpace : boolean
+>norm = norm + ' ' : string
+>norm : string
+>norm + ' ' : string
+>norm : string
+>' ' : " "
+>lastWasSpace = true : true
+>lastWasSpace : boolean
+>true : true
+
+        } else { norm = norm + c; lastWasSpace = false; }
+>norm = norm + c : string
+>norm : string
+>norm + c : string
+>norm : string
+>c : string
+>lastWasSpace = false : false
+>lastWasSpace : boolean
+>false : false
+
+        i = i + 1;
+>i = i + 1 : number
+>i : number
+>i + 1 : number
+>i : number
+>1 : 1
+    }
+    return norm.trim();
+>norm.trim() : string
+>norm.trim : () => string
+>norm : string
+>trim : () => string
+
+};
+
+// Find a SQL keyword at a word boundary in an uppercased string. Returns index or -1.
+export const findKw = (upper: string, kw: string) => {
+>findKw : (upper: string, kw: string) => number
+>(upper: string, kw: string) => {    let idx: number = upper.indexOf(kw);    while (idx != -1) {        let before: boolean = idx == 0 || upper.slice(idx - 1, idx) == ' ' || upper.slice(idx - 1, idx) == '(';        let end: number = idx + kw.length;        let after: boolean = end == upper.length || upper.slice(end, end + 1) == ' ' || upper.slice(end, end + 1) == '(' || upper.slice(end, end + 1) == ')';        if (before && after) return idx;        idx = upper.indexOf(kw, idx + 1);    }    return -1;} : (upper: string, kw: string) => number
+>upper : string
+>kw : string
+
+    let idx: number = upper.indexOf(kw);
+>idx : number
+>upper.indexOf(kw) : number
+>upper.indexOf : (searchString: string, position?: number) => number
+>upper : string
+>indexOf : (searchString: string, position?: number) => number
+>kw : string
+
+    while (idx != -1) {
+>idx != -1 : boolean
+>idx : number
+>-1 : -1
+>1 : 1
+
+        let before: boolean = idx == 0 || upper.slice(idx - 1, idx) == ' ' || upper.slice(idx - 1, idx) == '(';
+>before : boolean
+>idx == 0 || upper.slice(idx - 1, idx) == ' ' || upper.slice(idx - 1, idx) == '(' : boolean
+>idx == 0 || upper.slice(idx - 1, idx) == ' ' : boolean
+>idx == 0 : boolean
+>idx : number
+>0 : 0
+>upper.slice(idx - 1, idx) == ' ' : boolean
+>upper.slice(idx - 1, idx) : string
+>upper.slice : (start?: number, end?: number) => string
+>upper : string
+>slice : (start?: number, end?: number) => string
+>idx - 1 : number
+>idx : number
+>1 : 1
+>idx : number
+>' ' : " "
+>upper.slice(idx - 1, idx) == '(' : boolean
+>upper.slice(idx - 1, idx) : string
+>upper.slice : (start?: number, end?: number) => string
+>upper : string
+>slice : (start?: number, end?: number) => string
+>idx - 1 : number
+>idx : number
+>1 : 1
+>idx : number
+>'(' : "("
+
+        let end: number = idx + kw.length;
+>end : number
+>idx + kw.length : number
+>idx : number
+>kw.length : number
+>kw : string
+>length : number
+
+        let after: boolean = end == upper.length || upper.slice(end, end + 1) == ' ' || upper.slice(end, end + 1) == '(' || upper.slice(end, end + 1) == ')';
+>after : boolean
+>end == upper.length || upper.slice(end, end + 1) == ' ' || upper.slice(end, end + 1) == '(' || upper.slice(end, end + 1) == ')' : boolean
+>end == upper.length || upper.slice(end, end + 1) == ' ' || upper.slice(end, end + 1) == '(' : boolean
+>end == upper.length || upper.slice(end, end + 1) == ' ' : boolean
+>end == upper.length : boolean
+>end : number
+>upper.length : number
+>upper : string
+>length : number
+>upper.slice(end, end + 1) == ' ' : boolean
+>upper.slice(end, end + 1) : string
+>upper.slice : (start?: number, end?: number) => string
+>upper : string
+>slice : (start?: number, end?: number) => string
+>end : number
+>end + 1 : number
+>end : number
+>1 : 1
+>' ' : " "
+>upper.slice(end, end + 1) == '(' : boolean
+>upper.slice(end, end + 1) : string
+>upper.slice : (start?: number, end?: number) => string
+>upper : string
+>slice : (start?: number, end?: number) => string
+>end : number
+>end + 1 : number
+>end : number
+>1 : 1
+>'(' : "("
+>upper.slice(end, end + 1) == ')' : boolean
+>upper.slice(end, end + 1) : string
+>upper.slice : (start?: number, end?: number) => string
+>upper : string
+>slice : (start?: number, end?: number) => string
+>end : number
+>end + 1 : number
+>end : number
+>1 : 1
+>')' : ")"
+
+        if (before && after) return idx;
+>before && after : boolean
+>before : boolean
+>after : boolean
+>idx : number
+
+        idx = upper.indexOf(kw, idx + 1);
+>idx = upper.indexOf(kw, idx + 1) : number
+>idx : number
+>upper.indexOf(kw, idx + 1) : number
+>upper.indexOf : (searchString: string, position?: number) => number
+>upper : string
+>indexOf : (searchString: string, position?: number) => number
+>kw : string
+>idx + 1 : number
+>idx : number
+>1 : 1
+    }
+    return -1;
+>-1 : -1
+>1 : 1
+
+};
+
+// Extract $1, $2, ... parameter placeholders from a SQL string.
+export const findParams = (s: string) => {
+>findParams : (s: string) => string[]
+>(s: string) => {    let params: string[] = [];    let i = 0;    while (i < s.length - 1) {        if (s.slice(i, i + 1) == '$') {            let j: number = i + 1;            while (j < s.length && '0123456789'.includes(s.slice(j, j + 1))) { j = j + 1; }            if (j > i + 1) {                let p: string = s.slice(i, j);                if (!params.includes(p)) params = [...params, p];            }        }        i = i + 1;    }    return params;} : (s: string) => string[]
+>s : string
+
+    let params: string[] = [];
+>params : string[]
+>[] : never[]
+
+    let i = 0;
+>i : number
+>0 : 0
+
+    while (i < s.length - 1) {
+>i < s.length - 1 : boolean
+>i : number
+>s.length - 1 : number
+>s.length : number
+>s : string
+>length : number
+>1 : 1
+
+        if (s.slice(i, i + 1) == '$') {
+>s.slice(i, i + 1) == '$' : boolean
+>s.slice(i, i + 1) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>i : number
+>i + 1 : number
+>i : number
+>1 : 1
+>'$' : "$"
+
+            let j: number = i + 1;
+>j : number
+>i + 1 : number
+>i : number
+>1 : 1
+
+            while (j < s.length && '0123456789'.includes(s.slice(j, j + 1))) { j = j + 1; }
+>j < s.length && '0123456789'.includes(s.slice(j, j + 1)) : boolean
+>j < s.length : boolean
+>j : number
+>s.length : number
+>s : string
+>length : number
+>'0123456789'.includes(s.slice(j, j + 1)) : boolean
+>'0123456789'.includes : (searchString: string, position?: number) => boolean
+>'0123456789' : "0123456789"
+>includes : (searchString: string, position?: number) => boolean
+>s.slice(j, j + 1) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>j : number
+>j + 1 : number
+>j : number
+>1 : 1
+>j = j + 1 : number
+>j : number
+>j + 1 : number
+>j : number
+>1 : 1
+
+            if (j > i + 1) {
+>j > i + 1 : boolean
+>j : number
+>i + 1 : number
+>i : number
+>1 : 1
+
+                let p: string = s.slice(i, j);
+>p : string
+>s.slice(i, j) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>i : number
+>j : number
+
+                if (!params.includes(p)) params = [...params, p];
+>!params.includes(p) : boolean
+>params.includes(p) : boolean
+>params.includes : (searchElement: string, fromIndex?: number) => boolean
+>params : string[]
+>includes : (searchElement: string, fromIndex?: number) => boolean
+>p : string
+>params = [...params, p] : string[]
+>params : string[]
+>[...params, p] : string[]
+>...params : string
+>params : string[]
+>p : string
+            }
+        }
+        i = i + 1;
+>i = i + 1 : number
+>i : number
+>i + 1 : number
+>i : number
+>1 : 1
+    }
+    return params;
+>params : string[]
+
+};
+
+// Extract the first word (table name) from a string. Returns [table, rest].
+export const extractTable = (s: string) => {
+>extractTable : (s: string) => string[]
+>(s: string) => {    let spaceIdx: number = s.indexOf(' ');    if (spaceIdx == -1) return [s, ''];    return [s.slice(0, spaceIdx), s.slice(spaceIdx + 1)];} : (s: string) => string[]
+>s : string
+
+    let spaceIdx: number = s.indexOf(' ');
+>spaceIdx : number
+>s.indexOf(' ') : number
+>s.indexOf : (searchString: string, position?: number) => number
+>s : string
+>indexOf : (searchString: string, position?: number) => number
+>' ' : " "
+
+    if (spaceIdx == -1) return [s, ''];
+>spaceIdx == -1 : boolean
+>spaceIdx : number
+>-1 : -1
+>1 : 1
+>[s, ''] : string[]
+>s : string
+>'' : ""
+
+    return [s.slice(0, spaceIdx), s.slice(spaceIdx + 1)];
+>[s.slice(0, spaceIdx), s.slice(spaceIdx + 1)] : string[]
+>s.slice(0, spaceIdx) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>0 : 0
+>spaceIdx : number
+>s.slice(spaceIdx + 1) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>spaceIdx + 1 : number
+>spaceIdx : number
+>1 : 1
+
+};
+
+// Extract WHERE clause, trimming anything after ORDER BY / LIMIT / GROUP BY.
+export const extractWhere = (norm: string, upper: string) => {
+>extractWhere : (norm: string, upper: string) => string
+>(norm: string, upper: string) => {    let whereIdx: number = findKw(upper, 'WHERE');    if (whereIdx == -1) return '';    let afterWhere: string = norm.slice(whereIdx + 6).trim();    let endIdx: number = afterWhere.length;    let orderCheck: number = afterWhere.toUpperCase().indexOf(' ORDER BY ');    let limitCheck: number = afterWhere.toUpperCase().indexOf(' LIMIT ');    let groupCheck: number = afterWhere.toUpperCase().indexOf(' GROUP BY ');    if (orderCheck != -1 && orderCheck < endIdx) endIdx = orderCheck;    if (limitCheck != -1 && limitCheck < endIdx) endIdx = limitCheck;    if (groupCheck != -1 && groupCheck < endIdx) endIdx = groupCheck;    return afterWhere.slice(0, endIdx).trim();} : (norm: string, upper: string) => string
+>norm : string
+>upper : string
+
+    let whereIdx: number = findKw(upper, 'WHERE');
+>whereIdx : number
+>findKw(upper, 'WHERE') : number
+>findKw : (upper: string, kw: string) => number
+>upper : string
+>'WHERE' : "WHERE"
+
+    if (whereIdx == -1) return '';
+>whereIdx == -1 : boolean
+>whereIdx : number
+>-1 : -1
+>1 : 1
+>'' : ""
+
+    let afterWhere: string = norm.slice(whereIdx + 6).trim();
+>afterWhere : string
+>norm.slice(whereIdx + 6).trim() : string
+>norm.slice(whereIdx + 6).trim : () => string
+>norm.slice(whereIdx + 6) : string
+>norm.slice : (start?: number, end?: number) => string
+>norm : string
+>slice : (start?: number, end?: number) => string
+>whereIdx + 6 : number
+>whereIdx : number
+>6 : 6
+>trim : () => string
+
+    let endIdx: number = afterWhere.length;
+>endIdx : number
+>afterWhere.length : number
+>afterWhere : string
+>length : number
+
+    let orderCheck: number = afterWhere.toUpperCase().indexOf(' ORDER BY ');
+>orderCheck : number
+>afterWhere.toUpperCase().indexOf(' ORDER BY ') : number
+>afterWhere.toUpperCase().indexOf : (searchString: string, position?: number) => number
+>afterWhere.toUpperCase() : string
+>afterWhere.toUpperCase : () => string
+>afterWhere : string
+>toUpperCase : () => string
+>indexOf : (searchString: string, position?: number) => number
+>' ORDER BY ' : " ORDER BY "
+
+    let limitCheck: number = afterWhere.toUpperCase().indexOf(' LIMIT ');
+>limitCheck : number
+>afterWhere.toUpperCase().indexOf(' LIMIT ') : number
+>afterWhere.toUpperCase().indexOf : (searchString: string, position?: number) => number
+>afterWhere.toUpperCase() : string
+>afterWhere.toUpperCase : () => string
+>afterWhere : string
+>toUpperCase : () => string
+>indexOf : (searchString: string, position?: number) => number
+>' LIMIT ' : " LIMIT "
+
+    let groupCheck: number = afterWhere.toUpperCase().indexOf(' GROUP BY ');
+>groupCheck : number
+>afterWhere.toUpperCase().indexOf(' GROUP BY ') : number
+>afterWhere.toUpperCase().indexOf : (searchString: string, position?: number) => number
+>afterWhere.toUpperCase() : string
+>afterWhere.toUpperCase : () => string
+>afterWhere : string
+>toUpperCase : () => string
+>indexOf : (searchString: string, position?: number) => number
+>' GROUP BY ' : " GROUP BY "
+
+    if (orderCheck != -1 && orderCheck < endIdx) endIdx = orderCheck;
+>orderCheck != -1 && orderCheck < endIdx : boolean
+>orderCheck != -1 : boolean
+>orderCheck : number
+>-1 : -1
+>1 : 1
+>orderCheck < endIdx : boolean
+>orderCheck : number
+>endIdx : number
+>endIdx = orderCheck : number
+>endIdx : number
+>orderCheck : number
+
+    if (limitCheck != -1 && limitCheck < endIdx) endIdx = limitCheck;
+>limitCheck != -1 && limitCheck < endIdx : boolean
+>limitCheck != -1 : boolean
+>limitCheck : number
+>-1 : -1
+>1 : 1
+>limitCheck < endIdx : boolean
+>limitCheck : number
+>endIdx : number
+>endIdx = limitCheck : number
+>endIdx : number
+>limitCheck : number
+
+    if (groupCheck != -1 && groupCheck < endIdx) endIdx = groupCheck;
+>groupCheck != -1 && groupCheck < endIdx : boolean
+>groupCheck != -1 : boolean
+>groupCheck : number
+>-1 : -1
+>1 : 1
+>groupCheck < endIdx : boolean
+>groupCheck : number
+>endIdx : number
+>endIdx = groupCheck : number
+>endIdx : number
+>groupCheck : number
+
+    return afterWhere.slice(0, endIdx).trim();
+>afterWhere.slice(0, endIdx).trim() : string
+>afterWhere.slice(0, endIdx).trim : () => string
+>afterWhere.slice(0, endIdx) : string
+>afterWhere.slice : (start?: number, end?: number) => string
+>afterWhere : string
+>slice : (start?: number, end?: number) => string
+>0 : 0
+>endIdx : number
+>trim : () => string
+
+};
+
+// Extract ORDER BY clause value.
+export const extractOrderBy = (norm: string, upper: string) => {
+>extractOrderBy : (norm: string, upper: string) => string
+>(norm: string, upper: string) => {    let orderIdx: number = findKw(upper, 'ORDER BY');    if (orderIdx == -1) return '';    let afterOrder: string = norm.slice(orderIdx + 9).trim();    let limitCheck: number = afterOrder.toUpperCase().indexOf(' LIMIT ');    return limitCheck == -1 ? afterOrder : afterOrder.slice(0, limitCheck).trim();} : (norm: string, upper: string) => string
+>norm : string
+>upper : string
+
+    let orderIdx: number = findKw(upper, 'ORDER BY');
+>orderIdx : number
+>findKw(upper, 'ORDER BY') : number
+>findKw : (upper: string, kw: string) => number
+>upper : string
+>'ORDER BY' : "ORDER BY"
+
+    if (orderIdx == -1) return '';
+>orderIdx == -1 : boolean
+>orderIdx : number
+>-1 : -1
+>1 : 1
+>'' : ""
+
+    let afterOrder: string = norm.slice(orderIdx + 9).trim();
+>afterOrder : string
+>norm.slice(orderIdx + 9).trim() : string
+>norm.slice(orderIdx + 9).trim : () => string
+>norm.slice(orderIdx + 9) : string
+>norm.slice : (start?: number, end?: number) => string
+>norm : string
+>slice : (start?: number, end?: number) => string
+>orderIdx + 9 : number
+>orderIdx : number
+>9 : 9
+>trim : () => string
+
+    let limitCheck: number = afterOrder.toUpperCase().indexOf(' LIMIT ');
+>limitCheck : number
+>afterOrder.toUpperCase().indexOf(' LIMIT ') : number
+>afterOrder.toUpperCase().indexOf : (searchString: string, position?: number) => number
+>afterOrder.toUpperCase() : string
+>afterOrder.toUpperCase : () => string
+>afterOrder : string
+>toUpperCase : () => string
+>indexOf : (searchString: string, position?: number) => number
+>' LIMIT ' : " LIMIT "
+
+    return limitCheck == -1 ? afterOrder : afterOrder.slice(0, limitCheck).trim();
+>limitCheck == -1 ? afterOrder : afterOrder.slice(0, limitCheck).trim() : string
+>limitCheck == -1 : boolean
+>limitCheck : number
+>-1 : -1
+>1 : 1
+>afterOrder : string
+>afterOrder.slice(0, limitCheck).trim() : string
+>afterOrder.slice(0, limitCheck).trim : () => string
+>afterOrder.slice(0, limitCheck) : string
+>afterOrder.slice : (start?: number, end?: number) => string
+>afterOrder : string
+>slice : (start?: number, end?: number) => string
+>0 : 0
+>limitCheck : number
+>trim : () => string
+
+};
+
+// Extract LIMIT clause value.
+export const extractLimit = (norm: string, upper: string) => {
+>extractLimit : (norm: string, upper: string) => string
+>(norm: string, upper: string) => {    let limitIdx: number = findKw(upper, 'LIMIT');    if (limitIdx == -1) return '';    let afterLimit: string = norm.slice(limitIdx + 6).trim();    let offsetCheck: number = afterLimit.toUpperCase().indexOf(' OFFSET ');    return offsetCheck == -1 ? afterLimit : afterLimit.slice(0, offsetCheck).trim();} : (norm: string, upper: string) => string
+>norm : string
+>upper : string
+
+    let limitIdx: number = findKw(upper, 'LIMIT');
+>limitIdx : number
+>findKw(upper, 'LIMIT') : number
+>findKw : (upper: string, kw: string) => number
+>upper : string
+>'LIMIT' : "LIMIT"
+
+    if (limitIdx == -1) return '';
+>limitIdx == -1 : boolean
+>limitIdx : number
+>-1 : -1
+>1 : 1
+>'' : ""
+
+    let afterLimit: string = norm.slice(limitIdx + 6).trim();
+>afterLimit : string
+>norm.slice(limitIdx + 6).trim() : string
+>norm.slice(limitIdx + 6).trim : () => string
+>norm.slice(limitIdx + 6) : string
+>norm.slice : (start?: number, end?: number) => string
+>norm : string
+>slice : (start?: number, end?: number) => string
+>limitIdx + 6 : number
+>limitIdx : number
+>6 : 6
+>trim : () => string
+
+    let offsetCheck: number = afterLimit.toUpperCase().indexOf(' OFFSET ');
+>offsetCheck : number
+>afterLimit.toUpperCase().indexOf(' OFFSET ') : number
+>afterLimit.toUpperCase().indexOf : (searchString: string, position?: number) => number
+>afterLimit.toUpperCase() : string
+>afterLimit.toUpperCase : () => string
+>afterLimit : string
+>toUpperCase : () => string
+>indexOf : (searchString: string, position?: number) => number
+>' OFFSET ' : " OFFSET "
+
+    return offsetCheck == -1 ? afterLimit : afterLimit.slice(0, offsetCheck).trim();
+>offsetCheck == -1 ? afterLimit : afterLimit.slice(0, offsetCheck).trim() : string
+>offsetCheck == -1 : boolean
+>offsetCheck : number
+>-1 : -1
+>1 : 1
+>afterLimit : string
+>afterLimit.slice(0, offsetCheck).trim() : string
+>afterLimit.slice(0, offsetCheck).trim : () => string
+>afterLimit.slice(0, offsetCheck) : string
+>afterLimit.slice : (start?: number, end?: number) => string
+>afterLimit : string
+>slice : (start?: number, end?: number) => string
+>0 : 0
+>offsetCheck : number
+>trim : () => string
+
+};
+
+// Split comma-separated items and trim each.
+export const splitTrim = (s: string) => s.split(',').map((c: string) => c.trim());
+>splitTrim : (s: string) => string[]
+>(s: string) => s.split(',').map((c: string) => c.trim()) : (s: string) => string[]
+>s : string
+>s.split(',').map((c: string) => c.trim()) : string[]
+>s.split(',').map : <U>(callbackfn: (value: string, index: number, array: string[]) => U, thisArg?: any) => U[]
+>s.split(',') : string[]
+>s.split : { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }
+>s : string
+>split : { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }
+>',' : ","
+>map : <U>(callbackfn: (value: string, index: number, array: string[]) => U, thisArg?: any) => U[]
+>(c: string) => c.trim() : (c: string) => string
+>c : string
+>c.trim() : string
+>c.trim : () => string
+>c : string
+>trim : () => string
+
+// Parse CREATE TABLE statements from a schema string into { tableName: [col, ...] }.
+export const parseSchema = (schemaSql: string) => {
+>parseSchema : (schemaSql: string) => "Error: invalid schema: missing ( in CREATE TABLE" | "Error: invalid schema: missing ) in CREATE TABLE" | Record<string, any>
+>(schemaSql: string) => {    let tables: Record<string, any> = {};    let stmts: string[] = schemaSql.split(';');    for (let stmt of stmts) {        let s: string = stmt.trim();        if (s.length == 0) { }        else if (s.toUpperCase().startsWith('CREATE TABLE ')) {            let afterCT: string = s.slice(13).trim();            if (afterCT.toUpperCase().startsWith('IF NOT EXISTS ')) {                afterCT = afterCT.slice(14).trim();            }            let parenIdx: number = afterCT.indexOf('(');            if (parenIdx == -1) return 'Error: invalid schema: missing ( in CREATE TABLE';            let tableName: string = afterCT.slice(0, parenIdx).trim();            let endParen: number = -1;            let ei = 0;            while (ei < afterCT.length) {                if (afterCT.slice(ei, ei + 1) == ')') endParen = ei;                ei = ei + 1;            }            if (endParen == -1) return 'Error: invalid schema: missing ) in CREATE TABLE';            let colDefs: string = afterCT.slice(parenIdx + 1, endParen);            let colNames: string[] = [];            let parts: string[] = colDefs.split(',');            for (let part of parts) {                let p: string = part.trim();                if (p.length > 0) {                    let firstWord: string = p.includes(' ') ? p.slice(0, p.indexOf(' ')) : p;                    let upper: string = firstWord.toUpperCase();                    if (upper != 'PRIMARY' && upper != 'FOREIGN' && upper != 'UNIQUE'                        && upper != 'CHECK' && upper != 'CONSTRAINT') {                        colNames = [...colNames, firstWord];                    }                }            }            tables[tableName] = colNames;        }    }    return tables;} : (schemaSql: string) => "Error: invalid schema: missing ( in CREATE TABLE" | "Error: invalid schema: missing ) in CREATE TABLE" | Record<string, any>
+>schemaSql : string
+
+    let tables: Record<string, any> = {};
+>tables : Record<string, any>
+>{} : {}
+
+    let stmts: string[] = schemaSql.split(';');
+>stmts : string[]
+>schemaSql.split(';') : string[]
+>schemaSql.split : { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }
+>schemaSql : string
+>split : { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }
+>';' : ";"
+
+    for (let stmt of stmts) {
+>stmt : string
+>stmts : string[]
+
+        let s: string = stmt.trim();
+>s : string
+>stmt.trim() : string
+>stmt.trim : () => string
+>stmt : string
+>trim : () => string
+
+        if (s.length == 0) { }
+>s.length == 0 : boolean
+>s.length : number
+>s : string
+>length : number
+>0 : 0
+
+        else if (s.toUpperCase().startsWith('CREATE TABLE ')) {
+>s.toUpperCase().startsWith('CREATE TABLE ') : boolean
+>s.toUpperCase().startsWith : (searchString: string, position?: number) => boolean
+>s.toUpperCase() : string
+>s.toUpperCase : () => string
+>s : string
+>toUpperCase : () => string
+>startsWith : (searchString: string, position?: number) => boolean
+>'CREATE TABLE ' : "CREATE TABLE "
+
+            let afterCT: string = s.slice(13).trim();
+>afterCT : string
+>s.slice(13).trim() : string
+>s.slice(13).trim : () => string
+>s.slice(13) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>13 : 13
+>trim : () => string
+
+            if (afterCT.toUpperCase().startsWith('IF NOT EXISTS ')) {
+>afterCT.toUpperCase().startsWith('IF NOT EXISTS ') : boolean
+>afterCT.toUpperCase().startsWith : (searchString: string, position?: number) => boolean
+>afterCT.toUpperCase() : string
+>afterCT.toUpperCase : () => string
+>afterCT : string
+>toUpperCase : () => string
+>startsWith : (searchString: string, position?: number) => boolean
+>'IF NOT EXISTS ' : "IF NOT EXISTS "
+
+                afterCT = afterCT.slice(14).trim();
+>afterCT = afterCT.slice(14).trim() : string
+>afterCT : string
+>afterCT.slice(14).trim() : string
+>afterCT.slice(14).trim : () => string
+>afterCT.slice(14) : string
+>afterCT.slice : (start?: number, end?: number) => string
+>afterCT : string
+>slice : (start?: number, end?: number) => string
+>14 : 14
+>trim : () => string
+            }
+            let parenIdx: number = afterCT.indexOf('(');
+>parenIdx : number
+>afterCT.indexOf('(') : number
+>afterCT.indexOf : (searchString: string, position?: number) => number
+>afterCT : string
+>indexOf : (searchString: string, position?: number) => number
+>'(' : "("
+
+            if (parenIdx == -1) return 'Error: invalid schema: missing ( in CREATE TABLE';
+>parenIdx == -1 : boolean
+>parenIdx : number
+>-1 : -1
+>1 : 1
+>'Error: invalid schema: missing ( in CREATE TABLE' : "Error: invalid schema: missing ( in CREATE TABLE"
+
+            let tableName: string = afterCT.slice(0, parenIdx).trim();
+>tableName : string
+>afterCT.slice(0, parenIdx).trim() : string
+>afterCT.slice(0, parenIdx).trim : () => string
+>afterCT.slice(0, parenIdx) : string
+>afterCT.slice : (start?: number, end?: number) => string
+>afterCT : string
+>slice : (start?: number, end?: number) => string
+>0 : 0
+>parenIdx : number
+>trim : () => string
+
+            let endParen: number = -1;
+>endParen : number
+>-1 : -1
+>1 : 1
+
+            let ei = 0;
+>ei : number
+>0 : 0
+
+            while (ei < afterCT.length) {
+>ei < afterCT.length : boolean
+>ei : number
+>afterCT.length : number
+>afterCT : string
+>length : number
+
+                if (afterCT.slice(ei, ei + 1) == ')') endParen = ei;
+>afterCT.slice(ei, ei + 1) == ')' : boolean
+>afterCT.slice(ei, ei + 1) : string
+>afterCT.slice : (start?: number, end?: number) => string
+>afterCT : string
+>slice : (start?: number, end?: number) => string
+>ei : number
+>ei + 1 : number
+>ei : number
+>1 : 1
+>')' : ")"
+>endParen = ei : number
+>endParen : number
+>ei : number
+
+                ei = ei + 1;
+>ei = ei + 1 : number
+>ei : number
+>ei + 1 : number
+>ei : number
+>1 : 1
+            }
+            if (endParen == -1) return 'Error: invalid schema: missing ) in CREATE TABLE';
+>endParen == -1 : boolean
+>endParen : number
+>-1 : -1
+>1 : 1
+>'Error: invalid schema: missing ) in CREATE TABLE' : "Error: invalid schema: missing ) in CREATE TABLE"
+
+            let colDefs: string = afterCT.slice(parenIdx + 1, endParen);
+>colDefs : string
+>afterCT.slice(parenIdx + 1, endParen) : string
+>afterCT.slice : (start?: number, end?: number) => string
+>afterCT : string
+>slice : (start?: number, end?: number) => string
+>parenIdx + 1 : number
+>parenIdx : number
+>1 : 1
+>endParen : number
+
+            let colNames: string[] = [];
+>colNames : string[]
+>[] : never[]
+
+            let parts: string[] = colDefs.split(',');
+>parts : string[]
+>colDefs.split(',') : string[]
+>colDefs.split : { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }
+>colDefs : string
+>split : { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }
+>',' : ","
+
+            for (let part of parts) {
+>part : string
+>parts : string[]
+
+                let p: string = part.trim();
+>p : string
+>part.trim() : string
+>part.trim : () => string
+>part : string
+>trim : () => string
+
+                if (p.length > 0) {
+>p.length > 0 : boolean
+>p.length : number
+>p : string
+>length : number
+>0 : 0
+
+                    let firstWord: string = p.includes(' ') ? p.slice(0, p.indexOf(' ')) : p;
+>firstWord : string
+>p.includes(' ') ? p.slice(0, p.indexOf(' ')) : p : string
+>p.includes(' ') : boolean
+>p.includes : (searchString: string, position?: number) => boolean
+>p : string
+>includes : (searchString: string, position?: number) => boolean
+>' ' : " "
+>p.slice(0, p.indexOf(' ')) : string
+>p.slice : (start?: number, end?: number) => string
+>p : string
+>slice : (start?: number, end?: number) => string
+>0 : 0
+>p.indexOf(' ') : number
+>p.indexOf : (searchString: string, position?: number) => number
+>p : string
+>indexOf : (searchString: string, position?: number) => number
+>' ' : " "
+>p : string
+
+                    let upper: string = firstWord.toUpperCase();
+>upper : string
+>firstWord.toUpperCase() : string
+>firstWord.toUpperCase : () => string
+>firstWord : string
+>toUpperCase : () => string
+
+                    if (upper != 'PRIMARY' && upper != 'FOREIGN' && upper != 'UNIQUE'
+>upper != 'PRIMARY' && upper != 'FOREIGN' && upper != 'UNIQUE'                        && upper != 'CHECK' && upper != 'CONSTRAINT' : boolean
+>upper != 'PRIMARY' && upper != 'FOREIGN' && upper != 'UNIQUE'                        && upper != 'CHECK' : boolean
+>upper != 'PRIMARY' && upper != 'FOREIGN' && upper != 'UNIQUE' : boolean
+>upper != 'PRIMARY' && upper != 'FOREIGN' : boolean
+>upper != 'PRIMARY' : boolean
+>upper : string
+>'PRIMARY' : "PRIMARY"
+>upper != 'FOREIGN' : boolean
+>upper : string
+>'FOREIGN' : "FOREIGN"
+>upper != 'UNIQUE' : boolean
+>upper : string
+>'UNIQUE' : "UNIQUE"
+
+                        && upper != 'CHECK' && upper != 'CONSTRAINT') {
+>upper != 'CHECK' : boolean
+>upper : string
+>'CHECK' : "CHECK"
+>upper != 'CONSTRAINT' : boolean
+>upper : string
+>'CONSTRAINT' : "CONSTRAINT"
+
+                        colNames = [...colNames, firstWord];
+>colNames = [...colNames, firstWord] : string[]
+>colNames : string[]
+>[...colNames, firstWord] : string[]
+>...colNames : string
+>colNames : string[]
+>firstWord : string
+                    }
+                }
+            }
+            tables[tableName] = colNames;
+>tables[tableName] = colNames : string[]
+>tables[tableName] : any
+>tables : Record<string, any>
+>tableName : string
+>colNames : string[]
+        }
+    }
+    return tables;
+>tables : Record<string, any>
+
+};
+
+// Resolve selected columns against a schema, returning [cols] or an error string.
+export const resolveColumns = (columnsStr: string, validColumns: any, tableName: string) => {
+>resolveColumns : (columnsStr: string, validColumns: any, tableName: string) => any
+>(columnsStr: string, validColumns: any, tableName: string) => {    if (columnsStr == '*') return validColumns;    let selectedCols: string[] = [];    let rawCols: string[] = splitTrim(columnsStr);    for (let col of rawCols) {        let colUpper: string = col.toUpperCase();        if (colUpper.startsWith('COUNT(') || colUpper.startsWith('SUM(')            || colUpper.startsWith('AVG(') || colUpper.startsWith('MIN(')            || colUpper.startsWith('MAX(')) {            let inner: string = col.slice(col.indexOf('(') + 1, col.indexOf(')'));            if (inner != '*' && !validColumns.includes(inner)) {                return 'Error: column \'' + inner + '\' not found in table \'' + tableName + '\'';            }            selectedCols = [...selectedCols, col];        } else {            let colName: string = col.includes(' ') ? col.slice(0, col.indexOf(' ')) : col;            if (!validColumns.includes(colName)) {                return 'Error: column \'' + colName + '\' not found in table \'' + tableName + '\'';            }            selectedCols = [...selectedCols, colName];        }    }    return selectedCols;} : (columnsStr: string, validColumns: any, tableName: string) => any
+>columnsStr : string
+>validColumns : any
+>tableName : string
+
+    if (columnsStr == '*') return validColumns;
+>columnsStr == '*' : boolean
+>columnsStr : string
+>'*' : "*"
+>validColumns : any
+
+    let selectedCols: string[] = [];
+>selectedCols : string[]
+>[] : never[]
+
+    let rawCols: string[] = splitTrim(columnsStr);
+>rawCols : string[]
+>splitTrim(columnsStr) : string[]
+>splitTrim : (s: string) => string[]
+>columnsStr : string
+
+    for (let col of rawCols) {
+>col : string
+>rawCols : string[]
+
+        let colUpper: string = col.toUpperCase();
+>colUpper : string
+>col.toUpperCase() : string
+>col.toUpperCase : () => string
+>col : string
+>toUpperCase : () => string
+
+        if (colUpper.startsWith('COUNT(') || colUpper.startsWith('SUM(')
+>colUpper.startsWith('COUNT(') || colUpper.startsWith('SUM(')            || colUpper.startsWith('AVG(') || colUpper.startsWith('MIN(')            || colUpper.startsWith('MAX(') : boolean
+>colUpper.startsWith('COUNT(') || colUpper.startsWith('SUM(')            || colUpper.startsWith('AVG(') || colUpper.startsWith('MIN(') : boolean
+>colUpper.startsWith('COUNT(') || colUpper.startsWith('SUM(')            || colUpper.startsWith('AVG(') : boolean
+>colUpper.startsWith('COUNT(') || colUpper.startsWith('SUM(') : boolean
+>colUpper.startsWith('COUNT(') : boolean
+>colUpper.startsWith : (searchString: string, position?: number) => boolean
+>colUpper : string
+>startsWith : (searchString: string, position?: number) => boolean
+>'COUNT(' : "COUNT("
+>colUpper.startsWith('SUM(') : boolean
+>colUpper.startsWith : (searchString: string, position?: number) => boolean
+>colUpper : string
+>startsWith : (searchString: string, position?: number) => boolean
+>'SUM(' : "SUM("
+
+            || colUpper.startsWith('AVG(') || colUpper.startsWith('MIN(')
+>colUpper.startsWith('AVG(') : boolean
+>colUpper.startsWith : (searchString: string, position?: number) => boolean
+>colUpper : string
+>startsWith : (searchString: string, position?: number) => boolean
+>'AVG(' : "AVG("
+>colUpper.startsWith('MIN(') : boolean
+>colUpper.startsWith : (searchString: string, position?: number) => boolean
+>colUpper : string
+>startsWith : (searchString: string, position?: number) => boolean
+>'MIN(' : "MIN("
+
+            || colUpper.startsWith('MAX(')) {
+>colUpper.startsWith('MAX(') : boolean
+>colUpper.startsWith : (searchString: string, position?: number) => boolean
+>colUpper : string
+>startsWith : (searchString: string, position?: number) => boolean
+>'MAX(' : "MAX("
+
+            let inner: string = col.slice(col.indexOf('(') + 1, col.indexOf(')'));
+>inner : string
+>col.slice(col.indexOf('(') + 1, col.indexOf(')')) : string
+>col.slice : (start?: number, end?: number) => string
+>col : string
+>slice : (start?: number, end?: number) => string
+>col.indexOf('(') + 1 : number
+>col.indexOf('(') : number
+>col.indexOf : (searchString: string, position?: number) => number
+>col : string
+>indexOf : (searchString: string, position?: number) => number
+>'(' : "("
+>1 : 1
+>col.indexOf(')') : number
+>col.indexOf : (searchString: string, position?: number) => number
+>col : string
+>indexOf : (searchString: string, position?: number) => number
+>')' : ")"
+
+            if (inner != '*' && !validColumns.includes(inner)) {
+>inner != '*' && !validColumns.includes(inner) : boolean
+>inner != '*' : boolean
+>inner : string
+>'*' : "*"
+>!validColumns.includes(inner) : boolean
+>validColumns.includes(inner) : any
+>validColumns.includes : any
+>validColumns : any
+>includes : any
+>inner : string
+
+                return 'Error: column \'' + inner + '\' not found in table \'' + tableName + '\'';
+>'Error: column \'' + inner + '\' not found in table \'' + tableName + '\'' : string
+>'Error: column \'' + inner + '\' not found in table \'' + tableName : string
+>'Error: column \'' + inner + '\' not found in table \'' : string
+>'Error: column \'' + inner : string
+>'Error: column \'' : "Error: column '"
+>inner : string
+>'\' not found in table \'' : "' not found in table '"
+>tableName : string
+>'\'' : "'"
+            }
+            selectedCols = [...selectedCols, col];
+>selectedCols = [...selectedCols, col] : string[]
+>selectedCols : string[]
+>[...selectedCols, col] : string[]
+>...selectedCols : string
+>selectedCols : string[]
+>col : string
+
+        } else {
+            let colName: string = col.includes(' ') ? col.slice(0, col.indexOf(' ')) : col;
+>colName : string
+>col.includes(' ') ? col.slice(0, col.indexOf(' ')) : col : string
+>col.includes(' ') : boolean
+>col.includes : (searchString: string, position?: number) => boolean
+>col : string
+>includes : (searchString: string, position?: number) => boolean
+>' ' : " "
+>col.slice(0, col.indexOf(' ')) : string
+>col.slice : (start?: number, end?: number) => string
+>col : string
+>slice : (start?: number, end?: number) => string
+>0 : 0
+>col.indexOf(' ') : number
+>col.indexOf : (searchString: string, position?: number) => number
+>col : string
+>indexOf : (searchString: string, position?: number) => number
+>' ' : " "
+>col : string
+
+            if (!validColumns.includes(colName)) {
+>!validColumns.includes(colName) : boolean
+>validColumns.includes(colName) : any
+>validColumns.includes : any
+>validColumns : any
+>includes : any
+>colName : string
+
+                return 'Error: column \'' + colName + '\' not found in table \'' + tableName + '\'';
+>'Error: column \'' + colName + '\' not found in table \'' + tableName + '\'' : string
+>'Error: column \'' + colName + '\' not found in table \'' + tableName : string
+>'Error: column \'' + colName + '\' not found in table \'' : string
+>'Error: column \'' + colName : string
+>'Error: column \'' : "Error: column '"
+>colName : string
+>'\' not found in table \'' : "' not found in table '"
+>tableName : string
+>'\'' : "'"
+            }
+            selectedCols = [...selectedCols, colName];
+>selectedCols = [...selectedCols, colName] : string[]
+>selectedCols : string[]
+>[...selectedCols, colName] : string[]
+>...selectedCols : string
+>selectedCols : string[]
+>colName : string
+        }
+    }
+    return selectedCols;
+>selectedCols : string[]
+
+};
+
+// Validate a SELECT's WHERE clause columns against the schema.
+export const validateWhereColumns = (norm: string, upper: string, validColumns: any, tableName: string) => {
+>validateWhereColumns : (norm: string, upper: string, validColumns: any, tableName: string) => string
+>(norm: string, upper: string, validColumns: any, tableName: string) => {    let w: string = extractWhere(norm, upper);    if (w.length == 0) return '';    let firstWord: string = w.includes(' ') ? w.slice(0, w.indexOf(' ')) : w;    if (firstWord.length > 0 && !firstWord.startsWith('$') && !firstWord.startsWith('(')        && !firstWord.startsWith("'") && !'0123456789'.includes(firstWord.slice(0, 1))        && !validColumns.includes(firstWord)) {        return 'Error: column \'' + firstWord + '\' not found in table \'' + tableName + '\'';    }    return '';} : (norm: string, upper: string, validColumns: any, tableName: string) => string
+>norm : string
+>upper : string
+>validColumns : any
+>tableName : string
+
+    let w: string = extractWhere(norm, upper);
+>w : string
+>extractWhere(norm, upper) : string
+>extractWhere : (norm: string, upper: string) => string
+>norm : string
+>upper : string
+
+    if (w.length == 0) return '';
+>w.length == 0 : boolean
+>w.length : number
+>w : string
+>length : number
+>0 : 0
+>'' : ""
+
+    let firstWord: string = w.includes(' ') ? w.slice(0, w.indexOf(' ')) : w;
+>firstWord : string
+>w.includes(' ') ? w.slice(0, w.indexOf(' ')) : w : string
+>w.includes(' ') : boolean
+>w.includes : (searchString: string, position?: number) => boolean
+>w : string
+>includes : (searchString: string, position?: number) => boolean
+>' ' : " "
+>w.slice(0, w.indexOf(' ')) : string
+>w.slice : (start?: number, end?: number) => string
+>w : string
+>slice : (start?: number, end?: number) => string
+>0 : 0
+>w.indexOf(' ') : number
+>w.indexOf : (searchString: string, position?: number) => number
+>w : string
+>indexOf : (searchString: string, position?: number) => number
+>' ' : " "
+>w : string
+
+    if (firstWord.length > 0 && !firstWord.startsWith('$') && !firstWord.startsWith('(')
+>firstWord.length > 0 && !firstWord.startsWith('$') && !firstWord.startsWith('(')        && !firstWord.startsWith("'") && !'0123456789'.includes(firstWord.slice(0, 1))        && !validColumns.includes(firstWord) : boolean
+>firstWord.length > 0 && !firstWord.startsWith('$') && !firstWord.startsWith('(')        && !firstWord.startsWith("'") && !'0123456789'.includes(firstWord.slice(0, 1)) : boolean
+>firstWord.length > 0 && !firstWord.startsWith('$') && !firstWord.startsWith('(')        && !firstWord.startsWith("'") : boolean
+>firstWord.length > 0 && !firstWord.startsWith('$') && !firstWord.startsWith('(') : boolean
+>firstWord.length > 0 && !firstWord.startsWith('$') : boolean
+>firstWord.length > 0 : boolean
+>firstWord.length : number
+>firstWord : string
+>length : number
+>0 : 0
+>!firstWord.startsWith('$') : boolean
+>firstWord.startsWith('$') : boolean
+>firstWord.startsWith : (searchString: string, position?: number) => boolean
+>firstWord : string
+>startsWith : (searchString: string, position?: number) => boolean
+>'$' : "$"
+>!firstWord.startsWith('(') : boolean
+>firstWord.startsWith('(') : boolean
+>firstWord.startsWith : (searchString: string, position?: number) => boolean
+>firstWord : string
+>startsWith : (searchString: string, position?: number) => boolean
+>'(' : "("
+
+        && !firstWord.startsWith("'") && !'0123456789'.includes(firstWord.slice(0, 1))
+>!firstWord.startsWith("'") : boolean
+>firstWord.startsWith("'") : boolean
+>firstWord.startsWith : (searchString: string, position?: number) => boolean
+>firstWord : string
+>startsWith : (searchString: string, position?: number) => boolean
+>"'" : "'"
+>!'0123456789'.includes(firstWord.slice(0, 1)) : boolean
+>'0123456789'.includes(firstWord.slice(0, 1)) : boolean
+>'0123456789'.includes : (searchString: string, position?: number) => boolean
+>'0123456789' : "0123456789"
+>includes : (searchString: string, position?: number) => boolean
+>firstWord.slice(0, 1) : string
+>firstWord.slice : (start?: number, end?: number) => string
+>firstWord : string
+>slice : (start?: number, end?: number) => string
+>0 : 0
+>1 : 1
+
+        && !validColumns.includes(firstWord)) {
+>!validColumns.includes(firstWord) : boolean
+>validColumns.includes(firstWord) : any
+>validColumns.includes : any
+>validColumns : any
+>includes : any
+>firstWord : string
+
+        return 'Error: column \'' + firstWord + '\' not found in table \'' + tableName + '\'';
+>'Error: column \'' + firstWord + '\' not found in table \'' + tableName + '\'' : string
+>'Error: column \'' + firstWord + '\' not found in table \'' + tableName : string
+>'Error: column \'' + firstWord + '\' not found in table \'' : string
+>'Error: column \'' + firstWord : string
+>'Error: column \'' : "Error: column '"
+>firstWord : string
+>'\' not found in table \'' : "' not found in table '"
+>tableName : string
+>'\'' : "'"
+    }
+    return '';
+>'' : ""
+
+};
+
+=== sql.ts ===
+// Compile-time SQL validation and parsing via Intrinsic<>.
+// Returns a structured breakdown on success, or a descriptive error string on failure.
+
+import { normalizeSql, findKw, findParams, extractTable, extractWhere, extractOrderBy, extractLimit, splitTrim, parseSchema, resolveColumns, validateWhereColumns } from "./sql_helpers";
+>normalizeSql : (sql: string) => string
+>findKw : (upper: string, kw: string) => number
+>findParams : (s: string) => string[]
+>extractTable : (s: string) => string[]
+>extractWhere : (norm: string, upper: string) => string
+>extractOrderBy : (norm: string, upper: string) => string
+>extractLimit : (norm: string, upper: string) => string
+>splitTrim : (s: string) => string[]
+>parseSchema : (schemaSql: string) => "Error: invalid schema: missing ( in CREATE TABLE" | "Error: invalid schema: missing ) in CREATE TABLE" | Record<string, any>
+>resolveColumns : (columnsStr: string, validColumns: any, tableName: string) => any
+>validateWhereColumns : (norm: string, upper: string, validColumns: any, tableName: string) => string
+
+// ---- Statement parsers ----
+
+const parseSelect = (norm: string, upper: string) => {
+>parseSelect : (norm: string, upper: string) => "Error: FROM requires table name" | "Error: SELECT requires FROM clause" | "Error: SELECT requires column list" | Record<string, any>
+>(norm: string, upper: string) => {    let fromIdx: number = findKw(upper, 'FROM');    if (fromIdx == -1) return 'Error: SELECT requires FROM clause';    let columnsStr: string = norm.slice(7, fromIdx).trim();    if (columnsStr.length == 0) return 'Error: SELECT requires column list';    let afterFrom: string = norm.slice(fromIdx + 5).trim();    if (afterFrom.length == 0) return 'Error: FROM requires table name';    let [table] = extractTable(afterFrom);    let result: Record<string, any> = {};    result['statement'] = 'SELECT';    result['table'] = table;    result['columns'] = splitTrim(columnsStr);    result['params'] = findParams(norm);    let w: string = extractWhere(norm, upper);    if (w.length > 0) result['where'] = w;    let o: string = extractOrderBy(norm, upper);    if (o.length > 0) result['orderBy'] = o;    let l: string = extractLimit(norm, upper);    if (l.length > 0) result['limit'] = l;    return result;} : (norm: string, upper: string) => "Error: FROM requires table name" | "Error: SELECT requires FROM clause" | "Error: SELECT requires column list" | Record<string, any>
+>norm : string
+>upper : string
+
+    let fromIdx: number = findKw(upper, 'FROM');
+>fromIdx : number
+>findKw(upper, 'FROM') : number
+>findKw : (upper: string, kw: string) => number
+>upper : string
+>'FROM' : "FROM"
+
+    if (fromIdx == -1) return 'Error: SELECT requires FROM clause';
+>fromIdx == -1 : boolean
+>fromIdx : number
+>-1 : -1
+>1 : 1
+>'Error: SELECT requires FROM clause' : "Error: SELECT requires FROM clause"
+
+    let columnsStr: string = norm.slice(7, fromIdx).trim();
+>columnsStr : string
+>norm.slice(7, fromIdx).trim() : string
+>norm.slice(7, fromIdx).trim : () => string
+>norm.slice(7, fromIdx) : string
+>norm.slice : (start?: number, end?: number) => string
+>norm : string
+>slice : (start?: number, end?: number) => string
+>7 : 7
+>fromIdx : number
+>trim : () => string
+
+    if (columnsStr.length == 0) return 'Error: SELECT requires column list';
+>columnsStr.length == 0 : boolean
+>columnsStr.length : number
+>columnsStr : string
+>length : number
+>0 : 0
+>'Error: SELECT requires column list' : "Error: SELECT requires column list"
+
+    let afterFrom: string = norm.slice(fromIdx + 5).trim();
+>afterFrom : string
+>norm.slice(fromIdx + 5).trim() : string
+>norm.slice(fromIdx + 5).trim : () => string
+>norm.slice(fromIdx + 5) : string
+>norm.slice : (start?: number, end?: number) => string
+>norm : string
+>slice : (start?: number, end?: number) => string
+>fromIdx + 5 : number
+>fromIdx : number
+>5 : 5
+>trim : () => string
+
+    if (afterFrom.length == 0) return 'Error: FROM requires table name';
+>afterFrom.length == 0 : boolean
+>afterFrom.length : number
+>afterFrom : string
+>length : number
+>0 : 0
+>'Error: FROM requires table name' : "Error: FROM requires table name"
+
+    let [table] = extractTable(afterFrom);
+>table : string
+>extractTable(afterFrom) : string[]
+>extractTable : (s: string) => string[]
+>afterFrom : string
+
+    let result: Record<string, any> = {};
+>result : Record<string, any>
+>{} : {}
+
+    result['statement'] = 'SELECT';
+>result['statement'] = 'SELECT' : "SELECT"
+>result['statement'] : any
+>result : Record<string, any>
+>'statement' : "statement"
+>'SELECT' : "SELECT"
+
+    result['table'] = table;
+>result['table'] = table : string
+>result['table'] : any
+>result : Record<string, any>
+>'table' : "table"
+>table : string
+
+    result['columns'] = splitTrim(columnsStr);
+>result['columns'] = splitTrim(columnsStr) : string[]
+>result['columns'] : any
+>result : Record<string, any>
+>'columns' : "columns"
+>splitTrim(columnsStr) : string[]
+>splitTrim : (s: string) => string[]
+>columnsStr : string
+
+    result['params'] = findParams(norm);
+>result['params'] = findParams(norm) : string[]
+>result['params'] : any
+>result : Record<string, any>
+>'params' : "params"
+>findParams(norm) : string[]
+>findParams : (s: string) => string[]
+>norm : string
+
+    let w: string = extractWhere(norm, upper);
+>w : string
+>extractWhere(norm, upper) : string
+>extractWhere : (norm: string, upper: string) => string
+>norm : string
+>upper : string
+
+    if (w.length > 0) result['where'] = w;
+>w.length > 0 : boolean
+>w.length : number
+>w : string
+>length : number
+>0 : 0
+>result['where'] = w : string
+>result['where'] : any
+>result : Record<string, any>
+>'where' : "where"
+>w : string
+
+    let o: string = extractOrderBy(norm, upper);
+>o : string
+>extractOrderBy(norm, upper) : string
+>extractOrderBy : (norm: string, upper: string) => string
+>norm : string
+>upper : string
+
+    if (o.length > 0) result['orderBy'] = o;
+>o.length > 0 : boolean
+>o.length : number
+>o : string
+>length : number
+>0 : 0
+>result['orderBy'] = o : string
+>result['orderBy'] : any
+>result : Record<string, any>
+>'orderBy' : "orderBy"
+>o : string
+
+    let l: string = extractLimit(norm, upper);
+>l : string
+>extractLimit(norm, upper) : string
+>extractLimit : (norm: string, upper: string) => string
+>norm : string
+>upper : string
+
+    if (l.length > 0) result['limit'] = l;
+>l.length > 0 : boolean
+>l.length : number
+>l : string
+>length : number
+>0 : 0
+>result['limit'] = l : string
+>result['limit'] : any
+>result : Record<string, any>
+>'limit' : "limit"
+>l : string
+
+    return result;
+>result : Record<string, any>
+
+};
+
+const parseInsert = (norm: string, upper: string) => {
+>parseInsert : (norm: string, upper: string) => "Error: INSERT requires VALUES clause" | "Error: INSERT requires table name" | Record<string, any>
+>(norm: string, upper: string) => {    let afterInsert: string = norm.slice(12).trim();    let parenIdx: number = afterInsert.indexOf('(');    let valIdx: number = findKw(upper, 'VALUES');    if (valIdx == -1) return 'Error: INSERT requires VALUES clause';    let table: string = '';    let insertCols: string[] = [];    if (parenIdx != -1 && parenIdx + 12 < valIdx) {        table = afterInsert.slice(0, parenIdx).trim();        let closeParen: number = afterInsert.indexOf(')');        if (closeParen != -1) insertCols = splitTrim(afterInsert.slice(parenIdx + 1, closeParen));    } else {        let [t] = extractTable(afterInsert);        table = t;    }    if (table.length == 0) return 'Error: INSERT requires table name';    let result: Record<string, any> = {};    result['statement'] = 'INSERT';    result['table'] = table;    if (insertCols.length > 0) result['columns'] = insertCols;    result['params'] = findParams(norm);    return result;} : (norm: string, upper: string) => "Error: INSERT requires VALUES clause" | "Error: INSERT requires table name" | Record<string, any>
+>norm : string
+>upper : string
+
+    let afterInsert: string = norm.slice(12).trim();
+>afterInsert : string
+>norm.slice(12).trim() : string
+>norm.slice(12).trim : () => string
+>norm.slice(12) : string
+>norm.slice : (start?: number, end?: number) => string
+>norm : string
+>slice : (start?: number, end?: number) => string
+>12 : 12
+>trim : () => string
+
+    let parenIdx: number = afterInsert.indexOf('(');
+>parenIdx : number
+>afterInsert.indexOf('(') : number
+>afterInsert.indexOf : (searchString: string, position?: number) => number
+>afterInsert : string
+>indexOf : (searchString: string, position?: number) => number
+>'(' : "("
+
+    let valIdx: number = findKw(upper, 'VALUES');
+>valIdx : number
+>findKw(upper, 'VALUES') : number
+>findKw : (upper: string, kw: string) => number
+>upper : string
+>'VALUES' : "VALUES"
+
+    if (valIdx == -1) return 'Error: INSERT requires VALUES clause';
+>valIdx == -1 : boolean
+>valIdx : number
+>-1 : -1
+>1 : 1
+>'Error: INSERT requires VALUES clause' : "Error: INSERT requires VALUES clause"
+
+    let table: string = '';
+>table : string
+>'' : ""
+
+    let insertCols: string[] = [];
+>insertCols : string[]
+>[] : never[]
+
+    if (parenIdx != -1 && parenIdx + 12 < valIdx) {
+>parenIdx != -1 && parenIdx + 12 < valIdx : boolean
+>parenIdx != -1 : boolean
+>parenIdx : number
+>-1 : -1
+>1 : 1
+>parenIdx + 12 < valIdx : boolean
+>parenIdx + 12 : number
+>parenIdx : number
+>12 : 12
+>valIdx : number
+
+        table = afterInsert.slice(0, parenIdx).trim();
+>table = afterInsert.slice(0, parenIdx).trim() : string
+>table : string
+>afterInsert.slice(0, parenIdx).trim() : string
+>afterInsert.slice(0, parenIdx).trim : () => string
+>afterInsert.slice(0, parenIdx) : string
+>afterInsert.slice : (start?: number, end?: number) => string
+>afterInsert : string
+>slice : (start?: number, end?: number) => string
+>0 : 0
+>parenIdx : number
+>trim : () => string
+
+        let closeParen: number = afterInsert.indexOf(')');
+>closeParen : number
+>afterInsert.indexOf(')') : number
+>afterInsert.indexOf : (searchString: string, position?: number) => number
+>afterInsert : string
+>indexOf : (searchString: string, position?: number) => number
+>')' : ")"
+
+        if (closeParen != -1) insertCols = splitTrim(afterInsert.slice(parenIdx + 1, closeParen));
+>closeParen != -1 : boolean
+>closeParen : number
+>-1 : -1
+>1 : 1
+>insertCols = splitTrim(afterInsert.slice(parenIdx + 1, closeParen)) : string[]
+>insertCols : string[]
+>splitTrim(afterInsert.slice(parenIdx + 1, closeParen)) : string[]
+>splitTrim : (s: string) => string[]
+>afterInsert.slice(parenIdx + 1, closeParen) : string
+>afterInsert.slice : (start?: number, end?: number) => string
+>afterInsert : string
+>slice : (start?: number, end?: number) => string
+>parenIdx + 1 : number
+>parenIdx : number
+>1 : 1
+>closeParen : number
+
+    } else {
+        let [t] = extractTable(afterInsert);
+>t : string
+>extractTable(afterInsert) : string[]
+>extractTable : (s: string) => string[]
+>afterInsert : string
+
+        table = t;
+>table = t : string
+>table : string
+>t : string
+    }
+    if (table.length == 0) return 'Error: INSERT requires table name';
+>table.length == 0 : boolean
+>table.length : number
+>table : string
+>length : number
+>0 : 0
+>'Error: INSERT requires table name' : "Error: INSERT requires table name"
+
+    let result: Record<string, any> = {};
+>result : Record<string, any>
+>{} : {}
+
+    result['statement'] = 'INSERT';
+>result['statement'] = 'INSERT' : "INSERT"
+>result['statement'] : any
+>result : Record<string, any>
+>'statement' : "statement"
+>'INSERT' : "INSERT"
+
+    result['table'] = table;
+>result['table'] = table : string
+>result['table'] : any
+>result : Record<string, any>
+>'table' : "table"
+>table : string
+
+    if (insertCols.length > 0) result['columns'] = insertCols;
+>insertCols.length > 0 : boolean
+>insertCols.length : number
+>insertCols : string[]
+>length : number
+>0 : 0
+>result['columns'] = insertCols : string[]
+>result['columns'] : any
+>result : Record<string, any>
+>'columns' : "columns"
+>insertCols : string[]
+
+    result['params'] = findParams(norm);
+>result['params'] = findParams(norm) : string[]
+>result['params'] : any
+>result : Record<string, any>
+>'params' : "params"
+>findParams(norm) : string[]
+>findParams : (s: string) => string[]
+>norm : string
+
+    return result;
+>result : Record<string, any>
+
+};
+
+const parseUpdate = (norm: string, upper: string) => {
+>parseUpdate : (norm: string, upper: string) => "Error: SET requires assignments" | "Error: UPDATE requires SET clause" | "Error: UPDATE requires table name" | Record<string, any>
+>(norm: string, upper: string) => {    let setIdx: number = findKw(upper, 'SET');    if (setIdx == -1) return 'Error: UPDATE requires SET clause';    let table: string = norm.slice(7, setIdx).trim();    if (table.length == 0) return 'Error: UPDATE requires table name';    let afterSet: string = norm.slice(setIdx + 4).trim();    if (afterSet.length == 0) return 'Error: SET requires assignments';    let whereIdx: number = findKw(upper, 'WHERE');    let assignments: string = whereIdx == -1 ? afterSet : afterSet.slice(0, whereIdx - setIdx - 4).trim();    let result: Record<string, any> = {};    result['statement'] = 'UPDATE';    result['table'] = table;    result['set'] = splitTrim(assignments);    result['params'] = findParams(norm);    if (whereIdx != -1) result['where'] = norm.slice(whereIdx + 6).trim();    return result;} : (norm: string, upper: string) => "Error: SET requires assignments" | "Error: UPDATE requires SET clause" | "Error: UPDATE requires table name" | Record<string, any>
+>norm : string
+>upper : string
+
+    let setIdx: number = findKw(upper, 'SET');
+>setIdx : number
+>findKw(upper, 'SET') : number
+>findKw : (upper: string, kw: string) => number
+>upper : string
+>'SET' : "SET"
+
+    if (setIdx == -1) return 'Error: UPDATE requires SET clause';
+>setIdx == -1 : boolean
+>setIdx : number
+>-1 : -1
+>1 : 1
+>'Error: UPDATE requires SET clause' : "Error: UPDATE requires SET clause"
+
+    let table: string = norm.slice(7, setIdx).trim();
+>table : string
+>norm.slice(7, setIdx).trim() : string
+>norm.slice(7, setIdx).trim : () => string
+>norm.slice(7, setIdx) : string
+>norm.slice : (start?: number, end?: number) => string
+>norm : string
+>slice : (start?: number, end?: number) => string
+>7 : 7
+>setIdx : number
+>trim : () => string
+
+    if (table.length == 0) return 'Error: UPDATE requires table name';
+>table.length == 0 : boolean
+>table.length : number
+>table : string
+>length : number
+>0 : 0
+>'Error: UPDATE requires table name' : "Error: UPDATE requires table name"
+
+    let afterSet: string = norm.slice(setIdx + 4).trim();
+>afterSet : string
+>norm.slice(setIdx + 4).trim() : string
+>norm.slice(setIdx + 4).trim : () => string
+>norm.slice(setIdx + 4) : string
+>norm.slice : (start?: number, end?: number) => string
+>norm : string
+>slice : (start?: number, end?: number) => string
+>setIdx + 4 : number
+>setIdx : number
+>4 : 4
+>trim : () => string
+
+    if (afterSet.length == 0) return 'Error: SET requires assignments';
+>afterSet.length == 0 : boolean
+>afterSet.length : number
+>afterSet : string
+>length : number
+>0 : 0
+>'Error: SET requires assignments' : "Error: SET requires assignments"
+
+    let whereIdx: number = findKw(upper, 'WHERE');
+>whereIdx : number
+>findKw(upper, 'WHERE') : number
+>findKw : (upper: string, kw: string) => number
+>upper : string
+>'WHERE' : "WHERE"
+
+    let assignments: string = whereIdx == -1 ? afterSet : afterSet.slice(0, whereIdx - setIdx - 4).trim();
+>assignments : string
+>whereIdx == -1 ? afterSet : afterSet.slice(0, whereIdx - setIdx - 4).trim() : string
+>whereIdx == -1 : boolean
+>whereIdx : number
+>-1 : -1
+>1 : 1
+>afterSet : string
+>afterSet.slice(0, whereIdx - setIdx - 4).trim() : string
+>afterSet.slice(0, whereIdx - setIdx - 4).trim : () => string
+>afterSet.slice(0, whereIdx - setIdx - 4) : string
+>afterSet.slice : (start?: number, end?: number) => string
+>afterSet : string
+>slice : (start?: number, end?: number) => string
+>0 : 0
+>whereIdx - setIdx - 4 : number
+>whereIdx - setIdx : number
+>whereIdx : number
+>setIdx : number
+>4 : 4
+>trim : () => string
+
+    let result: Record<string, any> = {};
+>result : Record<string, any>
+>{} : {}
+
+    result['statement'] = 'UPDATE';
+>result['statement'] = 'UPDATE' : "UPDATE"
+>result['statement'] : any
+>result : Record<string, any>
+>'statement' : "statement"
+>'UPDATE' : "UPDATE"
+
+    result['table'] = table;
+>result['table'] = table : string
+>result['table'] : any
+>result : Record<string, any>
+>'table' : "table"
+>table : string
+
+    result['set'] = splitTrim(assignments);
+>result['set'] = splitTrim(assignments) : string[]
+>result['set'] : any
+>result : Record<string, any>
+>'set' : "set"
+>splitTrim(assignments) : string[]
+>splitTrim : (s: string) => string[]
+>assignments : string
+
+    result['params'] = findParams(norm);
+>result['params'] = findParams(norm) : string[]
+>result['params'] : any
+>result : Record<string, any>
+>'params' : "params"
+>findParams(norm) : string[]
+>findParams : (s: string) => string[]
+>norm : string
+
+    if (whereIdx != -1) result['where'] = norm.slice(whereIdx + 6).trim();
+>whereIdx != -1 : boolean
+>whereIdx : number
+>-1 : -1
+>1 : 1
+>result['where'] = norm.slice(whereIdx + 6).trim() : string
+>result['where'] : any
+>result : Record<string, any>
+>'where' : "where"
+>norm.slice(whereIdx + 6).trim() : string
+>norm.slice(whereIdx + 6).trim : () => string
+>norm.slice(whereIdx + 6) : string
+>norm.slice : (start?: number, end?: number) => string
+>norm : string
+>slice : (start?: number, end?: number) => string
+>whereIdx + 6 : number
+>whereIdx : number
+>6 : 6
+>trim : () => string
+
+    return result;
+>result : Record<string, any>
+
+};
+
+const parseDelete = (norm: string, upper: string) => {
+>parseDelete : (norm: string, upper: string) => "Error: DELETE requires table name" | Record<string, any>
+>(norm: string, upper: string) => {    let afterFrom: string = norm.slice(12).trim();    if (afterFrom.length == 0) return 'Error: DELETE requires table name';    let whereIdx: number = findKw(upper, 'WHERE');    let table: string = whereIdx == -1 ? afterFrom : afterFrom.slice(0, whereIdx - 12).trim();    let result: Record<string, any> = {};    result['statement'] = 'DELETE';    result['table'] = table;    result['params'] = findParams(norm);    if (whereIdx != -1) result['where'] = norm.slice(whereIdx + 6).trim();    return result;} : (norm: string, upper: string) => "Error: DELETE requires table name" | Record<string, any>
+>norm : string
+>upper : string
+
+    let afterFrom: string = norm.slice(12).trim();
+>afterFrom : string
+>norm.slice(12).trim() : string
+>norm.slice(12).trim : () => string
+>norm.slice(12) : string
+>norm.slice : (start?: number, end?: number) => string
+>norm : string
+>slice : (start?: number, end?: number) => string
+>12 : 12
+>trim : () => string
+
+    if (afterFrom.length == 0) return 'Error: DELETE requires table name';
+>afterFrom.length == 0 : boolean
+>afterFrom.length : number
+>afterFrom : string
+>length : number
+>0 : 0
+>'Error: DELETE requires table name' : "Error: DELETE requires table name"
+
+    let whereIdx: number = findKw(upper, 'WHERE');
+>whereIdx : number
+>findKw(upper, 'WHERE') : number
+>findKw : (upper: string, kw: string) => number
+>upper : string
+>'WHERE' : "WHERE"
+
+    let table: string = whereIdx == -1 ? afterFrom : afterFrom.slice(0, whereIdx - 12).trim();
+>table : string
+>whereIdx == -1 ? afterFrom : afterFrom.slice(0, whereIdx - 12).trim() : string
+>whereIdx == -1 : boolean
+>whereIdx : number
+>-1 : -1
+>1 : 1
+>afterFrom : string
+>afterFrom.slice(0, whereIdx - 12).trim() : string
+>afterFrom.slice(0, whereIdx - 12).trim : () => string
+>afterFrom.slice(0, whereIdx - 12) : string
+>afterFrom.slice : (start?: number, end?: number) => string
+>afterFrom : string
+>slice : (start?: number, end?: number) => string
+>0 : 0
+>whereIdx - 12 : number
+>whereIdx : number
+>12 : 12
+>trim : () => string
+
+    let result: Record<string, any> = {};
+>result : Record<string, any>
+>{} : {}
+
+    result['statement'] = 'DELETE';
+>result['statement'] = 'DELETE' : "DELETE"
+>result['statement'] : any
+>result : Record<string, any>
+>'statement' : "statement"
+>'DELETE' : "DELETE"
+
+    result['table'] = table;
+>result['table'] = table : string
+>result['table'] : any
+>result : Record<string, any>
+>'table' : "table"
+>table : string
+
+    result['params'] = findParams(norm);
+>result['params'] = findParams(norm) : string[]
+>result['params'] : any
+>result : Record<string, any>
+>'params' : "params"
+>findParams(norm) : string[]
+>findParams : (s: string) => string[]
+>norm : string
+
+    if (whereIdx != -1) result['where'] = norm.slice(whereIdx + 6).trim();
+>whereIdx != -1 : boolean
+>whereIdx : number
+>-1 : -1
+>1 : 1
+>result['where'] = norm.slice(whereIdx + 6).trim() : string
+>result['where'] : any
+>result : Record<string, any>
+>'where' : "where"
+>norm.slice(whereIdx + 6).trim() : string
+>norm.slice(whereIdx + 6).trim : () => string
+>norm.slice(whereIdx + 6) : string
+>norm.slice : (start?: number, end?: number) => string
+>norm : string
+>slice : (start?: number, end?: number) => string
+>whereIdx + 6 : number
+>whereIdx : number
+>6 : 6
+>trim : () => string
+
+    return result;
+>result : Record<string, any>
+
+};
+
+const parseCreateTable = (norm: string) => {
+>parseCreateTable : (norm: string) => "Error: CREATE TABLE missing closing parenthesis" | "Error: CREATE TABLE requires column definitions" | "Error: CREATE TABLE requires table name" | Record<string, any>
+>(norm: string) => {    let parenIdx: number = norm.indexOf('(');    if (parenIdx == -1) return 'Error: CREATE TABLE requires column definitions';    let table: string = norm.slice(13, parenIdx).trim();    if (table.length == 0) return 'Error: CREATE TABLE requires table name';    if (!norm.endsWith(')')) return 'Error: CREATE TABLE missing closing parenthesis';    let result: Record<string, any> = {};    result['statement'] = 'CREATE TABLE';    result['table'] = table;    result['definition'] = norm.slice(parenIdx + 1, norm.length - 1).trim();    return result;} : (norm: string) => "Error: CREATE TABLE missing closing parenthesis" | "Error: CREATE TABLE requires column definitions" | "Error: CREATE TABLE requires table name" | Record<string, any>
+>norm : string
+
+    let parenIdx: number = norm.indexOf('(');
+>parenIdx : number
+>norm.indexOf('(') : number
+>norm.indexOf : (searchString: string, position?: number) => number
+>norm : string
+>indexOf : (searchString: string, position?: number) => number
+>'(' : "("
+
+    if (parenIdx == -1) return 'Error: CREATE TABLE requires column definitions';
+>parenIdx == -1 : boolean
+>parenIdx : number
+>-1 : -1
+>1 : 1
+>'Error: CREATE TABLE requires column definitions' : "Error: CREATE TABLE requires column definitions"
+
+    let table: string = norm.slice(13, parenIdx).trim();
+>table : string
+>norm.slice(13, parenIdx).trim() : string
+>norm.slice(13, parenIdx).trim : () => string
+>norm.slice(13, parenIdx) : string
+>norm.slice : (start?: number, end?: number) => string
+>norm : string
+>slice : (start?: number, end?: number) => string
+>13 : 13
+>parenIdx : number
+>trim : () => string
+
+    if (table.length == 0) return 'Error: CREATE TABLE requires table name';
+>table.length == 0 : boolean
+>table.length : number
+>table : string
+>length : number
+>0 : 0
+>'Error: CREATE TABLE requires table name' : "Error: CREATE TABLE requires table name"
+
+    if (!norm.endsWith(')')) return 'Error: CREATE TABLE missing closing parenthesis';
+>!norm.endsWith(')') : boolean
+>norm.endsWith(')') : boolean
+>norm.endsWith : (searchString: string, endPosition?: number) => boolean
+>norm : string
+>endsWith : (searchString: string, endPosition?: number) => boolean
+>')' : ")"
+>'Error: CREATE TABLE missing closing parenthesis' : "Error: CREATE TABLE missing closing parenthesis"
+
+    let result: Record<string, any> = {};
+>result : Record<string, any>
+>{} : {}
+
+    result['statement'] = 'CREATE TABLE';
+>result['statement'] = 'CREATE TABLE' : "CREATE TABLE"
+>result['statement'] : any
+>result : Record<string, any>
+>'statement' : "statement"
+>'CREATE TABLE' : "CREATE TABLE"
+
+    result['table'] = table;
+>result['table'] = table : string
+>result['table'] : any
+>result : Record<string, any>
+>'table' : "table"
+>table : string
+
+    result['definition'] = norm.slice(parenIdx + 1, norm.length - 1).trim();
+>result['definition'] = norm.slice(parenIdx + 1, norm.length - 1).trim() : string
+>result['definition'] : any
+>result : Record<string, any>
+>'definition' : "definition"
+>norm.slice(parenIdx + 1, norm.length - 1).trim() : string
+>norm.slice(parenIdx + 1, norm.length - 1).trim : () => string
+>norm.slice(parenIdx + 1, norm.length - 1) : string
+>norm.slice : (start?: number, end?: number) => string
+>norm : string
+>slice : (start?: number, end?: number) => string
+>parenIdx + 1 : number
+>parenIdx : number
+>1 : 1
+>norm.length - 1 : number
+>norm.length : number
+>norm : string
+>length : number
+>1 : 1
+>trim : () => string
+
+    return result;
+>result : Record<string, any>
+
+};
+
+// Parse a SELECT and validate its columns/WHERE against a schema.
+const parseTypedSelect = (norm: string, upper: string, schema: any) => {
+>parseTypedSelect : (norm: string, upper: string, schema: any) => string | Record<string, any>
+>(norm: string, upper: string, schema: any) => {    let fromIdx: number = upper.indexOf(' FROM ');    if (fromIdx == -1) return 'Error: SELECT requires FROM clause';    let columnsStr: string = norm.slice(7, fromIdx).trim();    if (columnsStr.length == 0) return 'Error: SELECT requires column list';    let afterFrom: string = norm.slice(fromIdx + 6).trim();    if (afterFrom.length == 0) return 'Error: FROM requires table name';    let [tableName] = extractTable(afterFrom);    let validColumns = schema[tableName];    if (validColumns == undefined) return 'Error: table \'' + tableName + '\' not found in schema';    let selectedCols = resolveColumns(columnsStr, validColumns, tableName);    if (typeof selectedCols == 'string') return selectedCols;    let whereErr: string = validateWhereColumns(norm, upper, validColumns, tableName);    if (whereErr.length > 0) return whereErr;    let result: Record<string, any> = {};    result['statement'] = 'SELECT';    result['table'] = tableName;    result['columns'] = selectedCols;    result['params'] = findParams(norm);    return result;} : (norm: string, upper: string, schema: any) => string | Record<string, any>
+>norm : string
+>upper : string
+>schema : any
+
+    let fromIdx: number = upper.indexOf(' FROM ');
+>fromIdx : number
+>upper.indexOf(' FROM ') : number
+>upper.indexOf : (searchString: string, position?: number) => number
+>upper : string
+>indexOf : (searchString: string, position?: number) => number
+>' FROM ' : " FROM "
+
+    if (fromIdx == -1) return 'Error: SELECT requires FROM clause';
+>fromIdx == -1 : boolean
+>fromIdx : number
+>-1 : -1
+>1 : 1
+>'Error: SELECT requires FROM clause' : "Error: SELECT requires FROM clause"
+
+    let columnsStr: string = norm.slice(7, fromIdx).trim();
+>columnsStr : string
+>norm.slice(7, fromIdx).trim() : string
+>norm.slice(7, fromIdx).trim : () => string
+>norm.slice(7, fromIdx) : string
+>norm.slice : (start?: number, end?: number) => string
+>norm : string
+>slice : (start?: number, end?: number) => string
+>7 : 7
+>fromIdx : number
+>trim : () => string
+
+    if (columnsStr.length == 0) return 'Error: SELECT requires column list';
+>columnsStr.length == 0 : boolean
+>columnsStr.length : number
+>columnsStr : string
+>length : number
+>0 : 0
+>'Error: SELECT requires column list' : "Error: SELECT requires column list"
+
+    let afterFrom: string = norm.slice(fromIdx + 6).trim();
+>afterFrom : string
+>norm.slice(fromIdx + 6).trim() : string
+>norm.slice(fromIdx + 6).trim : () => string
+>norm.slice(fromIdx + 6) : string
+>norm.slice : (start?: number, end?: number) => string
+>norm : string
+>slice : (start?: number, end?: number) => string
+>fromIdx + 6 : number
+>fromIdx : number
+>6 : 6
+>trim : () => string
+
+    if (afterFrom.length == 0) return 'Error: FROM requires table name';
+>afterFrom.length == 0 : boolean
+>afterFrom.length : number
+>afterFrom : string
+>length : number
+>0 : 0
+>'Error: FROM requires table name' : "Error: FROM requires table name"
+
+    let [tableName] = extractTable(afterFrom);
+>tableName : string
+>extractTable(afterFrom) : string[]
+>extractTable : (s: string) => string[]
+>afterFrom : string
+
+    let validColumns = schema[tableName];
+>validColumns : any
+>schema[tableName] : any
+>schema : any
+>tableName : string
+
+    if (validColumns == undefined) return 'Error: table \'' + tableName + '\' not found in schema';
+>validColumns == undefined : boolean
+>validColumns : any
+>undefined : undefined
+>'Error: table \'' + tableName + '\' not found in schema' : string
+>'Error: table \'' + tableName : string
+>'Error: table \'' : "Error: table '"
+>tableName : string
+>'\' not found in schema' : "' not found in schema"
+
+    let selectedCols = resolveColumns(columnsStr, validColumns, tableName);
+>selectedCols : any
+>resolveColumns(columnsStr, validColumns, tableName) : any
+>resolveColumns : (columnsStr: string, validColumns: any, tableName: string) => any
+>columnsStr : string
+>validColumns : any
+>tableName : string
+
+    if (typeof selectedCols == 'string') return selectedCols;
+>typeof selectedCols == 'string' : boolean
+>typeof selectedCols : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>selectedCols : any
+>'string' : "string"
+>selectedCols : string
+
+    let whereErr: string = validateWhereColumns(norm, upper, validColumns, tableName);
+>whereErr : string
+>validateWhereColumns(norm, upper, validColumns, tableName) : string
+>validateWhereColumns : (norm: string, upper: string, validColumns: any, tableName: string) => string
+>norm : string
+>upper : string
+>validColumns : any
+>tableName : string
+
+    if (whereErr.length > 0) return whereErr;
+>whereErr.length > 0 : boolean
+>whereErr.length : number
+>whereErr : string
+>length : number
+>0 : 0
+>whereErr : string
+
+    let result: Record<string, any> = {};
+>result : Record<string, any>
+>{} : {}
+
+    result['statement'] = 'SELECT';
+>result['statement'] = 'SELECT' : "SELECT"
+>result['statement'] : any
+>result : Record<string, any>
+>'statement' : "statement"
+>'SELECT' : "SELECT"
+
+    result['table'] = tableName;
+>result['table'] = tableName : string
+>result['table'] : any
+>result : Record<string, any>
+>'table' : "table"
+>tableName : string
+
+    result['columns'] = selectedCols;
+>result['columns'] = selectedCols : any
+>result['columns'] : any
+>result : Record<string, any>
+>'columns' : "columns"
+>selectedCols : any
+
+    result['params'] = findParams(norm);
+>result['params'] = findParams(norm) : string[]
+>result['params'] : any
+>result : Record<string, any>
+>'params' : "params"
+>findParams(norm) : string[]
+>findParams : (s: string) => string[]
+>norm : string
+
+    return result;
+>result : Record<string, any>
+
+};
+
+// ---- Main entry points ----
+
+export const parseSql = (sql: any) => {
+>parseSql : (sql: any) => "Error: CREATE TABLE missing closing parenthesis" | "Error: CREATE TABLE requires column definitions" | "Error: CREATE TABLE requires table name" | "Error: DELETE requires table name" | "Error: FROM requires table name" | "Error: INSERT requires VALUES clause" | "Error: INSERT requires table name" | "Error: SELECT requires FROM clause" | "Error: SELECT requires column list" | "Error: SET requires assignments" | "Error: UPDATE requires SET clause" | "Error: UPDATE requires table name" | "Error: empty query" | "Error: unsupported statement (expected SELECT, INSERT, UPDATE, DELETE, or CREATE TABLE)" | Record<string, any>
+>(sql: any) => {    if (typeof sql != 'string' || sql.trim().length == 0) return 'Error: empty query';    let norm: string = normalizeSql(sql);    let upper: string = norm.toUpperCase();    if (upper.startsWith('SELECT ')) return parseSelect(norm, upper);    if (upper.startsWith('INSERT INTO ')) return parseInsert(norm, upper);    if (upper.startsWith('UPDATE ')) return parseUpdate(norm, upper);    if (upper.startsWith('DELETE FROM ')) return parseDelete(norm, upper);    if (upper.startsWith('CREATE TABLE ')) return parseCreateTable(norm);    return 'Error: unsupported statement (expected SELECT, INSERT, UPDATE, DELETE, or CREATE TABLE)';} : (sql: any) => "Error: CREATE TABLE missing closing parenthesis" | "Error: CREATE TABLE requires column definitions" | "Error: CREATE TABLE requires table name" | "Error: DELETE requires table name" | "Error: FROM requires table name" | "Error: INSERT requires VALUES clause" | "Error: INSERT requires table name" | "Error: SELECT requires FROM clause" | "Error: SELECT requires column list" | "Error: SET requires assignments" | "Error: UPDATE requires SET clause" | "Error: UPDATE requires table name" | "Error: empty query" | "Error: unsupported statement (expected SELECT, INSERT, UPDATE, DELETE, or CREATE TABLE)" | Record<string, any>
+>sql : any
+
+    if (typeof sql != 'string' || sql.trim().length == 0) return 'Error: empty query';
+>typeof sql != 'string' || sql.trim().length == 0 : boolean
+>typeof sql != 'string' : boolean
+>typeof sql : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>sql : any
+>'string' : "string"
+>sql.trim().length == 0 : boolean
+>sql.trim().length : number
+>sql.trim() : string
+>sql.trim : () => string
+>sql : string
+>trim : () => string
+>length : number
+>0 : 0
+>'Error: empty query' : "Error: empty query"
+
+    let norm: string = normalizeSql(sql);
+>norm : string
+>normalizeSql(sql) : string
+>normalizeSql : (sql: string) => string
+>sql : string
+
+    let upper: string = norm.toUpperCase();
+>upper : string
+>norm.toUpperCase() : string
+>norm.toUpperCase : () => string
+>norm : string
+>toUpperCase : () => string
+
+    if (upper.startsWith('SELECT ')) return parseSelect(norm, upper);
+>upper.startsWith('SELECT ') : boolean
+>upper.startsWith : (searchString: string, position?: number) => boolean
+>upper : string
+>startsWith : (searchString: string, position?: number) => boolean
+>'SELECT ' : "SELECT "
+>parseSelect(norm, upper) : "Error: FROM requires table name" | "Error: SELECT requires FROM clause" | "Error: SELECT requires column list" | Record<string, any>
+>parseSelect : (norm: string, upper: string) => "Error: FROM requires table name" | "Error: SELECT requires FROM clause" | "Error: SELECT requires column list" | Record<string, any>
+>norm : string
+>upper : string
+
+    if (upper.startsWith('INSERT INTO ')) return parseInsert(norm, upper);
+>upper.startsWith('INSERT INTO ') : boolean
+>upper.startsWith : (searchString: string, position?: number) => boolean
+>upper : string
+>startsWith : (searchString: string, position?: number) => boolean
+>'INSERT INTO ' : "INSERT INTO "
+>parseInsert(norm, upper) : "Error: INSERT requires VALUES clause" | "Error: INSERT requires table name" | Record<string, any>
+>parseInsert : (norm: string, upper: string) => "Error: INSERT requires VALUES clause" | "Error: INSERT requires table name" | Record<string, any>
+>norm : string
+>upper : string
+
+    if (upper.startsWith('UPDATE ')) return parseUpdate(norm, upper);
+>upper.startsWith('UPDATE ') : boolean
+>upper.startsWith : (searchString: string, position?: number) => boolean
+>upper : string
+>startsWith : (searchString: string, position?: number) => boolean
+>'UPDATE ' : "UPDATE "
+>parseUpdate(norm, upper) : "Error: SET requires assignments" | "Error: UPDATE requires SET clause" | "Error: UPDATE requires table name" | Record<string, any>
+>parseUpdate : (norm: string, upper: string) => "Error: SET requires assignments" | "Error: UPDATE requires SET clause" | "Error: UPDATE requires table name" | Record<string, any>
+>norm : string
+>upper : string
+
+    if (upper.startsWith('DELETE FROM ')) return parseDelete(norm, upper);
+>upper.startsWith('DELETE FROM ') : boolean
+>upper.startsWith : (searchString: string, position?: number) => boolean
+>upper : string
+>startsWith : (searchString: string, position?: number) => boolean
+>'DELETE FROM ' : "DELETE FROM "
+>parseDelete(norm, upper) : "Error: DELETE requires table name" | Record<string, any>
+>parseDelete : (norm: string, upper: string) => "Error: DELETE requires table name" | Record<string, any>
+>norm : string
+>upper : string
+
+    if (upper.startsWith('CREATE TABLE ')) return parseCreateTable(norm);
+>upper.startsWith('CREATE TABLE ') : boolean
+>upper.startsWith : (searchString: string, position?: number) => boolean
+>upper : string
+>startsWith : (searchString: string, position?: number) => boolean
+>'CREATE TABLE ' : "CREATE TABLE "
+>parseCreateTable(norm) : "Error: CREATE TABLE missing closing parenthesis" | "Error: CREATE TABLE requires column definitions" | "Error: CREATE TABLE requires table name" | Record<string, any>
+>parseCreateTable : (norm: string) => "Error: CREATE TABLE missing closing parenthesis" | "Error: CREATE TABLE requires column definitions" | "Error: CREATE TABLE requires table name" | Record<string, any>
+>norm : string
+
+    return 'Error: unsupported statement (expected SELECT, INSERT, UPDATE, DELETE, or CREATE TABLE)';
+>'Error: unsupported statement (expected SELECT, INSERT, UPDATE, DELETE, or CREATE TABLE)' : "Error: unsupported statement (expected SELECT, INSERT, UPDATE, DELETE, or CREATE TABLE)"
+
+};
+export type Sql<T> = Intrinsic<typeof parseSql, [T]>;
+>Sql : intrinsic
+>parseSql : (sql: any) => "Error: CREATE TABLE missing closing parenthesis" | "Error: CREATE TABLE requires column definitions" | "Error: CREATE TABLE requires table name" | "Error: DELETE requires table name" | "Error: FROM requires table name" | "Error: INSERT requires VALUES clause" | "Error: INSERT requires table name" | "Error: SELECT requires FROM clause" | "Error: SELECT requires column list" | "Error: SET requires assignments" | "Error: UPDATE requires SET clause" | "Error: UPDATE requires table name" | "Error: empty query" | "Error: unsupported statement (expected SELECT, INSERT, UPDATE, DELETE, or CREATE TABLE)" | Record<string, any>
+
+export const typedQuery = (schemaSql: any, sql: any) => {
+>typedQuery : (schemaSql: any, sql: any) => string | Record<string, any>
+>(schemaSql: any, sql: any) => {    if (typeof schemaSql != 'string' || typeof sql != 'string') return 'Error: invalid arguments';    let schema = parseSchema(schemaSql);    if (typeof schema == 'string') return schema;    let norm: string = normalizeSql(sql);    let upper: string = norm.toUpperCase();    if (!upper.startsWith('SELECT ')) return 'Error: TypedQuery only supports SELECT';    return parseTypedSelect(norm, upper, schema);} : (schemaSql: any, sql: any) => string | Record<string, any>
+>schemaSql : any
+>sql : any
+
+    if (typeof schemaSql != 'string' || typeof sql != 'string') return 'Error: invalid arguments';
+>typeof schemaSql != 'string' || typeof sql != 'string' : boolean
+>typeof schemaSql != 'string' : boolean
+>typeof schemaSql : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>schemaSql : any
+>'string' : "string"
+>typeof sql != 'string' : boolean
+>typeof sql : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>sql : any
+>'string' : "string"
+>'Error: invalid arguments' : "Error: invalid arguments"
+
+    let schema = parseSchema(schemaSql);
+>schema : string | Record<string, any>
+>parseSchema(schemaSql) : "Error: invalid schema: missing ( in CREATE TABLE" | "Error: invalid schema: missing ) in CREATE TABLE" | Record<string, any>
+>parseSchema : (schemaSql: string) => "Error: invalid schema: missing ( in CREATE TABLE" | "Error: invalid schema: missing ) in CREATE TABLE" | Record<string, any>
+>schemaSql : string
+
+    if (typeof schema == 'string') return schema;
+>typeof schema == 'string' : boolean
+>typeof schema : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>schema : string | Record<string, any>
+>'string' : "string"
+>schema : string
+
+    let norm: string = normalizeSql(sql);
+>norm : string
+>normalizeSql(sql) : string
+>normalizeSql : (sql: string) => string
+>sql : string
+
+    let upper: string = norm.toUpperCase();
+>upper : string
+>norm.toUpperCase() : string
+>norm.toUpperCase : () => string
+>norm : string
+>toUpperCase : () => string
+
+    if (!upper.startsWith('SELECT ')) return 'Error: TypedQuery only supports SELECT';
+>!upper.startsWith('SELECT ') : boolean
+>upper.startsWith('SELECT ') : boolean
+>upper.startsWith : (searchString: string, position?: number) => boolean
+>upper : string
+>startsWith : (searchString: string, position?: number) => boolean
+>'SELECT ' : "SELECT "
+>'Error: TypedQuery only supports SELECT' : "Error: TypedQuery only supports SELECT"
+
+    return parseTypedSelect(norm, upper, schema);
+>parseTypedSelect(norm, upper, schema) : string | Record<string, any>
+>parseTypedSelect : (norm: string, upper: string, schema: any) => string | Record<string, any>
+>norm : string
+>upper : string
+>schema : Record<string, any>
+
+};
+export type TypedQuery<Schema, Query> = Intrinsic<typeof typedQuery, [Schema, Query]>;
+>TypedQuery : intrinsic
+>typedQuery : (schemaSql: any, sql: any) => string | Record<string, any>
+
+
+=== sql_test.ts ===
+import { Sql, TypedQuery } from "./sql";
+>Sql : any
+>TypedQuery : any
+
+// ==== SELECT: structured breakdown ====
+
+type S01 = Sql<"SELECT * FROM users">;
+>S01 : { statement: "SELECT"; table: "users"; columns: ["*"]; params: []; }
+
+type S02 = Sql<"SELECT name, age FROM users">;
+>S02 : { statement: "SELECT"; table: "users"; columns: ["name", "age"]; params: []; }
+
+type S03 = Sql<"SELECT name FROM users WHERE id = 1">;
+>S03 : { statement: "SELECT"; table: "users"; columns: ["name"]; params: []; where: "id = 1"; }
+
+type S04 = Sql<"SELECT * FROM users ORDER BY name ASC">;
+>S04 : { statement: "SELECT"; table: "users"; columns: ["*"]; params: []; orderBy: "name ASC"; }
+
+type S05 = Sql<"SELECT * FROM users WHERE active = 1 LIMIT 10">;
+>S05 : { statement: "SELECT"; table: "users"; columns: ["*"]; params: []; where: "active = 1"; limit: "10"; }
+
+type S06 = Sql<"SELECT * FROM users WHERE id = $1">;
+>S06 : { statement: "SELECT"; table: "users"; columns: ["*"]; params: ["$1"]; where: "id = $1"; }
+
+type S07 = Sql<"SELECT * FROM users WHERE id = $1 AND status = $2">;
+>S07 : { statement: "SELECT"; table: "users"; columns: ["*"]; params: ["$1", "$2"]; where: "id = $1 AND status = $2"; }
+
+// ==== INSERT ====
+
+type I01 = Sql<"INSERT INTO users VALUES ($1, $2, $3)">;
+>I01 : { statement: "INSERT"; table: "users"; params: ["$1", "$2", "$3"]; }
+
+type I02 = Sql<"INSERT INTO users (name, age) VALUES ($1, $2)">;
+>I02 : { statement: "INSERT"; table: "users"; columns: ["name", "age"]; params: ["$1", "$2"]; }
+
+// ==== UPDATE ====
+
+type U01 = Sql<"UPDATE users SET name = $1 WHERE id = $2">;
+>U01 : { statement: "UPDATE"; table: "users"; set: ["name = $1"]; params: ["$1", "$2"]; where: "id = $2"; }
+
+type U02 = Sql<"UPDATE users SET active = 0">;
+>U02 : { statement: "UPDATE"; table: "users"; set: ["active = 0"]; params: []; }
+
+// ==== DELETE ====
+
+type D01 = Sql<"DELETE FROM users WHERE id = $1">;
+>D01 : { statement: "DELETE"; table: "users"; params: ["$1"]; where: "id = $1"; }
+
+type D02 = Sql<"DELETE FROM sessions">;
+>D02 : { statement: "DELETE"; table: "sessions"; params: []; }
+
+// ==== CREATE TABLE ====
+
+type C01 = Sql<"CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT NOT NULL, age INTEGER)">;
+>C01 : { statement: "CREATE TABLE"; table: "users"; definition: "id INTEGER PRIMARY KEY, name TEXT NOT NULL, age INTEGER"; }
+
+// ==== Errors produce descriptive messages ====
+
+type E01 = Sql<"">;                            // "Error: empty query"
+>E01 : "Error: empty query"
+
+type E02 = Sql<"SELCT * FROM users">;          // "Error: unsupported statement ..."
+>E02 : "Error: unsupported statement (expected SELECT, INSERT, UPDATE, DELETE, or CREATE TABLE)"
+
+type E03 = Sql<"SELECT FROM users">;           // "Error: SELECT requires column list"
+>E03 : "Error: SELECT requires column list"
+
+type E04 = Sql<"SELECT *">;                    // "Error: SELECT requires FROM clause"
+>E04 : "Error: SELECT requires FROM clause"
+
+type E05 = Sql<"SELECT * FROM">;               // "Error: FROM requires table name"
+>E05 : "Error: FROM requires table name"
+
+type E06 = Sql<"INSERT INTO users">;           // "Error: INSERT requires VALUES clause"
+>E06 : "Error: INSERT requires VALUES clause"
+
+type E07 = Sql<"UPDATE users WHERE id = 1">;   // "Error: UPDATE requires SET clause"
+>E07 : "Error: UPDATE requires SET clause"
+
+type E08 = Sql<"DROP TABLE users">;            // "Error: unsupported statement ..."
+>E08 : "Error: unsupported statement (expected SELECT, INSERT, UPDATE, DELETE, or CREATE TABLE)"
+
+// ==== Complex queries ====
+
+type CQ1 = Sql<"SELECT * FROM users WHERE id IN (SELECT user_id FROM orders)">;
+>CQ1 : { statement: "SELECT"; table: "users"; columns: ["*"]; params: []; where: "id IN (SELECT user_id FROM orders)"; }
+
+type CQ2 = Sql<"SELECT u.name, o.total FROM users u LEFT JOIN orders o ON u.id = o.user_id">;
+>CQ2 : { statement: "SELECT"; table: "users"; columns: ["u.name", "o.total"]; params: []; }
+
+type CQ3 = Sql<"SELECT * FROM users WHERE age BETWEEN 18 AND 65">;
+>CQ3 : { statement: "SELECT"; table: "users"; columns: ["*"]; params: []; where: "age BETWEEN 18 AND 65"; }
+
+type CQ4 = Sql<"SELECT * FROM users WHERE status IS NOT NULL ORDER BY created_at DESC LIMIT 20">;
+>CQ4 : { statement: "SELECT"; table: "users"; columns: ["*"]; params: []; where: "status IS NOT NULL"; orderBy: "created_at DESC"; limit: "20"; }
+
+type CQ5 = Sql<"SELECT name FROM users WHERE email LIKE '%@example.com'">;
+>CQ5 : { statement: "SELECT"; table: "users"; columns: ["name"]; params: []; where: "email LIKE '%@example.com'"; }
+
+type CQ6 = Sql<"UPDATE products SET price = price * 1.1, updated_at = $1 WHERE category = $2">;
+>CQ6 : { statement: "UPDATE"; table: "products"; set: ["price = price * 1.1", "updated_at = $1"]; params: ["$1", "$2"]; where: "category = $2"; }
+
+type CQ7 = Sql<"DELETE FROM sessions WHERE expires_at < $1 AND user_id IS NOT NULL">;
+>CQ7 : { statement: "DELETE"; table: "sessions"; params: ["$1"]; where: "expires_at < $1 AND user_id IS NOT NULL"; }
+
+type CQ8 = Sql<"INSERT INTO order_items (order_id, product_id, qty) VALUES ($1, $2, $3)">;
+>CQ8 : { statement: "INSERT"; table: "order_items"; columns: ["order_id", "product_id", "qty"]; params: ["$1", "$2", "$3"]; }
+
+
+// ==== Schema-aware validation using CREATE TABLE statements ====
+
+const db = `
+>db : "\nCREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, email TEXT, age INTEGER, active BOOLEAN);\nCREATE TABLE posts (id INTEGER PRIMARY KEY, title TEXT, body TEXT, user_id INTEGER, published BOOLEAN);\nCREATE TABLE orders (id INTEGER PRIMARY KEY, user_id INTEGER, total REAL, status TEXT);\n"
+>`CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, email TEXT, age INTEGER, active BOOLEAN);CREATE TABLE posts (id INTEGER PRIMARY KEY, title TEXT, body TEXT, user_id INTEGER, published BOOLEAN);CREATE TABLE orders (id INTEGER PRIMARY KEY, user_id INTEGER, total REAL, status TEXT);` as const : "\nCREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, email TEXT, age INTEGER, active BOOLEAN);\nCREATE TABLE posts (id INTEGER PRIMARY KEY, title TEXT, body TEXT, user_id INTEGER, published BOOLEAN);\nCREATE TABLE orders (id INTEGER PRIMARY KEY, user_id INTEGER, total REAL, status TEXT);\n"
+>`CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, email TEXT, age INTEGER, active BOOLEAN);CREATE TABLE posts (id INTEGER PRIMARY KEY, title TEXT, body TEXT, user_id INTEGER, published BOOLEAN);CREATE TABLE orders (id INTEGER PRIMARY KEY, user_id INTEGER, total REAL, status TEXT);` : "\nCREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, email TEXT, age INTEGER, active BOOLEAN);\nCREATE TABLE posts (id INTEGER PRIMARY KEY, title TEXT, body TEXT, user_id INTEGER, published BOOLEAN);\nCREATE TABLE orders (id INTEGER PRIMARY KEY, user_id INTEGER, total REAL, status TEXT);\n"
+
+CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, email TEXT, age INTEGER, active BOOLEAN);
+CREATE TABLE posts (id INTEGER PRIMARY KEY, title TEXT, body TEXT, user_id INTEGER, published BOOLEAN);
+CREATE TABLE orders (id INTEGER PRIMARY KEY, user_id INTEGER, total REAL, status TEXT);
+` as const;
+
+// Valid queries: columns exist in the schema
+type TQ1 = TypedQuery<typeof db, "SELECT name, email FROM users">;
+>TQ1 : { statement: "SELECT"; table: "users"; columns: ["name", "email"]; params: []; }
+>db : "\nCREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, email TEXT, age INTEGER, active BOOLEAN);\nCREATE TABLE posts (id INTEGER PRIMARY KEY, title TEXT, body TEXT, user_id INTEGER, published BOOLEAN);\nCREATE TABLE orders (id INTEGER PRIMARY KEY, user_id INTEGER, total REAL, status TEXT);\n"
+
+type TQ2 = TypedQuery<typeof db, "SELECT * FROM users">;
+>TQ2 : { statement: "SELECT"; table: "users"; columns: ["id", "name", "email", "age", "active"]; params: []; }
+>db : "\nCREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, email TEXT, age INTEGER, active BOOLEAN);\nCREATE TABLE posts (id INTEGER PRIMARY KEY, title TEXT, body TEXT, user_id INTEGER, published BOOLEAN);\nCREATE TABLE orders (id INTEGER PRIMARY KEY, user_id INTEGER, total REAL, status TEXT);\n"
+
+type TQ3 = TypedQuery<typeof db, "SELECT title, body FROM posts WHERE published = 1">;
+>TQ3 : { statement: "SELECT"; table: "posts"; columns: ["title", "body"]; params: []; }
+>db : "\nCREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, email TEXT, age INTEGER, active BOOLEAN);\nCREATE TABLE posts (id INTEGER PRIMARY KEY, title TEXT, body TEXT, user_id INTEGER, published BOOLEAN);\nCREATE TABLE orders (id INTEGER PRIMARY KEY, user_id INTEGER, total REAL, status TEXT);\n"
+
+type TQ4 = TypedQuery<typeof db, "SELECT id, total FROM orders WHERE status = $1">;
+>TQ4 : { statement: "SELECT"; table: "orders"; columns: ["id", "total"]; params: ["$1"]; }
+>db : "\nCREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, email TEXT, age INTEGER, active BOOLEAN);\nCREATE TABLE posts (id INTEGER PRIMARY KEY, title TEXT, body TEXT, user_id INTEGER, published BOOLEAN);\nCREATE TABLE orders (id INTEGER PRIMARY KEY, user_id INTEGER, total REAL, status TEXT);\n"
+
+type TQ5 = TypedQuery<typeof db, "SELECT COUNT(*) FROM orders">;
+>TQ5 : { statement: "SELECT"; table: "orders"; columns: ["COUNT(*)"]; params: []; }
+>db : "\nCREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, email TEXT, age INTEGER, active BOOLEAN);\nCREATE TABLE posts (id INTEGER PRIMARY KEY, title TEXT, body TEXT, user_id INTEGER, published BOOLEAN);\nCREATE TABLE orders (id INTEGER PRIMARY KEY, user_id INTEGER, total REAL, status TEXT);\n"
+
+type TQ6 = TypedQuery<typeof db, "SELECT name FROM users WHERE id = $1 LIMIT 1">;
+>TQ6 : { statement: "SELECT"; table: "users"; columns: ["name"]; params: ["$1"]; }
+>db : "\nCREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, email TEXT, age INTEGER, active BOOLEAN);\nCREATE TABLE posts (id INTEGER PRIMARY KEY, title TEXT, body TEXT, user_id INTEGER, published BOOLEAN);\nCREATE TABLE orders (id INTEGER PRIMARY KEY, user_id INTEGER, total REAL, status TEXT);\n"
+
+// Invalid queries (should produce errors)
+type TQ10 = TypedQuery<typeof db, "SELECT phone FROM users">;
+>TQ10 : "Error: column 'phone' not found in table 'users'"
+>db : "\nCREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, email TEXT, age INTEGER, active BOOLEAN);\nCREATE TABLE posts (id INTEGER PRIMARY KEY, title TEXT, body TEXT, user_id INTEGER, published BOOLEAN);\nCREATE TABLE orders (id INTEGER PRIMARY KEY, user_id INTEGER, total REAL, status TEXT);\n"
+
+type TQ11 = TypedQuery<typeof db, "SELECT title FROM users">;
+>TQ11 : "Error: column 'title' not found in table 'users'"
+>db : "\nCREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, email TEXT, age INTEGER, active BOOLEAN);\nCREATE TABLE posts (id INTEGER PRIMARY KEY, title TEXT, body TEXT, user_id INTEGER, published BOOLEAN);\nCREATE TABLE orders (id INTEGER PRIMARY KEY, user_id INTEGER, total REAL, status TEXT);\n"
+
+type TQ12 = TypedQuery<typeof db, "SELECT * FROM sessions">;
+>TQ12 : "Error: table 'sessions' not found in schema"
+>db : "\nCREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, email TEXT, age INTEGER, active BOOLEAN);\nCREATE TABLE posts (id INTEGER PRIMARY KEY, title TEXT, body TEXT, user_id INTEGER, published BOOLEAN);\nCREATE TABLE orders (id INTEGER PRIMARY KEY, user_id INTEGER, total REAL, status TEXT);\n"
+
+type TQ13 = TypedQuery<typeof db, "SELECT name FROM users WHERE phone = 1">;
+>TQ13 : "Error: column 'phone' not found in table 'users'"
+>db : "\nCREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, email TEXT, age INTEGER, active BOOLEAN);\nCREATE TABLE posts (id INTEGER PRIMARY KEY, title TEXT, body TEXT, user_id INTEGER, published BOOLEAN);\nCREATE TABLE orders (id INTEGER PRIMARY KEY, user_id INTEGER, total REAL, status TEXT);\n"
+
+type TQ14 = TypedQuery<typeof db, "SELECT SUM(missing) FROM orders">;
+>TQ14 : "Error: column 'missing' not found in table 'orders'"
+>db : "\nCREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, email TEXT, age INTEGER, active BOOLEAN);\nCREATE TABLE posts (id INTEGER PRIMARY KEY, title TEXT, body TEXT, user_id INTEGER, published BOOLEAN);\nCREATE TABLE orders (id INTEGER PRIMARY KEY, user_id INTEGER, total REAL, status TEXT);\n"
+

@@ -1,0 +1,459 @@
+//// [tests/cases/compiler/intrinsic/intrinsicEdgeCases.ts] ////
+
+=== intrinsicEdgeCases.ts ===
+// --- Circular / self-referencing type arguments ---
+
+const identity = (x: any) => x;
+>identity : Symbol(identity, Decl(intrinsicEdgeCases.ts, 2, 5))
+>x : Symbol(x, Decl(intrinsicEdgeCases.ts, 2, 18))
+>x : Symbol(x, Decl(intrinsicEdgeCases.ts, 2, 18))
+
+type Id<T> = Intrinsic<typeof identity, [T]>;
+>Id : Symbol(Id, Decl(intrinsicEdgeCases.ts, 2, 31))
+>T : Symbol(T, Decl(intrinsicEdgeCases.ts, 3, 8))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>identity : Symbol(identity, Decl(intrinsicEdgeCases.ts, 2, 5))
+>T : Symbol(T, Decl(intrinsicEdgeCases.ts, 3, 8))
+
+// Self-referencing (should not infinite-loop)
+type Recursive<T> = Id<Recursive<T>>;
+>Recursive : Symbol(Recursive, Decl(intrinsicEdgeCases.ts, 3, 45))
+>T : Symbol(T, Decl(intrinsicEdgeCases.ts, 6, 15))
+>Id : Symbol(Id, Decl(intrinsicEdgeCases.ts, 2, 31))
+>Recursive : Symbol(Recursive, Decl(intrinsicEdgeCases.ts, 3, 45))
+>T : Symbol(T, Decl(intrinsicEdgeCases.ts, 6, 15))
+
+// Mutual recursion
+type PingPong<T> = Id<PongPing<T>>;
+>PingPong : Symbol(PingPong, Decl(intrinsicEdgeCases.ts, 6, 37))
+>T : Symbol(T, Decl(intrinsicEdgeCases.ts, 9, 14))
+>Id : Symbol(Id, Decl(intrinsicEdgeCases.ts, 2, 31))
+>PongPing : Symbol(PongPing, Decl(intrinsicEdgeCases.ts, 9, 35))
+>T : Symbol(T, Decl(intrinsicEdgeCases.ts, 9, 14))
+
+type PongPing<T> = Id<PingPong<T>>;
+>PongPing : Symbol(PongPing, Decl(intrinsicEdgeCases.ts, 9, 35))
+>T : Symbol(T, Decl(intrinsicEdgeCases.ts, 10, 14))
+>Id : Symbol(Id, Decl(intrinsicEdgeCases.ts, 2, 31))
+>PingPong : Symbol(PingPong, Decl(intrinsicEdgeCases.ts, 6, 37))
+>T : Symbol(T, Decl(intrinsicEdgeCases.ts, 10, 14))
+
+// Concrete nested use
+type R1 = Id<Id<Id<42>>>;  // 42
+>R1 : Symbol(R1, Decl(intrinsicEdgeCases.ts, 10, 35))
+>Id : Symbol(Id, Decl(intrinsicEdgeCases.ts, 2, 31))
+>Id : Symbol(Id, Decl(intrinsicEdgeCases.ts, 2, 31))
+>Id : Symbol(Id, Decl(intrinsicEdgeCases.ts, 2, 31))
+
+
+// --- Deeply nested closures ---
+
+const nestedClosures = (n: number) => {
+>nestedClosures : Symbol(nestedClosures, Decl(intrinsicEdgeCases.ts, 18, 5))
+>n : Symbol(n, Decl(intrinsicEdgeCases.ts, 18, 24))
+
+    let a = (x: number) => {
+>a : Symbol(a, Decl(intrinsicEdgeCases.ts, 19, 7))
+>x : Symbol(x, Decl(intrinsicEdgeCases.ts, 19, 13))
+
+        let b = (y: number) => {
+>b : Symbol(b, Decl(intrinsicEdgeCases.ts, 20, 11))
+>y : Symbol(y, Decl(intrinsicEdgeCases.ts, 20, 17))
+
+            let c = (z: number) => {
+>c : Symbol(c, Decl(intrinsicEdgeCases.ts, 21, 15))
+>z : Symbol(z, Decl(intrinsicEdgeCases.ts, 21, 21))
+
+                let d = (w: number) => w + z + y + x;
+>d : Symbol(d, Decl(intrinsicEdgeCases.ts, 22, 19))
+>w : Symbol(w, Decl(intrinsicEdgeCases.ts, 22, 25))
+>w : Symbol(w, Decl(intrinsicEdgeCases.ts, 22, 25))
+>z : Symbol(z, Decl(intrinsicEdgeCases.ts, 21, 21))
+>y : Symbol(y, Decl(intrinsicEdgeCases.ts, 20, 17))
+>x : Symbol(x, Decl(intrinsicEdgeCases.ts, 19, 13))
+
+                return d(1);
+>d : Symbol(d, Decl(intrinsicEdgeCases.ts, 22, 19))
+
+            };
+            return c(2);
+>c : Symbol(c, Decl(intrinsicEdgeCases.ts, 21, 15))
+
+        };
+        return b(3);
+>b : Symbol(b, Decl(intrinsicEdgeCases.ts, 20, 11))
+
+    };
+    return a(n);
+>a : Symbol(a, Decl(intrinsicEdgeCases.ts, 19, 7))
+>n : Symbol(n, Decl(intrinsicEdgeCases.ts, 18, 24))
+
+};
+type NC1 = Intrinsic<typeof nestedClosures, [10]>;  // 10 + 3 + 2 + 1 = 16
+>NC1 : Symbol(NC1, Decl(intrinsicEdgeCases.ts, 30, 2))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>nestedClosures : Symbol(nestedClosures, Decl(intrinsicEdgeCases.ts, 18, 5))
+
+// Closure that builds and calls functions in a loop
+const closureLoop = (n: number) => {
+>closureLoop : Symbol(closureLoop, Decl(intrinsicEdgeCases.ts, 34, 5))
+>n : Symbol(n, Decl(intrinsicEdgeCases.ts, 34, 21))
+
+    let result: number = 0;
+>result : Symbol(result, Decl(intrinsicEdgeCases.ts, 35, 7))
+
+    let i: number = 0;
+>i : Symbol(i, Decl(intrinsicEdgeCases.ts, 36, 7))
+
+    while (i < n) {
+>i : Symbol(i, Decl(intrinsicEdgeCases.ts, 36, 7))
+>n : Symbol(n, Decl(intrinsicEdgeCases.ts, 34, 21))
+
+        let captured: number = i;
+>captured : Symbol(captured, Decl(intrinsicEdgeCases.ts, 38, 11))
+>i : Symbol(i, Decl(intrinsicEdgeCases.ts, 36, 7))
+
+        let f = (x: number) => x + captured;
+>f : Symbol(f, Decl(intrinsicEdgeCases.ts, 39, 11))
+>x : Symbol(x, Decl(intrinsicEdgeCases.ts, 39, 17))
+>x : Symbol(x, Decl(intrinsicEdgeCases.ts, 39, 17))
+>captured : Symbol(captured, Decl(intrinsicEdgeCases.ts, 38, 11))
+
+        result = f(result);
+>result : Symbol(result, Decl(intrinsicEdgeCases.ts, 35, 7))
+>f : Symbol(f, Decl(intrinsicEdgeCases.ts, 39, 11))
+>result : Symbol(result, Decl(intrinsicEdgeCases.ts, 35, 7))
+
+        i = i + 1;
+>i : Symbol(i, Decl(intrinsicEdgeCases.ts, 36, 7))
+>i : Symbol(i, Decl(intrinsicEdgeCases.ts, 36, 7))
+    }
+    return result;
+>result : Symbol(result, Decl(intrinsicEdgeCases.ts, 35, 7))
+
+};
+type NC2 = Intrinsic<typeof closureLoop, [10]>;  // 0+0+1+2+...+9 = 45
+>NC2 : Symbol(NC2, Decl(intrinsicEdgeCases.ts, 44, 2))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>closureLoop : Symbol(closureLoop, Decl(intrinsicEdgeCases.ts, 34, 5))
+
+
+// --- Closing over top-level const values ---
+
+const MULTIPLIER = 3;
+>MULTIPLIER : Symbol(MULTIPLIER, Decl(intrinsicEdgeCases.ts, 50, 5))
+
+const scaleUp = (n: number) => n * MULTIPLIER;
+>scaleUp : Symbol(scaleUp, Decl(intrinsicEdgeCases.ts, 51, 5))
+>n : Symbol(n, Decl(intrinsicEdgeCases.ts, 51, 17))
+>n : Symbol(n, Decl(intrinsicEdgeCases.ts, 51, 17))
+>MULTIPLIER : Symbol(MULTIPLIER, Decl(intrinsicEdgeCases.ts, 50, 5))
+
+type CL1 = Intrinsic<typeof scaleUp, [7]>;  // 21
+>CL1 : Symbol(CL1, Decl(intrinsicEdgeCases.ts, 51, 46))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>scaleUp : Symbol(scaleUp, Decl(intrinsicEdgeCases.ts, 51, 5))
+
+const OFFSET = 100;
+>OFFSET : Symbol(OFFSET, Decl(intrinsicEdgeCases.ts, 54, 5))
+
+const addOffset = (n: number) => n + OFFSET;
+>addOffset : Symbol(addOffset, Decl(intrinsicEdgeCases.ts, 55, 5))
+>n : Symbol(n, Decl(intrinsicEdgeCases.ts, 55, 19))
+>n : Symbol(n, Decl(intrinsicEdgeCases.ts, 55, 19))
+>OFFSET : Symbol(OFFSET, Decl(intrinsicEdgeCases.ts, 54, 5))
+
+type CL2 = Intrinsic<typeof addOffset, [10]>;  // 110
+>CL2 : Symbol(CL2, Decl(intrinsicEdgeCases.ts, 55, 44))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>addOffset : Symbol(addOffset, Decl(intrinsicEdgeCases.ts, 55, 5))
+
+const GREETING = "hi";
+>GREETING : Symbol(GREETING, Decl(intrinsicEdgeCases.ts, 58, 5))
+
+const greetWith = (name: string) => GREETING + " " + name;
+>greetWith : Symbol(greetWith, Decl(intrinsicEdgeCases.ts, 59, 5))
+>name : Symbol(name, Decl(intrinsicEdgeCases.ts, 59, 19))
+>GREETING : Symbol(GREETING, Decl(intrinsicEdgeCases.ts, 58, 5))
+>name : Symbol(name, Decl(intrinsicEdgeCases.ts, 59, 19))
+
+type CL3 = Intrinsic<typeof greetWith, ["world"]>;  // "hi world"
+>CL3 : Symbol(CL3, Decl(intrinsicEdgeCases.ts, 59, 58))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>greetWith : Symbol(greetWith, Decl(intrinsicEdgeCases.ts, 59, 5))
+
+
+// --- Union types as arguments ---
+
+const double = (n: number) => n * 2;
+>double : Symbol(double, Decl(intrinsicEdgeCases.ts, 65, 5))
+>n : Symbol(n, Decl(intrinsicEdgeCases.ts, 65, 16))
+>n : Symbol(n, Decl(intrinsicEdgeCases.ts, 65, 16))
+
+type Double<T> = Intrinsic<typeof double, [T]>;
+>Double : Symbol(Double, Decl(intrinsicEdgeCases.ts, 65, 36))
+>T : Symbol(T, Decl(intrinsicEdgeCases.ts, 66, 12))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>double : Symbol(double, Decl(intrinsicEdgeCases.ts, 65, 5))
+>T : Symbol(T, Decl(intrinsicEdgeCases.ts, 66, 12))
+
+type U1 = Double<5>;          // 10
+>U1 : Symbol(U1, Decl(intrinsicEdgeCases.ts, 66, 47))
+>Double : Symbol(Double, Decl(intrinsicEdgeCases.ts, 65, 36))
+
+type U2 = Double<1 | 2 | 3>;  // distribution over union
+>U2 : Symbol(U2, Decl(intrinsicEdgeCases.ts, 68, 20))
+>Double : Symbol(Double, Decl(intrinsicEdgeCases.ts, 65, 36))
+
+type U3 = Double<number>;     // deferred (non-literal)
+>U3 : Symbol(U3, Decl(intrinsicEdgeCases.ts, 69, 28))
+>Double : Symbol(Double, Decl(intrinsicEdgeCases.ts, 65, 36))
+
+const toUpper = (s: string) => s.toUpperCase();
+>toUpper : Symbol(toUpper, Decl(intrinsicEdgeCases.ts, 72, 5))
+>s : Symbol(s, Decl(intrinsicEdgeCases.ts, 72, 17))
+>s.toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(intrinsicEdgeCases.ts, 72, 17))
+>toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+
+type Upper<T> = Intrinsic<typeof toUpper, [T]>;
+>Upper : Symbol(Upper, Decl(intrinsicEdgeCases.ts, 72, 47))
+>T : Symbol(T, Decl(intrinsicEdgeCases.ts, 73, 11))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>toUpper : Symbol(toUpper, Decl(intrinsicEdgeCases.ts, 72, 5))
+>T : Symbol(T, Decl(intrinsicEdgeCases.ts, 73, 11))
+
+type U4 = Upper<"a" | "b" | "c">;
+>U4 : Symbol(U4, Decl(intrinsicEdgeCases.ts, 73, 47))
+>Upper : Symbol(Upper, Decl(intrinsicEdgeCases.ts, 72, 47))
+
+type U5 = Upper<string>;  // deferred
+>U5 : Symbol(U5, Decl(intrinsicEdgeCases.ts, 74, 33))
+>Upper : Symbol(Upper, Decl(intrinsicEdgeCases.ts, 72, 47))
+
+
+// --- Type parameter forwarding ---
+
+const add = (a: number, b: number) => a + b;
+>add : Symbol(add, Decl(intrinsicEdgeCases.ts, 80, 5))
+>a : Symbol(a, Decl(intrinsicEdgeCases.ts, 80, 13))
+>b : Symbol(b, Decl(intrinsicEdgeCases.ts, 80, 23))
+>a : Symbol(a, Decl(intrinsicEdgeCases.ts, 80, 13))
+>b : Symbol(b, Decl(intrinsicEdgeCases.ts, 80, 23))
+
+type Add<A extends number, B extends number> = Intrinsic<typeof add, [A, B]>;
+>Add : Symbol(Add, Decl(intrinsicEdgeCases.ts, 80, 44))
+>A : Symbol(A, Decl(intrinsicEdgeCases.ts, 81, 9))
+>B : Symbol(B, Decl(intrinsicEdgeCases.ts, 81, 26))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>add : Symbol(add, Decl(intrinsicEdgeCases.ts, 80, 5))
+>A : Symbol(A, Decl(intrinsicEdgeCases.ts, 81, 9))
+>B : Symbol(B, Decl(intrinsicEdgeCases.ts, 81, 26))
+
+type Increment<N extends number> = Add<N, 1>;
+>Increment : Symbol(Increment, Decl(intrinsicEdgeCases.ts, 81, 77))
+>N : Symbol(N, Decl(intrinsicEdgeCases.ts, 83, 15))
+>Add : Symbol(Add, Decl(intrinsicEdgeCases.ts, 80, 44))
+>N : Symbol(N, Decl(intrinsicEdgeCases.ts, 83, 15))
+
+type I1 = Increment<41>;  // 42
+>I1 : Symbol(I1, Decl(intrinsicEdgeCases.ts, 83, 45))
+>Increment : Symbol(Increment, Decl(intrinsicEdgeCases.ts, 81, 77))
+
+type AddTen<N extends number> = Add<N, 10>;
+>AddTen : Symbol(AddTen, Decl(intrinsicEdgeCases.ts, 84, 24))
+>N : Symbol(N, Decl(intrinsicEdgeCases.ts, 86, 12))
+>Add : Symbol(Add, Decl(intrinsicEdgeCases.ts, 80, 44))
+>N : Symbol(N, Decl(intrinsicEdgeCases.ts, 86, 12))
+
+type AddTwenty<N extends number> = AddTen<AddTen<N>>;
+>AddTwenty : Symbol(AddTwenty, Decl(intrinsicEdgeCases.ts, 86, 43))
+>N : Symbol(N, Decl(intrinsicEdgeCases.ts, 87, 15))
+>AddTen : Symbol(AddTen, Decl(intrinsicEdgeCases.ts, 84, 24))
+>AddTen : Symbol(AddTen, Decl(intrinsicEdgeCases.ts, 84, 24))
+>N : Symbol(N, Decl(intrinsicEdgeCases.ts, 87, 15))
+
+type F1 = AddTwenty<0>;   // 20
+>F1 : Symbol(F1, Decl(intrinsicEdgeCases.ts, 87, 53))
+>AddTwenty : Symbol(AddTwenty, Decl(intrinsicEdgeCases.ts, 86, 43))
+
+type F2 = AddTwenty<5>;   // 25
+>F2 : Symbol(F2, Decl(intrinsicEdgeCases.ts, 88, 23))
+>AddTwenty : Symbol(AddTwenty, Decl(intrinsicEdgeCases.ts, 86, 43))
+
+function incr<N extends number>(n: N): Increment<N> {
+>incr : Symbol(incr, Decl(intrinsicEdgeCases.ts, 89, 23))
+>N : Symbol(N, Decl(intrinsicEdgeCases.ts, 91, 14))
+>n : Symbol(n, Decl(intrinsicEdgeCases.ts, 91, 32))
+>N : Symbol(N, Decl(intrinsicEdgeCases.ts, 91, 14))
+>Increment : Symbol(Increment, Decl(intrinsicEdgeCases.ts, 81, 77))
+>N : Symbol(N, Decl(intrinsicEdgeCases.ts, 91, 14))
+
+    return undefined!;
+>undefined : Symbol(undefined)
+}
+
+type PositiveOrZero<N extends number> = Add<N, 0> extends never ? 0 : Add<N, 0>;
+>PositiveOrZero : Symbol(PositiveOrZero, Decl(intrinsicEdgeCases.ts, 93, 1))
+>N : Symbol(N, Decl(intrinsicEdgeCases.ts, 95, 20))
+>Add : Symbol(Add, Decl(intrinsicEdgeCases.ts, 80, 44))
+>N : Symbol(N, Decl(intrinsicEdgeCases.ts, 95, 20))
+>Add : Symbol(Add, Decl(intrinsicEdgeCases.ts, 80, 44))
+>N : Symbol(N, Decl(intrinsicEdgeCases.ts, 95, 20))
+
+type PZ1 = PositiveOrZero<5>;  // 5
+>PZ1 : Symbol(PZ1, Decl(intrinsicEdgeCases.ts, 95, 80))
+>PositiveOrZero : Symbol(PositiveOrZero, Decl(intrinsicEdgeCases.ts, 93, 1))
+
+
+// --- Argument count and type mismatches ---
+
+const greet = (name: string) => "hello " + name;
+>greet : Symbol(greet, Decl(intrinsicEdgeCases.ts, 101, 5))
+>name : Symbol(name, Decl(intrinsicEdgeCases.ts, 101, 15))
+>name : Symbol(name, Decl(intrinsicEdgeCases.ts, 101, 15))
+
+type Greet<T> = Intrinsic<typeof greet, [T]>;
+>Greet : Symbol(Greet, Decl(intrinsicEdgeCases.ts, 101, 48))
+>T : Symbol(T, Decl(intrinsicEdgeCases.ts, 102, 11))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>greet : Symbol(greet, Decl(intrinsicEdgeCases.ts, 101, 5))
+>T : Symbol(T, Decl(intrinsicEdgeCases.ts, 102, 11))
+
+type A1 = Greet<"world">;  // "hello world"
+>A1 : Symbol(A1, Decl(intrinsicEdgeCases.ts, 102, 45))
+>Greet : Symbol(Greet, Decl(intrinsicEdgeCases.ts, 101, 48))
+
+type A2 = Greet<42>;       // "hello 42" (string + number coercion)
+>A2 : Symbol(A2, Decl(intrinsicEdgeCases.ts, 104, 25))
+>Greet : Symbol(Greet, Decl(intrinsicEdgeCases.ts, 101, 48))
+
+const needsTwo = (a: number, b: number) => a + b;
+>needsTwo : Symbol(needsTwo, Decl(intrinsicEdgeCases.ts, 107, 5))
+>a : Symbol(a, Decl(intrinsicEdgeCases.ts, 107, 18))
+>b : Symbol(b, Decl(intrinsicEdgeCases.ts, 107, 28))
+>a : Symbol(a, Decl(intrinsicEdgeCases.ts, 107, 18))
+>b : Symbol(b, Decl(intrinsicEdgeCases.ts, 107, 28))
+
+type A3 = Intrinsic<typeof needsTwo, [5]>;        // second arg is undefined
+>A3 : Symbol(A3, Decl(intrinsicEdgeCases.ts, 107, 49))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>needsTwo : Symbol(needsTwo, Decl(intrinsicEdgeCases.ts, 107, 5))
+
+type A4 = Intrinsic<typeof greet, ["world", 42]>; // extra arg ignored
+>A4 : Symbol(A4, Decl(intrinsicEdgeCases.ts, 108, 42))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>greet : Symbol(greet, Decl(intrinsicEdgeCases.ts, 101, 5))
+
+type A5 = Intrinsic<typeof greet, []>;             // no args
+>A5 : Symbol(A5, Decl(intrinsicEdgeCases.ts, 109, 49))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>greet : Symbol(greet, Decl(intrinsicEdgeCases.ts, 101, 5))
+
+type A6 = Greet<string>;                           // deferred (non-literal)
+>A6 : Symbol(A6, Decl(intrinsicEdgeCases.ts, 110, 38))
+>Greet : Symbol(Greet, Decl(intrinsicEdgeCases.ts, 101, 48))
+
+
+// --- Semantic mismatches that should stay explicit ---
+
+const kindOf = (x: any) => typeof x;
+>kindOf : Symbol(kindOf, Decl(intrinsicEdgeCases.ts, 116, 5))
+>x : Symbol(x, Decl(intrinsicEdgeCases.ts, 116, 16))
+>x : Symbol(x, Decl(intrinsicEdgeCases.ts, 116, 16))
+
+type S1 = Intrinsic<typeof kindOf, [null]>;        // "null" (not JS "object")
+>S1 : Symbol(S1, Decl(intrinsicEdgeCases.ts, 116, 36))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>kindOf : Symbol(kindOf, Decl(intrinsicEdgeCases.ts, 116, 5))
+
+type S2 = Intrinsic<typeof kindOf, [undefined]>;   // "undefined"
+>S2 : Symbol(S2, Decl(intrinsicEdgeCases.ts, 118, 43))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>kindOf : Symbol(kindOf, Decl(intrinsicEdgeCases.ts, 116, 5))
+
+type S3 = Intrinsic<typeof kindOf, [[1, 2, 3]]>;   // "tuple" (not JS "object")
+>S3 : Symbol(S3, Decl(intrinsicEdgeCases.ts, 119, 48))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>kindOf : Symbol(kindOf, Decl(intrinsicEdgeCases.ts, 116, 5))
+
+type S4 = Intrinsic<typeof kindOf, [{ a: 1 }]>;    // "object"
+>S4 : Symbol(S4, Decl(intrinsicEdgeCases.ts, 120, 48))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>kindOf : Symbol(kindOf, Decl(intrinsicEdgeCases.ts, 116, 5))
+>a : Symbol(a, Decl(intrinsicEdgeCases.ts, 121, 37))
+
+const kindOfLocalFn = () => {
+>kindOfLocalFn : Symbol(kindOfLocalFn, Decl(intrinsicEdgeCases.ts, 123, 5))
+
+    let f = (x: number) => x + 1;
+>f : Symbol(f, Decl(intrinsicEdgeCases.ts, 124, 7))
+>x : Symbol(x, Decl(intrinsicEdgeCases.ts, 124, 13))
+>x : Symbol(x, Decl(intrinsicEdgeCases.ts, 124, 13))
+
+    return typeof f;
+>f : Symbol(f, Decl(intrinsicEdgeCases.ts, 124, 7))
+
+};
+
+type S5 = Intrinsic<typeof kindOfLocalFn, []>;     // "function"
+>S5 : Symbol(S5, Decl(intrinsicEdgeCases.ts, 126, 2))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>kindOfLocalFn : Symbol(kindOfLocalFn, Decl(intrinsicEdgeCases.ts, 123, 5))
+
+const looseEq = (a: any, b: any) => a == b;
+>looseEq : Symbol(looseEq, Decl(intrinsicEdgeCases.ts, 130, 5))
+>a : Symbol(a, Decl(intrinsicEdgeCases.ts, 130, 17))
+>b : Symbol(b, Decl(intrinsicEdgeCases.ts, 130, 24))
+>a : Symbol(a, Decl(intrinsicEdgeCases.ts, 130, 17))
+>b : Symbol(b, Decl(intrinsicEdgeCases.ts, 130, 24))
+
+type S6 = Intrinsic<typeof looseEq, [0, "0"]>;       // false (not JS true)
+>S6 : Symbol(S6, Decl(intrinsicEdgeCases.ts, 130, 43))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>looseEq : Symbol(looseEq, Decl(intrinsicEdgeCases.ts, 130, 5))
+
+type S7 = Intrinsic<typeof looseEq, [false, 0]>;      // false (not JS true)
+>S7 : Symbol(S7, Decl(intrinsicEdgeCases.ts, 132, 46))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>looseEq : Symbol(looseEq, Decl(intrinsicEdgeCases.ts, 130, 5))
+
+type S8 = Intrinsic<typeof looseEq, [null, undefined]>; // false (not JS true)
+>S8 : Symbol(S8, Decl(intrinsicEdgeCases.ts, 133, 48))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>looseEq : Symbol(looseEq, Decl(intrinsicEdgeCases.ts, 130, 5))
+
+type S9 = Intrinsic<typeof looseEq, ["", 0]>;        // false (not JS true)
+>S9 : Symbol(S9, Decl(intrinsicEdgeCases.ts, 134, 55))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>looseEq : Symbol(looseEq, Decl(intrinsicEdgeCases.ts, 130, 5))
+
+type S10 = Intrinsic<typeof looseEq, [[1, 2], [1, 2]]>; // true (not JS reference equality)
+>S10 : Symbol(S10, Decl(intrinsicEdgeCases.ts, 135, 45))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>looseEq : Symbol(looseEq, Decl(intrinsicEdgeCases.ts, 130, 5))
+
+const objectWithFn = () => {
+>objectWithFn : Symbol(objectWithFn, Decl(intrinsicEdgeCases.ts, 138, 5))
+
+    let r: any = {};
+>r : Symbol(r, Decl(intrinsicEdgeCases.ts, 139, 7))
+
+    r['x'] = 1;
+>r : Symbol(r, Decl(intrinsicEdgeCases.ts, 139, 7))
+
+    r['fn'] = (n: number) => n + 1;
+>r : Symbol(r, Decl(intrinsicEdgeCases.ts, 139, 7))
+>n : Symbol(n, Decl(intrinsicEdgeCases.ts, 141, 15))
+>n : Symbol(n, Decl(intrinsicEdgeCases.ts, 141, 15))
+
+    return r;
+>r : Symbol(r, Decl(intrinsicEdgeCases.ts, 139, 7))
+
+};
+
+type S11 = Intrinsic<typeof objectWithFn, []>;     // { x: 1, fn: never }
+>S11 : Symbol(S11, Decl(intrinsicEdgeCases.ts, 143, 2))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>objectWithFn : Symbol(objectWithFn, Decl(intrinsicEdgeCases.ts, 138, 5))
+

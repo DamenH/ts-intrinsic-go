@@ -1,0 +1,612 @@
+//// [tests/cases/compiler/intrinsic/customIntrinsics.ts] ////
+
+=== customIntrinsics.ts ===
+// Core tests for Intrinsic<typeof fn, [Args]>.
+
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+>capitalize : Symbol(capitalize, Decl(customIntrinsics.ts, 2, 5))
+>s : Symbol(s, Decl(customIntrinsics.ts, 2, 20))
+>s.charAt(0).toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>s.charAt : Symbol(String.charAt, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(customIntrinsics.ts, 2, 20))
+>charAt : Symbol(String.charAt, Decl(lib.es5.d.ts, --, --))
+>toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(customIntrinsics.ts, 2, 20))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+
+function range(startOrEnd: number, end?: number): number[] {
+>range : Symbol(range, Decl(customIntrinsics.ts, 2, 73))
+>startOrEnd : Symbol(startOrEnd, Decl(customIntrinsics.ts, 3, 15))
+>end : Symbol(end, Decl(customIntrinsics.ts, 3, 34))
+
+    const s = end === undefined ? 0 : startOrEnd;
+>s : Symbol(s, Decl(customIntrinsics.ts, 4, 9))
+>end : Symbol(end, Decl(customIntrinsics.ts, 3, 34))
+>undefined : Symbol(undefined)
+>startOrEnd : Symbol(startOrEnd, Decl(customIntrinsics.ts, 3, 15))
+
+    const e = end === undefined ? startOrEnd : end;
+>e : Symbol(e, Decl(customIntrinsics.ts, 5, 9))
+>end : Symbol(end, Decl(customIntrinsics.ts, 3, 34))
+>undefined : Symbol(undefined)
+>startOrEnd : Symbol(startOrEnd, Decl(customIntrinsics.ts, 3, 15))
+>end : Symbol(end, Decl(customIntrinsics.ts, 3, 34))
+
+    return Array.from({ length: Math.max(e - s, 0) }, (_, i) => s + i);
+>Array.from : Symbol(ArrayConstructor.from, Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.iterable.d.ts, --, --), Decl(lib.es2015.iterable.d.ts, --, --))
+>Array : Symbol(Array, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.iterable.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --) ... and 4 more)
+>from : Symbol(ArrayConstructor.from, Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.iterable.d.ts, --, --), Decl(lib.es2015.iterable.d.ts, --, --))
+>length : Symbol(length, Decl(customIntrinsics.ts, 6, 23))
+>Math.max : Symbol(Math.max, Decl(lib.es5.d.ts, --, --))
+>Math : Symbol(Math, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --), Decl(lib.es2025.float16.d.ts, --, --))
+>max : Symbol(Math.max, Decl(lib.es5.d.ts, --, --))
+>e : Symbol(e, Decl(customIntrinsics.ts, 5, 9))
+>s : Symbol(s, Decl(customIntrinsics.ts, 4, 9))
+>_ : Symbol(_, Decl(customIntrinsics.ts, 6, 55))
+>i : Symbol(i, Decl(customIntrinsics.ts, 6, 57))
+>s : Symbol(s, Decl(customIntrinsics.ts, 4, 9))
+>i : Symbol(i, Decl(customIntrinsics.ts, 6, 57))
+}
+
+// --- Arithmetic ---
+
+const add = (a: number, b: number) => a + b;
+>add : Symbol(add, Decl(customIntrinsics.ts, 11, 5))
+>a : Symbol(a, Decl(customIntrinsics.ts, 11, 13))
+>b : Symbol(b, Decl(customIntrinsics.ts, 11, 23))
+>a : Symbol(a, Decl(customIntrinsics.ts, 11, 13))
+>b : Symbol(b, Decl(customIntrinsics.ts, 11, 23))
+
+const sub = (a: number, b: number) => a - b;
+>sub : Symbol(sub, Decl(customIntrinsics.ts, 12, 5))
+>a : Symbol(a, Decl(customIntrinsics.ts, 12, 13))
+>b : Symbol(b, Decl(customIntrinsics.ts, 12, 23))
+>a : Symbol(a, Decl(customIntrinsics.ts, 12, 13))
+>b : Symbol(b, Decl(customIntrinsics.ts, 12, 23))
+
+const mul = (a: number, b: number) => a * b;
+>mul : Symbol(mul, Decl(customIntrinsics.ts, 13, 5))
+>a : Symbol(a, Decl(customIntrinsics.ts, 13, 13))
+>b : Symbol(b, Decl(customIntrinsics.ts, 13, 23))
+>a : Symbol(a, Decl(customIntrinsics.ts, 13, 13))
+>b : Symbol(b, Decl(customIntrinsics.ts, 13, 23))
+
+const div = (a: number, b: number) => a / b;
+>div : Symbol(div, Decl(customIntrinsics.ts, 14, 5))
+>a : Symbol(a, Decl(customIntrinsics.ts, 14, 13))
+>b : Symbol(b, Decl(customIntrinsics.ts, 14, 23))
+>a : Symbol(a, Decl(customIntrinsics.ts, 14, 13))
+>b : Symbol(b, Decl(customIntrinsics.ts, 14, 23))
+
+const mod = (a: number, b: number) => a % b;
+>mod : Symbol(mod, Decl(customIntrinsics.ts, 15, 5))
+>a : Symbol(a, Decl(customIntrinsics.ts, 15, 13))
+>b : Symbol(b, Decl(customIntrinsics.ts, 15, 23))
+>a : Symbol(a, Decl(customIntrinsics.ts, 15, 13))
+>b : Symbol(b, Decl(customIntrinsics.ts, 15, 23))
+
+const neg = (n: number) => -n;
+>neg : Symbol(neg, Decl(customIntrinsics.ts, 16, 5))
+>n : Symbol(n, Decl(customIntrinsics.ts, 16, 13))
+>n : Symbol(n, Decl(customIntrinsics.ts, 16, 13))
+
+type Add<A extends number, B extends number> = Intrinsic<typeof add, [A, B]>;
+>Add : Symbol(Add, Decl(customIntrinsics.ts, 16, 30))
+>A : Symbol(A, Decl(customIntrinsics.ts, 18, 9))
+>B : Symbol(B, Decl(customIntrinsics.ts, 18, 26))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>add : Symbol(add, Decl(customIntrinsics.ts, 11, 5))
+>A : Symbol(A, Decl(customIntrinsics.ts, 18, 9))
+>B : Symbol(B, Decl(customIntrinsics.ts, 18, 26))
+
+type Sub<A extends number, B extends number> = Intrinsic<typeof sub, [A, B]>;
+>Sub : Symbol(Sub, Decl(customIntrinsics.ts, 18, 77))
+>A : Symbol(A, Decl(customIntrinsics.ts, 19, 9))
+>B : Symbol(B, Decl(customIntrinsics.ts, 19, 26))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>sub : Symbol(sub, Decl(customIntrinsics.ts, 12, 5))
+>A : Symbol(A, Decl(customIntrinsics.ts, 19, 9))
+>B : Symbol(B, Decl(customIntrinsics.ts, 19, 26))
+
+type Mul<A extends number, B extends number> = Intrinsic<typeof mul, [A, B]>;
+>Mul : Symbol(Mul, Decl(customIntrinsics.ts, 19, 77))
+>A : Symbol(A, Decl(customIntrinsics.ts, 20, 9))
+>B : Symbol(B, Decl(customIntrinsics.ts, 20, 26))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>mul : Symbol(mul, Decl(customIntrinsics.ts, 13, 5))
+>A : Symbol(A, Decl(customIntrinsics.ts, 20, 9))
+>B : Symbol(B, Decl(customIntrinsics.ts, 20, 26))
+
+type R01 = Add<10, 20>;                          // 30
+>R01 : Symbol(R01, Decl(customIntrinsics.ts, 20, 77))
+>Add : Symbol(Add, Decl(customIntrinsics.ts, 16, 30))
+
+type R02 = Sub<100, 42>;                          // 58
+>R02 : Symbol(R02, Decl(customIntrinsics.ts, 22, 23))
+>Sub : Symbol(Sub, Decl(customIntrinsics.ts, 18, 77))
+
+type R03 = Mul<6, 7>;                             // 42
+>R03 : Symbol(R03, Decl(customIntrinsics.ts, 23, 24))
+>Mul : Symbol(Mul, Decl(customIntrinsics.ts, 19, 77))
+
+type R04 = Intrinsic<typeof div, [100, 4]>;       // 25
+>R04 : Symbol(R04, Decl(customIntrinsics.ts, 24, 21))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>div : Symbol(div, Decl(customIntrinsics.ts, 14, 5))
+
+type R05 = Intrinsic<typeof mod, [17, 5]>;        // 2
+>R05 : Symbol(R05, Decl(customIntrinsics.ts, 25, 43))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>mod : Symbol(mod, Decl(customIntrinsics.ts, 15, 5))
+
+type R06 = Intrinsic<typeof neg, [99]>;           // -99
+>R06 : Symbol(R06, Decl(customIntrinsics.ts, 26, 42))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>neg : Symbol(neg, Decl(customIntrinsics.ts, 16, 5))
+
+const absVal = (n: number) => Math.abs(n);
+>absVal : Symbol(absVal, Decl(customIntrinsics.ts, 28, 5))
+>n : Symbol(n, Decl(customIntrinsics.ts, 28, 16))
+>Math.abs : Symbol(Math.abs, Decl(lib.es5.d.ts, --, --))
+>Math : Symbol(Math, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --), Decl(lib.es2025.float16.d.ts, --, --))
+>abs : Symbol(Math.abs, Decl(lib.es5.d.ts, --, --))
+>n : Symbol(n, Decl(customIntrinsics.ts, 28, 16))
+
+type R07 = Intrinsic<typeof absVal, [-50]>;       // 50
+>R07 : Symbol(R07, Decl(customIntrinsics.ts, 28, 42))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>absVal : Symbol(absVal, Decl(customIntrinsics.ts, 28, 5))
+
+// Chaining
+type R08 = Mul<Add<10, 20>, 3>;                   // 90
+>R08 : Symbol(R08, Decl(customIntrinsics.ts, 29, 43))
+>Mul : Symbol(Mul, Decl(customIntrinsics.ts, 19, 77))
+>Add : Symbol(Add, Decl(customIntrinsics.ts, 16, 30))
+
+type R09 = Sub<Mul<Add<2, 3>, 4>, 1>;             // 19
+>R09 : Symbol(R09, Decl(customIntrinsics.ts, 32, 31))
+>Sub : Symbol(Sub, Decl(customIntrinsics.ts, 18, 77))
+>Mul : Symbol(Mul, Decl(customIntrinsics.ts, 19, 77))
+>Add : Symbol(Add, Decl(customIntrinsics.ts, 16, 30))
+
+// --- Comparisons ---
+
+const isPositive = (n: number) => n > 0;
+>isPositive : Symbol(isPositive, Decl(customIntrinsics.ts, 37, 5))
+>n : Symbol(n, Decl(customIntrinsics.ts, 37, 20))
+>n : Symbol(n, Decl(customIntrinsics.ts, 37, 20))
+
+const isEven = (n: number) => n % 2 == 0;
+>isEven : Symbol(isEven, Decl(customIntrinsics.ts, 38, 5))
+>n : Symbol(n, Decl(customIntrinsics.ts, 38, 16))
+>n : Symbol(n, Decl(customIntrinsics.ts, 38, 16))
+
+type R10 = Intrinsic<typeof isPositive, [5]>;     // true
+>R10 : Symbol(R10, Decl(customIntrinsics.ts, 38, 41))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>isPositive : Symbol(isPositive, Decl(customIntrinsics.ts, 37, 5))
+
+type R11 = Intrinsic<typeof isPositive, [-3]>;    // false
+>R11 : Symbol(R11, Decl(customIntrinsics.ts, 40, 45))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>isPositive : Symbol(isPositive, Decl(customIntrinsics.ts, 37, 5))
+
+type R12 = Intrinsic<typeof isEven, [4]>;         // true
+>R12 : Symbol(R12, Decl(customIntrinsics.ts, 41, 46))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>isEven : Symbol(isEven, Decl(customIntrinsics.ts, 38, 5))
+
+type R13 = Intrinsic<typeof isEven, [3]>;         // false
+>R13 : Symbol(R13, Decl(customIntrinsics.ts, 42, 41))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>isEven : Symbol(isEven, Decl(customIntrinsics.ts, 38, 5))
+
+// --- Strings ---
+
+const toUpper = (s: string) => s.toUpperCase();
+>toUpper : Symbol(toUpper, Decl(customIntrinsics.ts, 47, 5))
+>s : Symbol(s, Decl(customIntrinsics.ts, 47, 17))
+>s.toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(customIntrinsics.ts, 47, 17))
+>toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+
+const toLower = (s: string) => s.toLowerCase();
+>toLower : Symbol(toLower, Decl(customIntrinsics.ts, 48, 5))
+>s : Symbol(s, Decl(customIntrinsics.ts, 48, 17))
+>s.toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(customIntrinsics.ts, 48, 17))
+>toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+
+const strLen = (s: string) => s.length;
+>strLen : Symbol(strLen, Decl(customIntrinsics.ts, 49, 5))
+>s : Symbol(s, Decl(customIntrinsics.ts, 49, 16))
+>s.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(customIntrinsics.ts, 49, 16))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+type R14 = Intrinsic<typeof toUpper, ["hello"]>;  // "HELLO"
+>R14 : Symbol(R14, Decl(customIntrinsics.ts, 49, 39))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>toUpper : Symbol(toUpper, Decl(customIntrinsics.ts, 47, 5))
+
+type R15 = Intrinsic<typeof toLower, ["LOUD"]>;   // "loud"
+>R15 : Symbol(R15, Decl(customIntrinsics.ts, 51, 48))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>toLower : Symbol(toLower, Decl(customIntrinsics.ts, 48, 5))
+
+type R16 = Intrinsic<typeof strLen, ["hello world"]>; // 11
+>R16 : Symbol(R16, Decl(customIntrinsics.ts, 52, 47))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>strLen : Symbol(strLen, Decl(customIntrinsics.ts, 49, 5))
+
+// --- Math builtins ---
+
+const clamp = (n: number, lo: number, hi: number) => Math.min(Math.max(n, lo), hi);
+>clamp : Symbol(clamp, Decl(customIntrinsics.ts, 57, 5))
+>n : Symbol(n, Decl(customIntrinsics.ts, 57, 15))
+>lo : Symbol(lo, Decl(customIntrinsics.ts, 57, 25))
+>hi : Symbol(hi, Decl(customIntrinsics.ts, 57, 37))
+>Math.min : Symbol(Math.min, Decl(lib.es5.d.ts, --, --))
+>Math : Symbol(Math, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --), Decl(lib.es2025.float16.d.ts, --, --))
+>min : Symbol(Math.min, Decl(lib.es5.d.ts, --, --))
+>Math.max : Symbol(Math.max, Decl(lib.es5.d.ts, --, --))
+>Math : Symbol(Math, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --), Decl(lib.es2025.float16.d.ts, --, --))
+>max : Symbol(Math.max, Decl(lib.es5.d.ts, --, --))
+>n : Symbol(n, Decl(customIntrinsics.ts, 57, 15))
+>lo : Symbol(lo, Decl(customIntrinsics.ts, 57, 25))
+>hi : Symbol(hi, Decl(customIntrinsics.ts, 57, 37))
+
+const mySqrt = (n: number) => Math.sqrt(n);
+>mySqrt : Symbol(mySqrt, Decl(customIntrinsics.ts, 59, 5))
+>n : Symbol(n, Decl(customIntrinsics.ts, 59, 16))
+>Math.sqrt : Symbol(Math.sqrt, Decl(lib.es5.d.ts, --, --))
+>Math : Symbol(Math, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --), Decl(lib.es2025.float16.d.ts, --, --))
+>sqrt : Symbol(Math.sqrt, Decl(lib.es5.d.ts, --, --))
+>n : Symbol(n, Decl(customIntrinsics.ts, 59, 16))
+
+const myPow = (a: number, b: number) => Math.pow(a, b);
+>myPow : Symbol(myPow, Decl(customIntrinsics.ts, 60, 5))
+>a : Symbol(a, Decl(customIntrinsics.ts, 60, 15))
+>b : Symbol(b, Decl(customIntrinsics.ts, 60, 25))
+>Math.pow : Symbol(Math.pow, Decl(lib.es5.d.ts, --, --))
+>Math : Symbol(Math, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --), Decl(lib.es2025.float16.d.ts, --, --))
+>pow : Symbol(Math.pow, Decl(lib.es5.d.ts, --, --))
+>a : Symbol(a, Decl(customIntrinsics.ts, 60, 15))
+>b : Symbol(b, Decl(customIntrinsics.ts, 60, 25))
+
+type R17 = Intrinsic<typeof mySqrt, [16]>;         // 4
+>R17 : Symbol(R17, Decl(customIntrinsics.ts, 60, 55))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>mySqrt : Symbol(mySqrt, Decl(customIntrinsics.ts, 59, 5))
+
+type R18 = Intrinsic<typeof myPow, [2, 10]>;       // 1024
+>R18 : Symbol(R18, Decl(customIntrinsics.ts, 61, 42))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>myPow : Symbol(myPow, Decl(customIntrinsics.ts, 60, 5))
+
+type R19 = Intrinsic<typeof clamp, [-5, 0, 100]>;  // 0
+>R19 : Symbol(R19, Decl(customIntrinsics.ts, 62, 44))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>clamp : Symbol(clamp, Decl(customIntrinsics.ts, 57, 5))
+
+type R20 = Intrinsic<typeof clamp, [50, 0, 100]>;  // 50
+>R20 : Symbol(R20, Decl(customIntrinsics.ts, 63, 49))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>clamp : Symbol(clamp, Decl(customIntrinsics.ts, 57, 5))
+
+type R21 = Intrinsic<typeof clamp, [999, 0, 100]>; // 100
+>R21 : Symbol(R21, Decl(customIntrinsics.ts, 64, 49))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>clamp : Symbol(clamp, Decl(customIntrinsics.ts, 57, 5))
+
+// --- Objects ---
+
+const makeObj = (name: string, age: number) => {
+>makeObj : Symbol(makeObj, Decl(customIntrinsics.ts, 69, 5))
+>name : Symbol(name, Decl(customIntrinsics.ts, 69, 17))
+>age : Symbol(age, Decl(customIntrinsics.ts, 69, 30))
+
+    let r: Record<string, any> = {};
+>r : Symbol(r, Decl(customIntrinsics.ts, 70, 7))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+    r['name'] = name;
+>r : Symbol(r, Decl(customIntrinsics.ts, 70, 7))
+>name : Symbol(name, Decl(customIntrinsics.ts, 69, 17))
+
+    r['age'] = age;
+>r : Symbol(r, Decl(customIntrinsics.ts, 70, 7))
+>age : Symbol(age, Decl(customIntrinsics.ts, 69, 30))
+
+    return r;
+>r : Symbol(r, Decl(customIntrinsics.ts, 70, 7))
+
+};
+type R22 = Intrinsic<typeof makeObj, ["Alice", 30]>;
+>R22 : Symbol(R22, Decl(customIntrinsics.ts, 74, 2))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>makeObj : Symbol(makeObj, Decl(customIntrinsics.ts, 69, 5))
+
+// { name: "Alice", age: 30 }
+
+// --- Tuples ---
+
+const head = (t: any[]) => t[0];
+>head : Symbol(head, Decl(customIntrinsics.ts, 80, 5))
+>t : Symbol(t, Decl(customIntrinsics.ts, 80, 14))
+>t : Symbol(t, Decl(customIntrinsics.ts, 80, 14))
+
+const tail = (t: any[]) => t.slice(1);
+>tail : Symbol(tail, Decl(customIntrinsics.ts, 81, 5))
+>t : Symbol(t, Decl(customIntrinsics.ts, 81, 14))
+>t.slice : Symbol(Array.slice, Decl(lib.es5.d.ts, --, --))
+>t : Symbol(t, Decl(customIntrinsics.ts, 81, 14))
+>slice : Symbol(Array.slice, Decl(lib.es5.d.ts, --, --))
+
+const myRange = (n: number) => { let arr: number[] = []; let i = 0; while (i < n) { arr = [...arr, i]; i = i + 1; } return arr; };
+>myRange : Symbol(myRange, Decl(customIntrinsics.ts, 82, 5))
+>n : Symbol(n, Decl(customIntrinsics.ts, 82, 17))
+>arr : Symbol(arr, Decl(customIntrinsics.ts, 82, 36))
+>i : Symbol(i, Decl(customIntrinsics.ts, 82, 60))
+>i : Symbol(i, Decl(customIntrinsics.ts, 82, 60))
+>n : Symbol(n, Decl(customIntrinsics.ts, 82, 17))
+>arr : Symbol(arr, Decl(customIntrinsics.ts, 82, 36))
+>arr : Symbol(arr, Decl(customIntrinsics.ts, 82, 36))
+>i : Symbol(i, Decl(customIntrinsics.ts, 82, 60))
+>i : Symbol(i, Decl(customIntrinsics.ts, 82, 60))
+>i : Symbol(i, Decl(customIntrinsics.ts, 82, 60))
+>arr : Symbol(arr, Decl(customIntrinsics.ts, 82, 36))
+
+type R23 = Intrinsic<typeof head, [[1, 2, 3]]>;    // 1
+>R23 : Symbol(R23, Decl(customIntrinsics.ts, 82, 130))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>head : Symbol(head, Decl(customIntrinsics.ts, 80, 5))
+
+type R24 = Intrinsic<typeof tail, [[1, 2, 3]]>;    // [2, 3]
+>R24 : Symbol(R24, Decl(customIntrinsics.ts, 84, 47))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>tail : Symbol(tail, Decl(customIntrinsics.ts, 81, 5))
+
+type R25 = Intrinsic<typeof myRange, [5]>;          // [0, 1, 2, 3, 4]
+>R25 : Symbol(R25, Decl(customIntrinsics.ts, 85, 47))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>myRange : Symbol(myRange, Decl(customIntrinsics.ts, 82, 5))
+
+// --- Higher-order: map, filter, reduce ---
+
+const keepPositive = (t: number[]) => t.filter((x: number) => x > 0);
+>keepPositive : Symbol(keepPositive, Decl(customIntrinsics.ts, 90, 5))
+>t : Symbol(t, Decl(customIntrinsics.ts, 90, 22))
+>t.filter : Symbol(Array.filter, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --))
+>t : Symbol(t, Decl(customIntrinsics.ts, 90, 22))
+>filter : Symbol(Array.filter, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --))
+>x : Symbol(x, Decl(customIntrinsics.ts, 90, 48))
+>x : Symbol(x, Decl(customIntrinsics.ts, 90, 48))
+
+const doubled = (t: number[]) => t.map((x: number) => x * 2);
+>doubled : Symbol(doubled, Decl(customIntrinsics.ts, 91, 5))
+>t : Symbol(t, Decl(customIntrinsics.ts, 91, 17))
+>t.map : Symbol(Array.map, Decl(lib.es5.d.ts, --, --))
+>t : Symbol(t, Decl(customIntrinsics.ts, 91, 17))
+>map : Symbol(Array.map, Decl(lib.es5.d.ts, --, --))
+>x : Symbol(x, Decl(customIntrinsics.ts, 91, 40))
+>x : Symbol(x, Decl(customIntrinsics.ts, 91, 40))
+
+const sum = (t: number[]) => t.reduce((a: number, b: number) => a + b, 0);
+>sum : Symbol(sum, Decl(customIntrinsics.ts, 92, 5))
+>t : Symbol(t, Decl(customIntrinsics.ts, 92, 13))
+>t.reduce : Symbol(Array.reduce, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --))
+>t : Symbol(t, Decl(customIntrinsics.ts, 92, 13))
+>reduce : Symbol(Array.reduce, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --))
+>a : Symbol(a, Decl(customIntrinsics.ts, 92, 39))
+>b : Symbol(b, Decl(customIntrinsics.ts, 92, 49))
+>a : Symbol(a, Decl(customIntrinsics.ts, 92, 39))
+>b : Symbol(b, Decl(customIntrinsics.ts, 92, 49))
+
+const unique = (t: any[]) => t.filter((x: any, i: number) => t.indexOf(x) == i);
+>unique : Symbol(unique, Decl(customIntrinsics.ts, 93, 5))
+>t : Symbol(t, Decl(customIntrinsics.ts, 93, 16))
+>t.filter : Symbol(Array.filter, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --))
+>t : Symbol(t, Decl(customIntrinsics.ts, 93, 16))
+>filter : Symbol(Array.filter, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --))
+>x : Symbol(x, Decl(customIntrinsics.ts, 93, 39))
+>i : Symbol(i, Decl(customIntrinsics.ts, 93, 46))
+>t.indexOf : Symbol(Array.indexOf, Decl(lib.es5.d.ts, --, --))
+>t : Symbol(t, Decl(customIntrinsics.ts, 93, 16))
+>indexOf : Symbol(Array.indexOf, Decl(lib.es5.d.ts, --, --))
+>x : Symbol(x, Decl(customIntrinsics.ts, 93, 39))
+>i : Symbol(i, Decl(customIntrinsics.ts, 93, 46))
+
+type R26 = Intrinsic<typeof keepPositive, [[1, -2, 3, -4, 5]]>;  // [1, 3, 5]
+>R26 : Symbol(R26, Decl(customIntrinsics.ts, 93, 80))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>keepPositive : Symbol(keepPositive, Decl(customIntrinsics.ts, 90, 5))
+
+type R27 = Intrinsic<typeof doubled, [[1, 2, 3]]>;                // [2, 4, 6]
+>R27 : Symbol(R27, Decl(customIntrinsics.ts, 95, 63))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>doubled : Symbol(doubled, Decl(customIntrinsics.ts, 91, 5))
+
+type R28 = Intrinsic<typeof sum, [[1, 2, 3, 4, 5]]>;              // 15
+>R28 : Symbol(R28, Decl(customIntrinsics.ts, 96, 50))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>sum : Symbol(sum, Decl(customIntrinsics.ts, 92, 5))
+
+type R29 = Intrinsic<typeof unique, [[1, 2, 1, 3, 2]]>;           // [1, 2, 3]
+>R29 : Symbol(R29, Decl(customIntrinsics.ts, 97, 52))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>unique : Symbol(unique, Decl(customIntrinsics.ts, 93, 5))
+
+// --- Control flow ---
+
+const factorial = (n: number) => {
+>factorial : Symbol(factorial, Decl(customIntrinsics.ts, 102, 5))
+>n : Symbol(n, Decl(customIntrinsics.ts, 102, 19))
+
+    let result: number = 1;
+>result : Symbol(result, Decl(customIntrinsics.ts, 103, 7))
+
+    let i: number = n;
+>i : Symbol(i, Decl(customIntrinsics.ts, 104, 7))
+>n : Symbol(n, Decl(customIntrinsics.ts, 102, 19))
+
+    while (i > 0) { result = result * i; i = i - 1; }
+>i : Symbol(i, Decl(customIntrinsics.ts, 104, 7))
+>result : Symbol(result, Decl(customIntrinsics.ts, 103, 7))
+>result : Symbol(result, Decl(customIntrinsics.ts, 103, 7))
+>i : Symbol(i, Decl(customIntrinsics.ts, 104, 7))
+>i : Symbol(i, Decl(customIntrinsics.ts, 104, 7))
+>i : Symbol(i, Decl(customIntrinsics.ts, 104, 7))
+
+    return result;
+>result : Symbol(result, Decl(customIntrinsics.ts, 103, 7))
+
+};
+
+// for-of loop
+const sumLoop = (t: number[]) => {
+>sumLoop : Symbol(sumLoop, Decl(customIntrinsics.ts, 110, 5))
+>t : Symbol(t, Decl(customIntrinsics.ts, 110, 17))
+
+    let s: number = 0;
+>s : Symbol(s, Decl(customIntrinsics.ts, 111, 7))
+
+    for (let x of t) { s = s + x; }
+>x : Symbol(x, Decl(customIntrinsics.ts, 112, 12))
+>t : Symbol(t, Decl(customIntrinsics.ts, 110, 17))
+>s : Symbol(s, Decl(customIntrinsics.ts, 111, 7))
+>s : Symbol(s, Decl(customIntrinsics.ts, 111, 7))
+>x : Symbol(x, Decl(customIntrinsics.ts, 112, 12))
+
+    return s;
+>s : Symbol(s, Decl(customIntrinsics.ts, 111, 7))
+
+};
+
+// if/else dispatch
+const describe = (x: any) => {
+>describe : Symbol(describe, Decl(customIntrinsics.ts, 117, 5))
+>x : Symbol(x, Decl(customIntrinsics.ts, 117, 18))
+
+    if (typeof x == 'number') return 'a number';
+>x : Symbol(x, Decl(customIntrinsics.ts, 117, 18))
+
+    if (typeof x == 'string') return 'a string';
+>x : Symbol(x, Decl(customIntrinsics.ts, 117, 18))
+
+    if (typeof x == 'boolean') return 'a boolean';
+>x : Symbol(x, Decl(customIntrinsics.ts, 117, 18))
+
+    return 'something else';
+};
+
+type R30 = Intrinsic<typeof factorial, [5]>;       // 120
+>R30 : Symbol(R30, Decl(customIntrinsics.ts, 122, 2))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>factorial : Symbol(factorial, Decl(customIntrinsics.ts, 102, 5))
+
+type R31 = Intrinsic<typeof sumLoop, [[1, 2, 3, 4, 5]]>; // 15
+>R31 : Symbol(R31, Decl(customIntrinsics.ts, 124, 44))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>sumLoop : Symbol(sumLoop, Decl(customIntrinsics.ts, 110, 5))
+
+type R32 = Intrinsic<typeof describe, [42]>;       // "a number"
+>R32 : Symbol(R32, Decl(customIntrinsics.ts, 125, 56))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>describe : Symbol(describe, Decl(customIntrinsics.ts, 117, 5))
+
+type R33 = Intrinsic<typeof describe, ["hi"]>;     // "a string"
+>R33 : Symbol(R33, Decl(customIntrinsics.ts, 126, 44))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>describe : Symbol(describe, Decl(customIntrinsics.ts, 117, 5))
+
+type R34 = Intrinsic<typeof describe, [true]>;     // "a boolean"
+>R34 : Symbol(R34, Decl(customIntrinsics.ts, 127, 46))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>describe : Symbol(describe, Decl(customIntrinsics.ts, 117, 5))
+
+// --- String transforms ---
+
+const camelCase = (s: string) => {
+>camelCase : Symbol(camelCase, Decl(customIntrinsics.ts, 132, 5))
+>s : Symbol(s, Decl(customIntrinsics.ts, 132, 19))
+
+    let [first, ...rest] = s.split('_');
+>first : Symbol(first, Decl(customIntrinsics.ts, 133, 9))
+>rest : Symbol(rest, Decl(customIntrinsics.ts, 133, 15))
+>s.split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+>s : Symbol(s, Decl(customIntrinsics.ts, 132, 19))
+>split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+
+    return first + rest.map((p: string) => capitalize(p)).join('');
+>first : Symbol(first, Decl(customIntrinsics.ts, 133, 9))
+>rest.map((p: string) => capitalize(p)).join : Symbol(Array.join, Decl(lib.es5.d.ts, --, --))
+>rest.map : Symbol(Array.map, Decl(lib.es5.d.ts, --, --))
+>rest : Symbol(rest, Decl(customIntrinsics.ts, 133, 15))
+>map : Symbol(Array.map, Decl(lib.es5.d.ts, --, --))
+>p : Symbol(p, Decl(customIntrinsics.ts, 134, 29))
+>capitalize : Symbol(capitalize, Decl(customIntrinsics.ts, 2, 5))
+>p : Symbol(p, Decl(customIntrinsics.ts, 134, 29))
+>join : Symbol(Array.join, Decl(lib.es5.d.ts, --, --))
+
+};
+
+// Deep property access: reduce over a split path
+const deepGet = (t: any, path: string) =>
+>deepGet : Symbol(deepGet, Decl(customIntrinsics.ts, 138, 5))
+>t : Symbol(t, Decl(customIntrinsics.ts, 138, 17))
+>path : Symbol(path, Decl(customIntrinsics.ts, 138, 24))
+
+    path.split('.').reduce((obj: any, key: string) => obj[key], t);
+>path.split('.').reduce : Symbol(Array.reduce, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --))
+>path.split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+>path : Symbol(path, Decl(customIntrinsics.ts, 138, 24))
+>split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+>reduce : Symbol(Array.reduce, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --))
+>obj : Symbol(obj, Decl(customIntrinsics.ts, 139, 28))
+>key : Symbol(key, Decl(customIntrinsics.ts, 139, 37))
+>obj : Symbol(obj, Decl(customIntrinsics.ts, 139, 28))
+>key : Symbol(key, Decl(customIntrinsics.ts, 139, 37))
+>t : Symbol(t, Decl(customIntrinsics.ts, 138, 17))
+
+type R35 = Intrinsic<typeof camelCase, ["user_first_name"]>;       // "userFirstName"
+>R35 : Symbol(R35, Decl(customIntrinsics.ts, 139, 67))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>camelCase : Symbol(camelCase, Decl(customIntrinsics.ts, 132, 5))
+
+type R36 = Intrinsic<typeof camelCase, ["get_all_items_by_id"]>;   // "getAllItemsById"
+>R36 : Symbol(R36, Decl(customIntrinsics.ts, 141, 60))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>camelCase : Symbol(camelCase, Decl(customIntrinsics.ts, 132, 5))
+
+type R37 = Intrinsic<typeof deepGet, [{ a: { b: { c: 42 } } }, "a.b.c"]>; // 42
+>R37 : Symbol(R37, Decl(customIntrinsics.ts, 142, 64))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>deepGet : Symbol(deepGet, Decl(customIntrinsics.ts, 138, 5))
+>a : Symbol(a, Decl(customIntrinsics.ts, 143, 39))
+>b : Symbol(b, Decl(customIntrinsics.ts, 143, 44))
+>c : Symbol(c, Decl(customIntrinsics.ts, 143, 49))
+
+// --- Generics: deferred evaluation ---
+
+type GenericAdd<A extends number, B extends number> = Add<A, B>;
+>GenericAdd : Symbol(GenericAdd, Decl(customIntrinsics.ts, 143, 73))
+>A : Symbol(A, Decl(customIntrinsics.ts, 147, 16))
+>B : Symbol(B, Decl(customIntrinsics.ts, 147, 33))
+>Add : Symbol(Add, Decl(customIntrinsics.ts, 16, 30))
+>A : Symbol(A, Decl(customIntrinsics.ts, 147, 16))
+>B : Symbol(B, Decl(customIntrinsics.ts, 147, 33))
+
+function testGeneric<X extends number>(x: X): GenericAdd<X, 1> {
+>testGeneric : Symbol(testGeneric, Decl(customIntrinsics.ts, 147, 64))
+>X : Symbol(X, Decl(customIntrinsics.ts, 148, 21))
+>x : Symbol(x, Decl(customIntrinsics.ts, 148, 39))
+>X : Symbol(X, Decl(customIntrinsics.ts, 148, 21))
+>GenericAdd : Symbol(GenericAdd, Decl(customIntrinsics.ts, 143, 73))
+>X : Symbol(X, Decl(customIntrinsics.ts, 148, 21))
+
+    return undefined!;
+>undefined : Symbol(undefined)
+}
+

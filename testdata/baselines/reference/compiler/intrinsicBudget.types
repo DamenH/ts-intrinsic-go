@@ -1,0 +1,151 @@
+//// [tests/cases/compiler/intrinsic/intrinsicBudget.ts] ////
+
+=== intrinsicBudget.ts ===
+// Verify that budget exhaustion does not degrade the rest of the file.
+
+const infinite = (n: number) => {
+>infinite : (n: number) => number
+>(n: number) => {    let i: number = 0;    while (i < n) { i = i + 1; }    return i;} : (n: number) => number
+>n : number
+
+    let i: number = 0;
+>i : number
+>0 : 0
+
+    while (i < n) { i = i + 1; }
+>i < n : boolean
+>i : number
+>n : number
+>i = i + 1 : number
+>i : number
+>i + 1 : number
+>i : number
+>1 : 1
+
+    return i;
+>i : number
+
+};
+
+const add = (a: number, b: number) => a + b;
+>add : (a: number, b: number) => number
+>(a: number, b: number) => a + b : (a: number, b: number) => number
+>a : number
+>b : number
+>a + b : number
+>a : number
+>b : number
+
+const toUpper = (s: string) => s.toUpperCase();
+>toUpper : (s: string) => string
+>(s: string) => s.toUpperCase() : (s: string) => string
+>s : string
+>s.toUpperCase() : string
+>s.toUpperCase : () => string
+>s : string
+>toUpperCase : () => string
+
+const validate = (n: any) => {
+>validate : (n: any) => number | undefined
+>(n: any) => {    if (typeof n != 'number') return void { error: "Expected number, got " + typeof n };    if (n < 0) return void { error: n + " must be non-negative" };    return n;} : (n: any) => number | undefined
+>n : any
+
+    if (typeof n != 'number') return void { error: "Expected number, got " + typeof n };
+>typeof n != 'number' : boolean
+>typeof n : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>n : any
+>'number' : "number"
+>void { error: "Expected number, got " + typeof n } : undefined
+>{ error: "Expected number, got " + typeof n } : { error: string; }
+>error : string
+>"Expected number, got " + typeof n : string
+>"Expected number, got " : "Expected number, got "
+>typeof n : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>n : any
+
+    if (n < 0) return void { error: n + " must be non-negative" };
+>n < 0 : boolean
+>n : number
+>0 : 0
+>void { error: n + " must be non-negative" } : undefined
+>{ error: n + " must be non-negative" } : { error: string; }
+>error : string
+>n + " must be non-negative" : string
+>n : number
+>" must be non-negative" : " must be non-negative"
+
+    return n;
+>n : number
+
+};
+
+// Budget exceeded
+type Blown = Intrinsic<typeof infinite, [100000]>;
+>Blown : any
+>infinite : (n: number) => number
+
+// These should all still resolve correctly after the budget failure above
+type A1 = Intrinsic<typeof add, [10, 20]>;           // 30
+>A1 : 30
+>add : (a: number, b: number) => number
+
+type A2 = Intrinsic<typeof add, [999, 1]>;           // 1000
+>A2 : 1000
+>add : (a: number, b: number) => number
+
+type U1 = Intrinsic<typeof toUpper, ["hello"]>;      // "HELLO"
+>U1 : "HELLO"
+>toUpper : (s: string) => string
+
+type V1 = Intrinsic<typeof validate, [42]>;           // 42
+>V1 : 42
+>validate : (n: any) => number | undefined
+
+type V2 = Intrinsic<typeof validate, [-1]>;           // error: -1 must be non-negative
+>V2 : any
+>validate : (n: any) => number | undefined
+>-1 : -1
+>1 : 1
+
+type V3 = Intrinsic<typeof validate, ["x"]>;          // error: Expected number, got string
+>V3 : any
+>validate : (n: any) => number | undefined
+
+// Regular TypeScript inference should also be unaffected
+const x: number = 42;
+>x : number
+>42 : 42
+
+const y: string = "hello";
+>y : string
+>"hello" : "hello"
+
+const z = [1, 2, 3].map(n => n * 2);
+>z : number[]
+>[1, 2, 3].map(n => n * 2) : number[]
+>[1, 2, 3].map : <U>(callbackfn: (value: number, index: number, array: number[]) => U, thisArg?: any) => U[]
+>[1, 2, 3] : number[]
+>1 : 1
+>2 : 2
+>3 : 3
+>map : <U>(callbackfn: (value: number, index: number, array: number[]) => U, thisArg?: any) => U[]
+>n => n * 2 : (n: number) => number
+>n : number
+>n * 2 : number
+>n : number
+>2 : 2
+
+type Arr = typeof z;                                  // number[]
+>Arr : number[]
+>z : number[]
+
+// A second budget failure should not cascade
+type Blown2 = Intrinsic<typeof infinite, [999999]>;
+>Blown2 : any
+>infinite : (n: number) => number
+
+// Still works after second failure
+type A3 = Intrinsic<typeof add, [1, 2]>;              // 3
+>A3 : 3
+>add : (a: number, b: number) => number
+

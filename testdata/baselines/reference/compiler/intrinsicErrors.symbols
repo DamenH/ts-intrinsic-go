@@ -1,0 +1,160 @@
+//// [tests/cases/compiler/intrinsic/intrinsicErrors.ts] ////
+
+=== intrinsicErrors.ts ===
+const NeverType = Symbol.for("tsi.never") as any;
+>NeverType : Symbol(NeverType, Decl(intrinsicErrors.ts, 0, 5))
+>Symbol.for : Symbol(SymbolConstructor.for, Decl(lib.es2015.symbol.d.ts, --, --))
+>Symbol : Symbol(Symbol, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --), Decl(lib.es2019.symbol.d.ts, --, --))
+>for : Symbol(SymbolConstructor.for, Decl(lib.es2015.symbol.d.ts, --, --))
+
+// switch: not supported
+const withSwitch = (x: any) => {
+>withSwitch : Symbol(withSwitch, Decl(intrinsicErrors.ts, 3, 5))
+>x : Symbol(x, Decl(intrinsicErrors.ts, 3, 20))
+
+    switch (typeof x) {
+>x : Symbol(x, Decl(intrinsicErrors.ts, 3, 20))
+
+        case 'string': return x;
+>x : Symbol(x, Decl(intrinsicErrors.ts, 3, 20))
+
+        default: return NeverType;
+>NeverType : Symbol(NeverType, Decl(intrinsicErrors.ts, 0, 5))
+    }
+};
+type E1 = Intrinsic<typeof withSwitch, ["hello"]>;
+>E1 : Symbol(E1, Decl(intrinsicErrors.ts, 8, 2))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>withSwitch : Symbol(withSwitch, Decl(intrinsicErrors.ts, 3, 5))
+
+// const (only let is supported)
+const withConst = (x: number) => {
+>withConst : Symbol(withConst, Decl(intrinsicErrors.ts, 12, 5))
+>x : Symbol(x, Decl(intrinsicErrors.ts, 12, 19))
+
+    const y = x + 1;
+>y : Symbol(y, Decl(intrinsicErrors.ts, 13, 9))
+>x : Symbol(x, Decl(intrinsicErrors.ts, 12, 19))
+
+    return y;
+>y : Symbol(y, Decl(intrinsicErrors.ts, 13, 9))
+
+};
+type E2 = Intrinsic<typeof withConst, [5]>;
+>E2 : Symbol(E2, Decl(intrinsicErrors.ts, 15, 2))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>withConst : Symbol(withConst, Decl(intrinsicErrors.ts, 12, 5))
+
+// optional chaining: not supported
+const withOptional = (x: any) => x?.name;
+>withOptional : Symbol(withOptional, Decl(intrinsicErrors.ts, 19, 5))
+>x : Symbol(x, Decl(intrinsicErrors.ts, 19, 22))
+>x : Symbol(x, Decl(intrinsicErrors.ts, 19, 22))
+
+type E3 = Intrinsic<typeof withOptional, [{ name: "Alice" }]>;
+>E3 : Symbol(E3, Decl(intrinsicErrors.ts, 19, 41))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>withOptional : Symbol(withOptional, Decl(intrinsicErrors.ts, 19, 5))
+>name : Symbol(name, Decl(intrinsicErrors.ts, 20, 43))
+
+// destructured params: not supported
+const withDestructure = ({name, age}: {name: string, age: number}) => name;
+>withDestructure : Symbol(withDestructure, Decl(intrinsicErrors.ts, 23, 5))
+>name : Symbol(name, Decl(intrinsicErrors.ts, 23, 26))
+>age : Symbol(age, Decl(intrinsicErrors.ts, 23, 31))
+>name : Symbol(name, Decl(intrinsicErrors.ts, 23, 39))
+>age : Symbol(age, Decl(intrinsicErrors.ts, 23, 52))
+>name : Symbol(name, Decl(intrinsicErrors.ts, 23, 26))
+
+type E4 = Intrinsic<typeof withDestructure, [{ name: "Alice", age: 30 }]>;
+>E4 : Symbol(E4, Decl(intrinsicErrors.ts, 23, 75))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>withDestructure : Symbol(withDestructure, Decl(intrinsicErrors.ts, 23, 5))
+>name : Symbol(name, Decl(intrinsicErrors.ts, 24, 46))
+>age : Symbol(age, Decl(intrinsicErrors.ts, 24, 61))
+
+// === (only == is supported)
+const withStrict = (x: any) => x === 'hello' ? x : NeverType;
+>withStrict : Symbol(withStrict, Decl(intrinsicErrors.ts, 27, 5))
+>x : Symbol(x, Decl(intrinsicErrors.ts, 27, 20))
+>x : Symbol(x, Decl(intrinsicErrors.ts, 27, 20))
+>x : Symbol(x, Decl(intrinsicErrors.ts, 27, 20))
+>NeverType : Symbol(NeverType, Decl(intrinsicErrors.ts, 0, 5))
+
+type E5 = Intrinsic<typeof withStrict, ["hello"]>;
+>E5 : Symbol(E5, Decl(intrinsicErrors.ts, 27, 61))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>withStrict : Symbol(withStrict, Decl(intrinsicErrors.ts, 27, 5))
+
+// nullish coalescing: not supported
+const withNullish = (x: any) => x ?? 'default';
+>withNullish : Symbol(withNullish, Decl(intrinsicErrors.ts, 31, 5))
+>x : Symbol(x, Decl(intrinsicErrors.ts, 31, 21))
+>x : Symbol(x, Decl(intrinsicErrors.ts, 31, 21))
+
+type E6 = Intrinsic<typeof withNullish, [null]>;
+>E6 : Symbol(E6, Decl(intrinsicErrors.ts, 31, 47))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>withNullish : Symbol(withNullish, Decl(intrinsicErrors.ts, 31, 5))
+
+// template literal: not supported
+const withTemplate = (name: string) => `hello ${name}`;
+>withTemplate : Symbol(withTemplate, Decl(intrinsicErrors.ts, 35, 5))
+>name : Symbol(name, Decl(intrinsicErrors.ts, 35, 22))
+>name : Symbol(name, Decl(intrinsicErrors.ts, 35, 22))
+
+type E7 = Intrinsic<typeof withTemplate, ["world"]>;
+>E7 : Symbol(E7, Decl(intrinsicErrors.ts, 35, 55))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>withTemplate : Symbol(withTemplate, Decl(intrinsicErrors.ts, 35, 5))
+
+// string form is not supported
+type E8 = Intrinsic<"not valid dsl at all", [42]>;
+>E8 : Symbol(E8, Decl(intrinsicErrors.ts, 36, 52))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+
+// runtime error: division by zero produces Infinity, not an error
+const divByZero = (n: number) => n / 0;
+>divByZero : Symbol(divByZero, Decl(intrinsicErrors.ts, 42, 5))
+>n : Symbol(n, Decl(intrinsicErrors.ts, 42, 19))
+>n : Symbol(n, Decl(intrinsicErrors.ts, 42, 19))
+
+type E9 = Intrinsic<typeof divByZero, [42]>;
+>E9 : Symbol(E9, Decl(intrinsicErrors.ts, 42, 39))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>divByZero : Symbol(divByZero, Decl(intrinsicErrors.ts, 42, 5))
+
+// runtime error: property access on number
+const badAccess = (n: any) => n.foo;
+>badAccess : Symbol(badAccess, Decl(intrinsicErrors.ts, 46, 5))
+>n : Symbol(n, Decl(intrinsicErrors.ts, 46, 19))
+>n : Symbol(n, Decl(intrinsicErrors.ts, 46, 19))
+
+type E10 = Intrinsic<typeof badAccess, [42]>;
+>E10 : Symbol(E10, Decl(intrinsicErrors.ts, 46, 36))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>badAccess : Symbol(badAccess, Decl(intrinsicErrors.ts, 46, 5))
+
+// budget exceeded: infinite loop
+const infinite = (n: number) => {
+>infinite : Symbol(infinite, Decl(intrinsicErrors.ts, 50, 5))
+>n : Symbol(n, Decl(intrinsicErrors.ts, 50, 18))
+
+    let i: number = 0;
+>i : Symbol(i, Decl(intrinsicErrors.ts, 51, 7))
+
+    while (i < n) { i = i + 1; }
+>i : Symbol(i, Decl(intrinsicErrors.ts, 51, 7))
+>n : Symbol(n, Decl(intrinsicErrors.ts, 50, 18))
+>i : Symbol(i, Decl(intrinsicErrors.ts, 51, 7))
+>i : Symbol(i, Decl(intrinsicErrors.ts, 51, 7))
+
+    return i;
+>i : Symbol(i, Decl(intrinsicErrors.ts, 51, 7))
+
+};
+type E11 = Intrinsic<typeof infinite, [100000]>;
+>E11 : Symbol(E11, Decl(intrinsicErrors.ts, 54, 2))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>infinite : Symbol(infinite, Decl(intrinsicErrors.ts, 50, 5))
+

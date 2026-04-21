@@ -1,0 +1,111 @@
+//// [tests/cases/compiler/intrinsic/intrinsicDepsErrors.ts] ////
+
+=== intrinsicDepsErrors.ts ===
+// let declaration: not extracted
+let mutableHelper = (n: number) => n + 1;
+>mutableHelper : Symbol(mutableHelper, Decl(intrinsicDepsErrors.ts, 1, 3))
+>n : Symbol(n, Decl(intrinsicDepsErrors.ts, 1, 21))
+>n : Symbol(n, Decl(intrinsicDepsErrors.ts, 1, 21))
+
+const usesMutable = (x: number) => mutableHelper(x);
+>usesMutable : Symbol(usesMutable, Decl(intrinsicDepsErrors.ts, 2, 5))
+>x : Symbol(x, Decl(intrinsicDepsErrors.ts, 2, 21))
+>mutableHelper : Symbol(mutableHelper, Decl(intrinsicDepsErrors.ts, 1, 3))
+>x : Symbol(x, Decl(intrinsicDepsErrors.ts, 2, 21))
+
+type E1 = Intrinsic<typeof usesMutable, [5]>;
+>E1 : Symbol(E1, Decl(intrinsicDepsErrors.ts, 2, 52))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>usesMutable : Symbol(usesMutable, Decl(intrinsicDepsErrors.ts, 2, 5))
+
+// Inner function: works via DSL's own let handling
+const outerFn = (x: number) => {
+>outerFn : Symbol(outerFn, Decl(intrinsicDepsErrors.ts, 6, 5))
+>x : Symbol(x, Decl(intrinsicDepsErrors.ts, 6, 17))
+
+    let innerHelper = (n: number) => n * 2;
+>innerHelper : Symbol(innerHelper, Decl(intrinsicDepsErrors.ts, 7, 7))
+>n : Symbol(n, Decl(intrinsicDepsErrors.ts, 7, 23))
+>n : Symbol(n, Decl(intrinsicDepsErrors.ts, 7, 23))
+
+    return innerHelper(x);
+>innerHelper : Symbol(innerHelper, Decl(intrinsicDepsErrors.ts, 7, 7))
+>x : Symbol(x, Decl(intrinsicDepsErrors.ts, 6, 17))
+
+};
+type E2 = Intrinsic<typeof outerFn, [5]>;  // 10
+>E2 : Symbol(E2, Decl(intrinsicDepsErrors.ts, 9, 2))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>outerFn : Symbol(outerFn, Decl(intrinsicDepsErrors.ts, 6, 5))
+
+// Undefined reference
+const callsGhost = (x: number) => ghostFn(x);
+>callsGhost : Symbol(callsGhost, Decl(intrinsicDepsErrors.ts, 13, 5))
+>x : Symbol(x, Decl(intrinsicDepsErrors.ts, 13, 20))
+>x : Symbol(x, Decl(intrinsicDepsErrors.ts, 13, 20))
+
+type E3 = Intrinsic<typeof callsGhost, [5]>;
+>E3 : Symbol(E3, Decl(intrinsicDepsErrors.ts, 13, 45))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>callsGhost : Symbol(callsGhost, Decl(intrinsicDepsErrors.ts, 13, 5))
+
+// var declaration: not extracted
+var varHelper = (n: number) => n + 1;
+>varHelper : Symbol(varHelper, Decl(intrinsicDepsErrors.ts, 17, 3))
+>n : Symbol(n, Decl(intrinsicDepsErrors.ts, 17, 17))
+>n : Symbol(n, Decl(intrinsicDepsErrors.ts, 17, 17))
+
+const usesVar = (x: number) => varHelper(x);
+>usesVar : Symbol(usesVar, Decl(intrinsicDepsErrors.ts, 18, 5))
+>x : Symbol(x, Decl(intrinsicDepsErrors.ts, 18, 17))
+>varHelper : Symbol(varHelper, Decl(intrinsicDepsErrors.ts, 17, 3))
+>x : Symbol(x, Decl(intrinsicDepsErrors.ts, 18, 17))
+
+type E4 = Intrinsic<typeof usesVar, [5]>;
+>E4 : Symbol(E4, Decl(intrinsicDepsErrors.ts, 18, 44))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>usesVar : Symbol(usesVar, Decl(intrinsicDepsErrors.ts, 18, 5))
+
+// Const value dependency
+const NUM_VALUE = 42;
+>NUM_VALUE : Symbol(NUM_VALUE, Decl(intrinsicDepsErrors.ts, 22, 5))
+
+const usesNum = (x: number) => x + NUM_VALUE;
+>usesNum : Symbol(usesNum, Decl(intrinsicDepsErrors.ts, 23, 5))
+>x : Symbol(x, Decl(intrinsicDepsErrors.ts, 23, 17))
+>x : Symbol(x, Decl(intrinsicDepsErrors.ts, 23, 17))
+>NUM_VALUE : Symbol(NUM_VALUE, Decl(intrinsicDepsErrors.ts, 22, 5))
+
+type E5 = Intrinsic<typeof usesNum, [8]>;  // 50
+>E5 : Symbol(E5, Decl(intrinsicDepsErrors.ts, 23, 45))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>usesNum : Symbol(usesNum, Decl(intrinsicDepsErrors.ts, 23, 5))
+
+// Const expression dependency
+const computed = 2 + 3;
+>computed : Symbol(computed, Decl(intrinsicDepsErrors.ts, 27, 5))
+
+const usesComputed = (x: number) => x + computed;
+>usesComputed : Symbol(usesComputed, Decl(intrinsicDepsErrors.ts, 28, 5))
+>x : Symbol(x, Decl(intrinsicDepsErrors.ts, 28, 22))
+>x : Symbol(x, Decl(intrinsicDepsErrors.ts, 28, 22))
+>computed : Symbol(computed, Decl(intrinsicDepsErrors.ts, 27, 5))
+
+type E6 = Intrinsic<typeof usesComputed, [10]>;  // 15
+>E6 : Symbol(E6, Decl(intrinsicDepsErrors.ts, 28, 49))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>usesComputed : Symbol(usesComputed, Decl(intrinsicDepsErrors.ts, 28, 5))
+
+// Division is not confused with comments
+const divides = (a: number, b: number) => a / b;
+>divides : Symbol(divides, Decl(intrinsicDepsErrors.ts, 32, 5))
+>a : Symbol(a, Decl(intrinsicDepsErrors.ts, 32, 17))
+>b : Symbol(b, Decl(intrinsicDepsErrors.ts, 32, 27))
+>a : Symbol(a, Decl(intrinsicDepsErrors.ts, 32, 17))
+>b : Symbol(b, Decl(intrinsicDepsErrors.ts, 32, 27))
+
+type E7 = Intrinsic<typeof divides, [10, 2]>;  // 5
+>E7 : Symbol(E7, Decl(intrinsicDepsErrors.ts, 32, 48))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>divides : Symbol(divides, Decl(intrinsicDepsErrors.ts, 32, 5))
+

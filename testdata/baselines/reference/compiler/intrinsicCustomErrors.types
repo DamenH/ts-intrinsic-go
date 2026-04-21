@@ -1,0 +1,443 @@
+//// [tests/cases/compiler/intrinsic/intrinsicCustomErrors.ts] ////
+
+=== static_errors.ts ===
+const _requireString = (x: any) => {
+>_requireString : (x: any) => string | undefined
+>(x: any) => {    if (typeof x != 'string') return void { error: "Expected a string" };    return x;} : (x: any) => string | undefined
+>x : any
+
+    if (typeof x != 'string') return void { error: "Expected a string" };
+>typeof x != 'string' : boolean
+>typeof x : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>x : any
+>'string' : "string"
+>void { error: "Expected a string" } : undefined
+>{ error: "Expected a string" } : { error: string; }
+>error : string
+>"Expected a string" : "Expected a string"
+
+    return x;
+>x : string
+
+};
+type RequireString<T> = Intrinsic<typeof _requireString, [T]>;
+>RequireString : intrinsic
+>_requireString : (x: any) => string | undefined
+
+type S1 = RequireString<"hello">;
+>S1 : "hello"
+
+type S2 = RequireString<42>;
+>S2 : any
+
+type S3 = RequireString<true>;
+>S3 : any
+>true : true
+
+=== dynamic_errors.ts ===
+const _inRange = (n: any, lo: number, hi: number) => {
+>_inRange : (n: any, lo: number, hi: number) => number | undefined
+>(n: any, lo: number, hi: number) => {    if (typeof n != 'number') return void { error: "Expected a number, got " + typeof n };    if (n < lo) return void { error: n + " is below minimum " + lo };    if (n > hi) return void { error: n + " is above maximum " + hi };    return n;} : (n: any, lo: number, hi: number) => number | undefined
+>n : any
+>lo : number
+>hi : number
+
+    if (typeof n != 'number') return void { error: "Expected a number, got " + typeof n };
+>typeof n != 'number' : boolean
+>typeof n : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>n : any
+>'number' : "number"
+>void { error: "Expected a number, got " + typeof n } : undefined
+>{ error: "Expected a number, got " + typeof n } : { error: string; }
+>error : string
+>"Expected a number, got " + typeof n : string
+>"Expected a number, got " : "Expected a number, got "
+>typeof n : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>n : any
+
+    if (n < lo) return void { error: n + " is below minimum " + lo };
+>n < lo : boolean
+>n : number
+>lo : number
+>void { error: n + " is below minimum " + lo } : undefined
+>{ error: n + " is below minimum " + lo } : { error: string; }
+>error : string
+>n + " is below minimum " + lo : string
+>n + " is below minimum " : string
+>n : number
+>" is below minimum " : " is below minimum "
+>lo : number
+
+    if (n > hi) return void { error: n + " is above maximum " + hi };
+>n > hi : boolean
+>n : number
+>hi : number
+>void { error: n + " is above maximum " + hi } : undefined
+>{ error: n + " is above maximum " + hi } : { error: string; }
+>error : string
+>n + " is above maximum " + hi : string
+>n + " is above maximum " : string
+>n : number
+>" is above maximum " : " is above maximum "
+>hi : number
+
+    return n;
+>n : number
+
+};
+type InRange<N, Lo extends number, Hi extends number> = Intrinsic<typeof _inRange, [N, Lo, Hi]>;
+>InRange : intrinsic
+>_inRange : (n: any, lo: number, hi: number) => number | undefined
+
+type R1 = InRange<50, 0, 100>;
+>R1 : 50
+
+type R2 = InRange<-5, 0, 100>;
+>R2 : any
+>-5 : -5
+>5 : 5
+
+type R3 = InRange<999, 0, 100>;
+>R3 : any
+
+type R4 = InRange<"x", 0, 100>;
+>R4 : any
+
+=== enum_errors.ts ===
+const _httpMethod = (m: any) => {
+>_httpMethod : (m: any) => "DELETE" | "GET" | "PATCH" | "POST" | "PUT" | undefined
+>(m: any) => {    if (typeof m != 'string') return void { error: "HTTP method must be a string" };    let upper: string = m.toUpperCase();    if (upper != 'GET' && upper != 'POST' && upper != 'PUT' && upper != 'DELETE' && upper != 'PATCH') {        return void { error: "Unknown HTTP method '" + m + "'. Expected GET, POST, PUT, DELETE, or PATCH" };    }    return upper;} : (m: any) => "DELETE" | "GET" | "PATCH" | "POST" | "PUT" | undefined
+>m : any
+
+    if (typeof m != 'string') return void { error: "HTTP method must be a string" };
+>typeof m != 'string' : boolean
+>typeof m : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>m : any
+>'string' : "string"
+>void { error: "HTTP method must be a string" } : undefined
+>{ error: "HTTP method must be a string" } : { error: string; }
+>error : string
+>"HTTP method must be a string" : "HTTP method must be a string"
+
+    let upper: string = m.toUpperCase();
+>upper : string
+>m.toUpperCase() : string
+>m.toUpperCase : () => string
+>m : string
+>toUpperCase : () => string
+
+    if (upper != 'GET' && upper != 'POST' && upper != 'PUT' && upper != 'DELETE' && upper != 'PATCH') {
+>upper != 'GET' && upper != 'POST' && upper != 'PUT' && upper != 'DELETE' && upper != 'PATCH' : boolean
+>upper != 'GET' && upper != 'POST' && upper != 'PUT' && upper != 'DELETE' : boolean
+>upper != 'GET' && upper != 'POST' && upper != 'PUT' : boolean
+>upper != 'GET' && upper != 'POST' : boolean
+>upper != 'GET' : boolean
+>upper : string
+>'GET' : "GET"
+>upper != 'POST' : boolean
+>upper : string
+>'POST' : "POST"
+>upper != 'PUT' : boolean
+>upper : string
+>'PUT' : "PUT"
+>upper != 'DELETE' : boolean
+>upper : string
+>'DELETE' : "DELETE"
+>upper != 'PATCH' : boolean
+>upper : string
+>'PATCH' : "PATCH"
+
+        return void { error: "Unknown HTTP method '" + m + "'. Expected GET, POST, PUT, DELETE, or PATCH" };
+>void { error: "Unknown HTTP method '" + m + "'. Expected GET, POST, PUT, DELETE, or PATCH" } : undefined
+>{ error: "Unknown HTTP method '" + m + "'. Expected GET, POST, PUT, DELETE, or PATCH" } : { error: string; }
+>error : string
+>"Unknown HTTP method '" + m + "'. Expected GET, POST, PUT, DELETE, or PATCH" : string
+>"Unknown HTTP method '" + m : string
+>"Unknown HTTP method '" : "Unknown HTTP method '"
+>m : string
+>"'. Expected GET, POST, PUT, DELETE, or PATCH" : "'. Expected GET, POST, PUT, DELETE, or PATCH"
+    }
+    return upper;
+>upper : "DELETE" | "GET" | "PATCH" | "POST" | "PUT"
+
+};
+type HttpMethod<T> = Intrinsic<typeof _httpMethod, [T]>;
+>HttpMethod : intrinsic
+>_httpMethod : (m: any) => "DELETE" | "GET" | "PATCH" | "POST" | "PUT" | undefined
+
+type M1 = HttpMethod<"get">;
+>M1 : "GET"
+
+type M2 = HttpMethod<"POST">;
+>M2 : "POST"
+
+type M3 = HttpMethod<"CONNECT">;
+>M3 : any
+
+type M4 = HttpMethod<42>;
+>M4 : any
+
+=== lib_validators.ts ===
+export const _hexColor = (s: any) => {
+>_hexColor : (s: any) => string | undefined
+>(s: any) => {    if (typeof s != 'string') return void { error: "Hex color must be a string, got " + typeof s };    if (s.length != 7) return void { error: "Hex color must be 7 characters (e.g. '#ff0000'), got " + s.length };    if (s.charAt(0) != '#') return void { error: "Hex color must start with '#', got '" + s + "'" };    return s;} : (s: any) => string | undefined
+>s : any
+
+    if (typeof s != 'string') return void { error: "Hex color must be a string, got " + typeof s };
+>typeof s != 'string' : boolean
+>typeof s : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>s : any
+>'string' : "string"
+>void { error: "Hex color must be a string, got " + typeof s } : undefined
+>{ error: "Hex color must be a string, got " + typeof s } : { error: string; }
+>error : string
+>"Hex color must be a string, got " + typeof s : string
+>"Hex color must be a string, got " : "Hex color must be a string, got "
+>typeof s : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>s : any
+
+    if (s.length != 7) return void { error: "Hex color must be 7 characters (e.g. '#ff0000'), got " + s.length };
+>s.length != 7 : boolean
+>s.length : number
+>s : string
+>length : number
+>7 : 7
+>void { error: "Hex color must be 7 characters (e.g. '#ff0000'), got " + s.length } : undefined
+>{ error: "Hex color must be 7 characters (e.g. '#ff0000'), got " + s.length } : { error: string; }
+>error : string
+>"Hex color must be 7 characters (e.g. '#ff0000'), got " + s.length : string
+>"Hex color must be 7 characters (e.g. '#ff0000'), got " : "Hex color must be 7 characters (e.g. '#ff0000'), got "
+>s.length : number
+>s : string
+>length : number
+
+    if (s.charAt(0) != '#') return void { error: "Hex color must start with '#', got '" + s + "'" };
+>s.charAt(0) != '#' : boolean
+>s.charAt(0) : string
+>s.charAt : (pos: number) => string
+>s : string
+>charAt : (pos: number) => string
+>0 : 0
+>'#' : "#"
+>void { error: "Hex color must start with '#', got '" + s + "'" } : undefined
+>{ error: "Hex color must start with '#', got '" + s + "'" } : { error: string; }
+>error : string
+>"Hex color must start with '#', got '" + s + "'" : string
+>"Hex color must start with '#', got '" + s : string
+>"Hex color must start with '#', got '" : "Hex color must start with '#', got '"
+>s : string
+>"'" : "'"
+
+    return s;
+>s : string
+
+};
+export type HexColor<T> = Intrinsic<typeof _hexColor, [T]>;
+>HexColor : intrinsic
+>_hexColor : (s: any) => string | undefined
+
+=== use_lib.ts ===
+import type { HexColor } from './lib_validators';
+>HexColor : intrinsic
+
+type H1 = HexColor<"#ff0000">;
+>H1 : "#ff0000"
+
+type H2 = HexColor<"red">;
+>H2 : any
+
+type H3 = HexColor<"ff0000">;
+>H3 : any
+
+type H4 = HexColor<42>;
+>H4 : any
+
+=== mixed.ts ===
+const _parseAge = (x: any) => {
+>_parseAge : (x: any) => number | undefined
+>(x: any) => {    if (typeof x != 'number') return void "never";    if (x < 0) return void { error: "Age cannot be negative (" + x + ")" };    if (x > 150) return void { error: "Age " + x + " is unrealistic (max 150)" };    if (Math.floor(x) != x) return void { error: "Age must be a whole number, got " + x };    return x;} : (x: any) => number | undefined
+>x : any
+
+    if (typeof x != 'number') return void "never";
+>typeof x != 'number' : boolean
+>typeof x : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>x : any
+>'number' : "number"
+>void "never" : undefined
+>"never" : "never"
+
+    if (x < 0) return void { error: "Age cannot be negative (" + x + ")" };
+>x < 0 : boolean
+>x : number
+>0 : 0
+>void { error: "Age cannot be negative (" + x + ")" } : undefined
+>{ error: "Age cannot be negative (" + x + ")" } : { error: string; }
+>error : string
+>"Age cannot be negative (" + x + ")" : string
+>"Age cannot be negative (" + x : string
+>"Age cannot be negative (" : "Age cannot be negative ("
+>x : number
+>")" : ")"
+
+    if (x > 150) return void { error: "Age " + x + " is unrealistic (max 150)" };
+>x > 150 : boolean
+>x : number
+>150 : 150
+>void { error: "Age " + x + " is unrealistic (max 150)" } : undefined
+>{ error: "Age " + x + " is unrealistic (max 150)" } : { error: string; }
+>error : string
+>"Age " + x + " is unrealistic (max 150)" : string
+>"Age " + x : string
+>"Age " : "Age "
+>x : number
+>" is unrealistic (max 150)" : " is unrealistic (max 150)"
+
+    if (Math.floor(x) != x) return void { error: "Age must be a whole number, got " + x };
+>Math.floor(x) != x : boolean
+>Math.floor(x) : number
+>Math.floor : (x: number) => number
+>Math : Math
+>floor : (x: number) => number
+>x : number
+>x : number
+>void { error: "Age must be a whole number, got " + x } : undefined
+>{ error: "Age must be a whole number, got " + x } : { error: string; }
+>error : string
+>"Age must be a whole number, got " + x : string
+>"Age must be a whole number, got " : "Age must be a whole number, got "
+>x : number
+
+    return x;
+>x : number
+
+};
+type ParseAge<T> = Intrinsic<typeof _parseAge, [T]>;
+>ParseAge : intrinsic
+>_parseAge : (x: any) => number | undefined
+
+type A1 = ParseAge<25>;
+>A1 : 25
+
+type A2 = ParseAge<"old">;         // never (silent)
+>A2 : never
+
+type A3 = ParseAge<-5>;
+>A3 : any
+>-5 : -5
+>5 : 5
+
+type A4 = ParseAge<200>;
+>A4 : any
+
+type A5 = ParseAge<25.5>;
+>A5 : any
+
+=== object_errors.ts ===
+const _config = (cfg: any) => {
+>_config : (cfg: any) => any
+>(cfg: any) => {    if (typeof cfg != 'object') return void { error: "Config must be an object" };    if (typeof cfg['host'] != 'string') return void { error: "Config.host must be a string" };    if (cfg['host'].length == 0) return void { error: "Config.host must not be empty" };    if (typeof cfg['port'] != 'number') return void { error: "Config.port must be a number" };    if (cfg['port'] < 1 || cfg['port'] > 65535) {        return void { error: "Config.port " + cfg['port'] + " is out of range (1-65535)" };    }    return cfg;} : (cfg: any) => any
+>cfg : any
+
+    if (typeof cfg != 'object') return void { error: "Config must be an object" };
+>typeof cfg != 'object' : boolean
+>typeof cfg : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>cfg : any
+>'object' : "object"
+>void { error: "Config must be an object" } : undefined
+>{ error: "Config must be an object" } : { error: string; }
+>error : string
+>"Config must be an object" : "Config must be an object"
+
+    if (typeof cfg['host'] != 'string') return void { error: "Config.host must be a string" };
+>typeof cfg['host'] != 'string' : boolean
+>typeof cfg['host'] : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>cfg['host'] : any
+>cfg : any
+>'host' : "host"
+>'string' : "string"
+>void { error: "Config.host must be a string" } : undefined
+>{ error: "Config.host must be a string" } : { error: string; }
+>error : string
+>"Config.host must be a string" : "Config.host must be a string"
+
+    if (cfg['host'].length == 0) return void { error: "Config.host must not be empty" };
+>cfg['host'].length == 0 : boolean
+>cfg['host'].length : number
+>cfg['host'] : string
+>cfg : any
+>'host' : "host"
+>length : number
+>0 : 0
+>void { error: "Config.host must not be empty" } : undefined
+>{ error: "Config.host must not be empty" } : { error: string; }
+>error : string
+>"Config.host must not be empty" : "Config.host must not be empty"
+
+    if (typeof cfg['port'] != 'number') return void { error: "Config.port must be a number" };
+>typeof cfg['port'] != 'number' : boolean
+>typeof cfg['port'] : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>cfg['port'] : any
+>cfg : any
+>'port' : "port"
+>'number' : "number"
+>void { error: "Config.port must be a number" } : undefined
+>{ error: "Config.port must be a number" } : { error: string; }
+>error : string
+>"Config.port must be a number" : "Config.port must be a number"
+
+    if (cfg['port'] < 1 || cfg['port'] > 65535) {
+>cfg['port'] < 1 || cfg['port'] > 65535 : boolean
+>cfg['port'] < 1 : boolean
+>cfg['port'] : number
+>cfg : any
+>'port' : "port"
+>1 : 1
+>cfg['port'] > 65535 : boolean
+>cfg['port'] : number
+>cfg : any
+>'port' : "port"
+>65535 : 65535
+
+        return void { error: "Config.port " + cfg['port'] + " is out of range (1-65535)" };
+>void { error: "Config.port " + cfg['port'] + " is out of range (1-65535)" } : undefined
+>{ error: "Config.port " + cfg['port'] + " is out of range (1-65535)" } : { error: string; }
+>error : string
+>"Config.port " + cfg['port'] + " is out of range (1-65535)" : string
+>"Config.port " + cfg['port'] : string
+>"Config.port " : "Config.port "
+>cfg['port'] : number
+>cfg : any
+>'port' : "port"
+>" is out of range (1-65535)" : " is out of range (1-65535)"
+    }
+    return cfg;
+>cfg : any
+
+};
+type Config<T> = Intrinsic<typeof _config, [T]>;
+>Config : intrinsic
+>_config : (cfg: any) => any
+
+type OC1 = Config<{ host: "localhost", port: 3000 }>;
+>OC1 : { host: "localhost"; port: 3000; }
+>host : "localhost"
+>port : 3000
+
+type OC2 = Config<{ host: "", port: 3000 }>;
+>OC2 : any
+>host : ""
+>port : 3000
+
+type OC3 = Config<{ host: "localhost", port: 0 }>;
+>OC3 : any
+>host : "localhost"
+>port : 0
+
+type OC4 = Config<{ host: 42, port: 3000 }>;
+>OC4 : any
+>host : 42
+>port : 3000
+
+type OC5 = Config<"not an object">;
+>OC5 : any
+

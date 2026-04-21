@@ -1,0 +1,102 @@
+// @module: esnext
+// @moduleResolution: bundler
+
+// @filename: static_errors.ts
+
+const _requireString = (x: any) => {
+    if (typeof x != 'string') return void { error: "Expected a string" };
+    return x;
+};
+type RequireString<T> = Intrinsic<typeof _requireString, [T]>;
+
+type S1 = RequireString<"hello">;
+type S2 = RequireString<42>;
+type S3 = RequireString<true>;
+
+// @filename: dynamic_errors.ts
+
+const _inRange = (n: any, lo: number, hi: number) => {
+    if (typeof n != 'number') return void { error: "Expected a number, got " + typeof n };
+    if (n < lo) return void { error: n + " is below minimum " + lo };
+    if (n > hi) return void { error: n + " is above maximum " + hi };
+    return n;
+};
+type InRange<N, Lo extends number, Hi extends number> = Intrinsic<typeof _inRange, [N, Lo, Hi]>;
+
+type R1 = InRange<50, 0, 100>;
+type R2 = InRange<-5, 0, 100>;
+type R3 = InRange<999, 0, 100>;
+type R4 = InRange<"x", 0, 100>;
+
+// @filename: enum_errors.ts
+
+const _httpMethod = (m: any) => {
+    if (typeof m != 'string') return void { error: "HTTP method must be a string" };
+    let upper: string = m.toUpperCase();
+    if (upper != 'GET' && upper != 'POST' && upper != 'PUT' && upper != 'DELETE' && upper != 'PATCH') {
+        return void { error: "Unknown HTTP method '" + m + "'. Expected GET, POST, PUT, DELETE, or PATCH" };
+    }
+    return upper;
+};
+type HttpMethod<T> = Intrinsic<typeof _httpMethod, [T]>;
+
+type M1 = HttpMethod<"get">;
+type M2 = HttpMethod<"POST">;
+type M3 = HttpMethod<"CONNECT">;
+type M4 = HttpMethod<42>;
+
+// @filename: lib_validators.ts
+
+export const _hexColor = (s: any) => {
+    if (typeof s != 'string') return void { error: "Hex color must be a string, got " + typeof s };
+    if (s.length != 7) return void { error: "Hex color must be 7 characters (e.g. '#ff0000'), got " + s.length };
+    if (s.charAt(0) != '#') return void { error: "Hex color must start with '#', got '" + s + "'" };
+    return s;
+};
+export type HexColor<T> = Intrinsic<typeof _hexColor, [T]>;
+
+// @filename: use_lib.ts
+
+import type { HexColor } from './lib_validators';
+
+type H1 = HexColor<"#ff0000">;
+type H2 = HexColor<"red">;
+type H3 = HexColor<"ff0000">;
+type H4 = HexColor<42>;
+
+// @filename: mixed.ts
+
+const _parseAge = (x: any) => {
+    if (typeof x != 'number') return void "never";
+    if (x < 0) return void { error: "Age cannot be negative (" + x + ")" };
+    if (x > 150) return void { error: "Age " + x + " is unrealistic (max 150)" };
+    if (Math.floor(x) != x) return void { error: "Age must be a whole number, got " + x };
+    return x;
+};
+type ParseAge<T> = Intrinsic<typeof _parseAge, [T]>;
+
+type A1 = ParseAge<25>;
+type A2 = ParseAge<"old">;         // never (silent)
+type A3 = ParseAge<-5>;
+type A4 = ParseAge<200>;
+type A5 = ParseAge<25.5>;
+
+// @filename: object_errors.ts
+
+const _config = (cfg: any) => {
+    if (typeof cfg != 'object') return void { error: "Config must be an object" };
+    if (typeof cfg['host'] != 'string') return void { error: "Config.host must be a string" };
+    if (cfg['host'].length == 0) return void { error: "Config.host must not be empty" };
+    if (typeof cfg['port'] != 'number') return void { error: "Config.port must be a number" };
+    if (cfg['port'] < 1 || cfg['port'] > 65535) {
+        return void { error: "Config.port " + cfg['port'] + " is out of range (1-65535)" };
+    }
+    return cfg;
+};
+type Config<T> = Intrinsic<typeof _config, [T]>;
+
+type OC1 = Config<{ host: "localhost", port: 3000 }>;
+type OC2 = Config<{ host: "", port: 3000 }>;
+type OC3 = Config<{ host: "localhost", port: 0 }>;
+type OC4 = Config<{ host: 42, port: 3000 }>;
+type OC5 = Config<"not an object">;

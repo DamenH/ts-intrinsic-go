@@ -1,0 +1,88 @@
+name: Deploy Playground
+
+on:
+  push:
+    branches:
+      - wasm-playground
+      - custom-intrinsics
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: playground-deploy
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          cache-dependency-path: go.sum
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: pnpm
+          cache-dependency-path: playground/pnpm-lock.yaml
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install playground dependencies
+        working-directory: playground
+        run: pnpm install --frozen-lockfile
+
+      - name: Build tsgo.wasm
+        run: npx hereby playground:wasm
+
+      - name: Build playground static site
+        working-directory: playground
+        env:
+          # Project Pages are served from /<repo>/, so every asset URL
+          # (including the wasm fetch in core.ts) needs to be rooted
+          # under the repo name.
+          VITE_BASE: /${{ github.event.repository.name }}/
+        run: pnpm run build
+
+      - name: Verify build output
+        run: |
+          set -e
+          test -f playground/dist/index.html
+          test -f playground/dist/tsgo.wasm
+          # wasm should be meaningfully large (the real binary is ~46 MB).
+          size=$(stat -c%s playground/dist/tsgo.wasm)
+          if [ "$size" -lt 20000000 ]; then
+            echo "tsgo.wasm is only $size bytes; expected >20 MB" >&2
+            exit 1
+          fi
+          echo "dist OK. wasm=$(du -h playground/dist/tsgo.wasm | cut -f1) total=$(du -sh playground/dist | cut -f1)"
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: playground/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

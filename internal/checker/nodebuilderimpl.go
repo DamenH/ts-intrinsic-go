@@ -3398,6 +3398,9 @@ func (b *NodeBuilderImpl) typeToTypeNode(t *Type) *ast.TypeNode {
 		typeNode := b.typeToTypeNode(t.Target())
 		return b.symbolToTypeNode(t.AsStringMappingType().symbol, ast.SymbolFlagsType, b.f.NewNodeList([]*ast.Node{typeNode}))
 	}
+	if t.flags&TypeFlagsDeferredIntrinsic != 0 {
+		return b.f.NewKeywordTypeNode(ast.KindIntrinsicKeyword)
+	}
 	if t.flags&TypeFlagsIndexedAccess != 0 {
 		objectTypeNode := b.typeToTypeNode(t.AsIndexedAccessType().objectType)
 		indexTypeNode := b.typeToTypeNode(t.AsIndexedAccessType().indexType)

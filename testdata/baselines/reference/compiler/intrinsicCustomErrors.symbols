@@ -1,0 +1,329 @@
+//// [tests/cases/compiler/intrinsic/intrinsicCustomErrors.ts] ////
+
+=== static_errors.ts ===
+const _requireString = (x: any) => {
+>_requireString : Symbol(_requireString, Decl(static_errors.ts, 0, 5))
+>x : Symbol(x, Decl(static_errors.ts, 0, 24))
+
+    if (typeof x != 'string') return void { error: "Expected a string" };
+>x : Symbol(x, Decl(static_errors.ts, 0, 24))
+>error : Symbol(error, Decl(static_errors.ts, 1, 43))
+
+    return x;
+>x : Symbol(x, Decl(static_errors.ts, 0, 24))
+
+};
+type RequireString<T> = Intrinsic<typeof _requireString, [T]>;
+>RequireString : Symbol(RequireString, Decl(static_errors.ts, 3, 2))
+>T : Symbol(T, Decl(static_errors.ts, 4, 19))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_requireString : Symbol(_requireString, Decl(static_errors.ts, 0, 5))
+>T : Symbol(T, Decl(static_errors.ts, 4, 19))
+
+type S1 = RequireString<"hello">;
+>S1 : Symbol(S1, Decl(static_errors.ts, 4, 62))
+>RequireString : Symbol(RequireString, Decl(static_errors.ts, 3, 2))
+
+type S2 = RequireString<42>;
+>S2 : Symbol(S2, Decl(static_errors.ts, 6, 33))
+>RequireString : Symbol(RequireString, Decl(static_errors.ts, 3, 2))
+
+type S3 = RequireString<true>;
+>S3 : Symbol(S3, Decl(static_errors.ts, 7, 28))
+>RequireString : Symbol(RequireString, Decl(static_errors.ts, 3, 2))
+
+=== dynamic_errors.ts ===
+const _inRange = (n: any, lo: number, hi: number) => {
+>_inRange : Symbol(_inRange, Decl(dynamic_errors.ts, 0, 5))
+>n : Symbol(n, Decl(dynamic_errors.ts, 0, 18))
+>lo : Symbol(lo, Decl(dynamic_errors.ts, 0, 25))
+>hi : Symbol(hi, Decl(dynamic_errors.ts, 0, 37))
+
+    if (typeof n != 'number') return void { error: "Expected a number, got " + typeof n };
+>n : Symbol(n, Decl(dynamic_errors.ts, 0, 18))
+>error : Symbol(error, Decl(dynamic_errors.ts, 1, 43))
+>n : Symbol(n, Decl(dynamic_errors.ts, 0, 18))
+
+    if (n < lo) return void { error: n + " is below minimum " + lo };
+>n : Symbol(n, Decl(dynamic_errors.ts, 0, 18))
+>lo : Symbol(lo, Decl(dynamic_errors.ts, 0, 25))
+>error : Symbol(error, Decl(dynamic_errors.ts, 2, 29))
+>n : Symbol(n, Decl(dynamic_errors.ts, 0, 18))
+>lo : Symbol(lo, Decl(dynamic_errors.ts, 0, 25))
+
+    if (n > hi) return void { error: n + " is above maximum " + hi };
+>n : Symbol(n, Decl(dynamic_errors.ts, 0, 18))
+>hi : Symbol(hi, Decl(dynamic_errors.ts, 0, 37))
+>error : Symbol(error, Decl(dynamic_errors.ts, 3, 29))
+>n : Symbol(n, Decl(dynamic_errors.ts, 0, 18))
+>hi : Symbol(hi, Decl(dynamic_errors.ts, 0, 37))
+
+    return n;
+>n : Symbol(n, Decl(dynamic_errors.ts, 0, 18))
+
+};
+type InRange<N, Lo extends number, Hi extends number> = Intrinsic<typeof _inRange, [N, Lo, Hi]>;
+>InRange : Symbol(InRange, Decl(dynamic_errors.ts, 5, 2))
+>N : Symbol(N, Decl(dynamic_errors.ts, 6, 13))
+>Lo : Symbol(Lo, Decl(dynamic_errors.ts, 6, 15))
+>Hi : Symbol(Hi, Decl(dynamic_errors.ts, 6, 34))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_inRange : Symbol(_inRange, Decl(dynamic_errors.ts, 0, 5))
+>N : Symbol(N, Decl(dynamic_errors.ts, 6, 13))
+>Lo : Symbol(Lo, Decl(dynamic_errors.ts, 6, 15))
+>Hi : Symbol(Hi, Decl(dynamic_errors.ts, 6, 34))
+
+type R1 = InRange<50, 0, 100>;
+>R1 : Symbol(R1, Decl(dynamic_errors.ts, 6, 96))
+>InRange : Symbol(InRange, Decl(dynamic_errors.ts, 5, 2))
+
+type R2 = InRange<-5, 0, 100>;
+>R2 : Symbol(R2, Decl(dynamic_errors.ts, 8, 30))
+>InRange : Symbol(InRange, Decl(dynamic_errors.ts, 5, 2))
+
+type R3 = InRange<999, 0, 100>;
+>R3 : Symbol(R3, Decl(dynamic_errors.ts, 9, 30))
+>InRange : Symbol(InRange, Decl(dynamic_errors.ts, 5, 2))
+
+type R4 = InRange<"x", 0, 100>;
+>R4 : Symbol(R4, Decl(dynamic_errors.ts, 10, 31))
+>InRange : Symbol(InRange, Decl(dynamic_errors.ts, 5, 2))
+
+=== enum_errors.ts ===
+const _httpMethod = (m: any) => {
+>_httpMethod : Symbol(_httpMethod, Decl(enum_errors.ts, 0, 5))
+>m : Symbol(m, Decl(enum_errors.ts, 0, 21))
+
+    if (typeof m != 'string') return void { error: "HTTP method must be a string" };
+>m : Symbol(m, Decl(enum_errors.ts, 0, 21))
+>error : Symbol(error, Decl(enum_errors.ts, 1, 43))
+
+    let upper: string = m.toUpperCase();
+>upper : Symbol(upper, Decl(enum_errors.ts, 2, 7))
+>m.toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>m : Symbol(m, Decl(enum_errors.ts, 0, 21))
+>toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+
+    if (upper != 'GET' && upper != 'POST' && upper != 'PUT' && upper != 'DELETE' && upper != 'PATCH') {
+>upper : Symbol(upper, Decl(enum_errors.ts, 2, 7))
+>upper : Symbol(upper, Decl(enum_errors.ts, 2, 7))
+>upper : Symbol(upper, Decl(enum_errors.ts, 2, 7))
+>upper : Symbol(upper, Decl(enum_errors.ts, 2, 7))
+>upper : Symbol(upper, Decl(enum_errors.ts, 2, 7))
+
+        return void { error: "Unknown HTTP method '" + m + "'. Expected GET, POST, PUT, DELETE, or PATCH" };
+>error : Symbol(error, Decl(enum_errors.ts, 4, 21))
+>m : Symbol(m, Decl(enum_errors.ts, 0, 21))
+    }
+    return upper;
+>upper : Symbol(upper, Decl(enum_errors.ts, 2, 7))
+
+};
+type HttpMethod<T> = Intrinsic<typeof _httpMethod, [T]>;
+>HttpMethod : Symbol(HttpMethod, Decl(enum_errors.ts, 7, 2))
+>T : Symbol(T, Decl(enum_errors.ts, 8, 16))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_httpMethod : Symbol(_httpMethod, Decl(enum_errors.ts, 0, 5))
+>T : Symbol(T, Decl(enum_errors.ts, 8, 16))
+
+type M1 = HttpMethod<"get">;
+>M1 : Symbol(M1, Decl(enum_errors.ts, 8, 56))
+>HttpMethod : Symbol(HttpMethod, Decl(enum_errors.ts, 7, 2))
+
+type M2 = HttpMethod<"POST">;
+>M2 : Symbol(M2, Decl(enum_errors.ts, 10, 28))
+>HttpMethod : Symbol(HttpMethod, Decl(enum_errors.ts, 7, 2))
+
+type M3 = HttpMethod<"CONNECT">;
+>M3 : Symbol(M3, Decl(enum_errors.ts, 11, 29))
+>HttpMethod : Symbol(HttpMethod, Decl(enum_errors.ts, 7, 2))
+
+type M4 = HttpMethod<42>;
+>M4 : Symbol(M4, Decl(enum_errors.ts, 12, 32))
+>HttpMethod : Symbol(HttpMethod, Decl(enum_errors.ts, 7, 2))
+
+=== lib_validators.ts ===
+export const _hexColor = (s: any) => {
+>_hexColor : Symbol(_hexColor, Decl(lib_validators.ts, 0, 12))
+>s : Symbol(s, Decl(lib_validators.ts, 0, 26))
+
+    if (typeof s != 'string') return void { error: "Hex color must be a string, got " + typeof s };
+>s : Symbol(s, Decl(lib_validators.ts, 0, 26))
+>error : Symbol(error, Decl(lib_validators.ts, 1, 43))
+>s : Symbol(s, Decl(lib_validators.ts, 0, 26))
+
+    if (s.length != 7) return void { error: "Hex color must be 7 characters (e.g. '#ff0000'), got " + s.length };
+>s.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(lib_validators.ts, 0, 26))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>error : Symbol(error, Decl(lib_validators.ts, 2, 36))
+>s.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(lib_validators.ts, 0, 26))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+    if (s.charAt(0) != '#') return void { error: "Hex color must start with '#', got '" + s + "'" };
+>s.charAt : Symbol(String.charAt, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(lib_validators.ts, 0, 26))
+>charAt : Symbol(String.charAt, Decl(lib.es5.d.ts, --, --))
+>error : Symbol(error, Decl(lib_validators.ts, 3, 41))
+>s : Symbol(s, Decl(lib_validators.ts, 0, 26))
+
+    return s;
+>s : Symbol(s, Decl(lib_validators.ts, 0, 26))
+
+};
+export type HexColor<T> = Intrinsic<typeof _hexColor, [T]>;
+>HexColor : Symbol(HexColor, Decl(lib_validators.ts, 5, 2))
+>T : Symbol(T, Decl(lib_validators.ts, 6, 21))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_hexColor : Symbol(_hexColor, Decl(lib_validators.ts, 0, 12))
+>T : Symbol(T, Decl(lib_validators.ts, 6, 21))
+
+=== use_lib.ts ===
+import type { HexColor } from './lib_validators';
+>HexColor : Symbol(HexColor, Decl(use_lib.ts, 0, 13))
+
+type H1 = HexColor<"#ff0000">;
+>H1 : Symbol(H1, Decl(use_lib.ts, 0, 49))
+>HexColor : Symbol(HexColor, Decl(use_lib.ts, 0, 13))
+
+type H2 = HexColor<"red">;
+>H2 : Symbol(H2, Decl(use_lib.ts, 2, 30))
+>HexColor : Symbol(HexColor, Decl(use_lib.ts, 0, 13))
+
+type H3 = HexColor<"ff0000">;
+>H3 : Symbol(H3, Decl(use_lib.ts, 3, 26))
+>HexColor : Symbol(HexColor, Decl(use_lib.ts, 0, 13))
+
+type H4 = HexColor<42>;
+>H4 : Symbol(H4, Decl(use_lib.ts, 4, 29))
+>HexColor : Symbol(HexColor, Decl(use_lib.ts, 0, 13))
+
+=== mixed.ts ===
+const _parseAge = (x: any) => {
+>_parseAge : Symbol(_parseAge, Decl(mixed.ts, 0, 5))
+>x : Symbol(x, Decl(mixed.ts, 0, 19))
+
+    if (typeof x != 'number') return void "never";
+>x : Symbol(x, Decl(mixed.ts, 0, 19))
+
+    if (x < 0) return void { error: "Age cannot be negative (" + x + ")" };
+>x : Symbol(x, Decl(mixed.ts, 0, 19))
+>error : Symbol(error, Decl(mixed.ts, 2, 28))
+>x : Symbol(x, Decl(mixed.ts, 0, 19))
+
+    if (x > 150) return void { error: "Age " + x + " is unrealistic (max 150)" };
+>x : Symbol(x, Decl(mixed.ts, 0, 19))
+>error : Symbol(error, Decl(mixed.ts, 3, 30))
+>x : Symbol(x, Decl(mixed.ts, 0, 19))
+
+    if (Math.floor(x) != x) return void { error: "Age must be a whole number, got " + x };
+>Math.floor : Symbol(Math.floor, Decl(lib.es5.d.ts, --, --))
+>Math : Symbol(Math, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --), Decl(lib.es2025.float16.d.ts, --, --))
+>floor : Symbol(Math.floor, Decl(lib.es5.d.ts, --, --))
+>x : Symbol(x, Decl(mixed.ts, 0, 19))
+>x : Symbol(x, Decl(mixed.ts, 0, 19))
+>error : Symbol(error, Decl(mixed.ts, 4, 41))
+>x : Symbol(x, Decl(mixed.ts, 0, 19))
+
+    return x;
+>x : Symbol(x, Decl(mixed.ts, 0, 19))
+
+};
+type ParseAge<T> = Intrinsic<typeof _parseAge, [T]>;
+>ParseAge : Symbol(ParseAge, Decl(mixed.ts, 6, 2))
+>T : Symbol(T, Decl(mixed.ts, 7, 14))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_parseAge : Symbol(_parseAge, Decl(mixed.ts, 0, 5))
+>T : Symbol(T, Decl(mixed.ts, 7, 14))
+
+type A1 = ParseAge<25>;
+>A1 : Symbol(A1, Decl(mixed.ts, 7, 52))
+>ParseAge : Symbol(ParseAge, Decl(mixed.ts, 6, 2))
+
+type A2 = ParseAge<"old">;         // never (silent)
+>A2 : Symbol(A2, Decl(mixed.ts, 9, 23))
+>ParseAge : Symbol(ParseAge, Decl(mixed.ts, 6, 2))
+
+type A3 = ParseAge<-5>;
+>A3 : Symbol(A3, Decl(mixed.ts, 10, 26))
+>ParseAge : Symbol(ParseAge, Decl(mixed.ts, 6, 2))
+
+type A4 = ParseAge<200>;
+>A4 : Symbol(A4, Decl(mixed.ts, 11, 23))
+>ParseAge : Symbol(ParseAge, Decl(mixed.ts, 6, 2))
+
+type A5 = ParseAge<25.5>;
+>A5 : Symbol(A5, Decl(mixed.ts, 12, 24))
+>ParseAge : Symbol(ParseAge, Decl(mixed.ts, 6, 2))
+
+=== object_errors.ts ===
+const _config = (cfg: any) => {
+>_config : Symbol(_config, Decl(object_errors.ts, 0, 5))
+>cfg : Symbol(cfg, Decl(object_errors.ts, 0, 17))
+
+    if (typeof cfg != 'object') return void { error: "Config must be an object" };
+>cfg : Symbol(cfg, Decl(object_errors.ts, 0, 17))
+>error : Symbol(error, Decl(object_errors.ts, 1, 45))
+
+    if (typeof cfg['host'] != 'string') return void { error: "Config.host must be a string" };
+>cfg : Symbol(cfg, Decl(object_errors.ts, 0, 17))
+>error : Symbol(error, Decl(object_errors.ts, 2, 53))
+
+    if (cfg['host'].length == 0) return void { error: "Config.host must not be empty" };
+>cfg['host'].length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>cfg : Symbol(cfg, Decl(object_errors.ts, 0, 17))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>error : Symbol(error, Decl(object_errors.ts, 3, 46))
+
+    if (typeof cfg['port'] != 'number') return void { error: "Config.port must be a number" };
+>cfg : Symbol(cfg, Decl(object_errors.ts, 0, 17))
+>error : Symbol(error, Decl(object_errors.ts, 4, 53))
+
+    if (cfg['port'] < 1 || cfg['port'] > 65535) {
+>cfg : Symbol(cfg, Decl(object_errors.ts, 0, 17))
+>cfg : Symbol(cfg, Decl(object_errors.ts, 0, 17))
+
+        return void { error: "Config.port " + cfg['port'] + " is out of range (1-65535)" };
+>error : Symbol(error, Decl(object_errors.ts, 6, 21))
+>cfg : Symbol(cfg, Decl(object_errors.ts, 0, 17))
+    }
+    return cfg;
+>cfg : Symbol(cfg, Decl(object_errors.ts, 0, 17))
+
+};
+type Config<T> = Intrinsic<typeof _config, [T]>;
+>Config : Symbol(Config, Decl(object_errors.ts, 9, 2))
+>T : Symbol(T, Decl(object_errors.ts, 10, 12))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_config : Symbol(_config, Decl(object_errors.ts, 0, 5))
+>T : Symbol(T, Decl(object_errors.ts, 10, 12))
+
+type OC1 = Config<{ host: "localhost", port: 3000 }>;
+>OC1 : Symbol(OC1, Decl(object_errors.ts, 10, 48))
+>Config : Symbol(Config, Decl(object_errors.ts, 9, 2))
+>host : Symbol(host, Decl(object_errors.ts, 12, 19))
+>port : Symbol(port, Decl(object_errors.ts, 12, 38))
+
+type OC2 = Config<{ host: "", port: 3000 }>;
+>OC2 : Symbol(OC2, Decl(object_errors.ts, 12, 53))
+>Config : Symbol(Config, Decl(object_errors.ts, 9, 2))
+>host : Symbol(host, Decl(object_errors.ts, 13, 19))
+>port : Symbol(port, Decl(object_errors.ts, 13, 29))
+
+type OC3 = Config<{ host: "localhost", port: 0 }>;
+>OC3 : Symbol(OC3, Decl(object_errors.ts, 13, 44))
+>Config : Symbol(Config, Decl(object_errors.ts, 9, 2))
+>host : Symbol(host, Decl(object_errors.ts, 14, 19))
+>port : Symbol(port, Decl(object_errors.ts, 14, 38))
+
+type OC4 = Config<{ host: 42, port: 3000 }>;
+>OC4 : Symbol(OC4, Decl(object_errors.ts, 14, 50))
+>Config : Symbol(Config, Decl(object_errors.ts, 9, 2))
+>host : Symbol(host, Decl(object_errors.ts, 15, 19))
+>port : Symbol(port, Decl(object_errors.ts, 15, 29))
+
+type OC5 = Config<"not an object">;
+>OC5 : Symbol(OC5, Decl(object_errors.ts, 15, 44))
+>Config : Symbol(Config, Decl(object_errors.ts, 9, 2))
+

@@ -1,0 +1,3216 @@
+//// [tests/cases/compiler/intrinsic/zod.ts] ////
+
+=== zod.ts ===
+// Zod-like validators as plain functions.
+// Each works at both compile time (via Intrinsic<typeof fn, [T]>) and runtime.
+
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+>capitalize : (s: string) => string
+>(s: string) => s.charAt(0).toUpperCase() + s.slice(1) : (s: string) => string
+>s : string
+>s.charAt(0).toUpperCase() + s.slice(1) : string
+>s.charAt(0).toUpperCase() : string
+>s.charAt(0).toUpperCase : () => string
+>s.charAt(0) : string
+>s.charAt : (pos: number) => string
+>s : string
+>charAt : (pos: number) => string
+>0 : 0
+>toUpperCase : () => string
+>s.slice(1) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>1 : 1
+
+function range(startOrEnd: number, end?: number): number[] {
+>range : (startOrEnd: number, end?: number) => number[]
+>startOrEnd : number
+>end : number | undefined
+
+    const s = end === undefined ? 0 : startOrEnd;
+>s : number
+>end === undefined ? 0 : startOrEnd : number
+>end === undefined : boolean
+>end : number | undefined
+>undefined : undefined
+>0 : 0
+>startOrEnd : number
+
+    const e = end === undefined ? startOrEnd : end;
+>e : number
+>end === undefined ? startOrEnd : end : number
+>end === undefined : boolean
+>end : number | undefined
+>undefined : undefined
+>startOrEnd : number
+>end : number
+
+    return Array.from({ length: Math.max(e - s, 0) }, (_, i) => s + i);
+>Array.from({ length: Math.max(e - s, 0) }, (_, i) => s + i) : number[]
+>Array.from : { <T>(arrayLike: ArrayLike<T>): T[]; <T, U>(arrayLike: ArrayLike<T>, mapfn: (v: T, k: number) => U, thisArg?: any): U[]; <T>(iterable: Iterable<T> | ArrayLike<T>): T[]; <T, U>(iterable: Iterable<T> | ArrayLike<T>, mapfn: (v: T, k: number) => U, thisArg?: any): U[]; }
+>Array : ArrayConstructor
+>from : { <T>(arrayLike: ArrayLike<T>): T[]; <T, U>(arrayLike: ArrayLike<T>, mapfn: (v: T, k: number) => U, thisArg?: any): U[]; <T>(iterable: Iterable<T> | ArrayLike<T>): T[]; <T, U>(iterable: Iterable<T> | ArrayLike<T>, mapfn: (v: T, k: number) => U, thisArg?: any): U[]; }
+>{ length: Math.max(e - s, 0) } : { length: number; }
+>length : number
+>Math.max(e - s, 0) : number
+>Math.max : (...values: number[]) => number
+>Math : Math
+>max : (...values: number[]) => number
+>e - s : number
+>e : number
+>s : number
+>0 : 0
+>(_, i) => s + i : (_: unknown, i: number) => number
+>_ : unknown
+>i : number
+>s + i : number
+>s : number
+>i : number
+}
+
+// ---- Primitives ----
+
+const _string = (x: any) => {
+>_string : (x: any) => string | undefined
+>(x: any) => {    if (typeof x != 'string') return void { error: "Expected string, got " + typeof x };    return x;} : (x: any) => string | undefined
+>x : any
+
+    if (typeof x != 'string') return void { error: "Expected string, got " + typeof x };
+>typeof x != 'string' : boolean
+>typeof x : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>x : any
+>'string' : "string"
+>void { error: "Expected string, got " + typeof x } : undefined
+>{ error: "Expected string, got " + typeof x } : { error: string; }
+>error : string
+>"Expected string, got " + typeof x : string
+>"Expected string, got " : "Expected string, got "
+>typeof x : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>x : any
+
+    return x;
+>x : string
+
+};
+const _number = (x: any) => {
+>_number : (x: any) => number | undefined
+>(x: any) => {    if (typeof x != 'number') return void { error: "Expected number, got " + typeof x };    return x;} : (x: any) => number | undefined
+>x : any
+
+    if (typeof x != 'number') return void { error: "Expected number, got " + typeof x };
+>typeof x != 'number' : boolean
+>typeof x : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>x : any
+>'number' : "number"
+>void { error: "Expected number, got " + typeof x } : undefined
+>{ error: "Expected number, got " + typeof x } : { error: string; }
+>error : string
+>"Expected number, got " + typeof x : string
+>"Expected number, got " : "Expected number, got "
+>typeof x : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>x : any
+
+    return x;
+>x : number
+
+};
+const _boolean = (x: any) => {
+>_boolean : (x: any) => boolean | undefined
+>(x: any) => {    if (typeof x != 'boolean') return void { error: "Expected boolean, got " + typeof x };    return x;} : (x: any) => boolean | undefined
+>x : any
+
+    if (typeof x != 'boolean') return void { error: "Expected boolean, got " + typeof x };
+>typeof x != 'boolean' : boolean
+>typeof x : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>x : any
+>'boolean' : "boolean"
+>void { error: "Expected boolean, got " + typeof x } : undefined
+>{ error: "Expected boolean, got " + typeof x } : { error: string; }
+>error : string
+>"Expected boolean, got " + typeof x : string
+>"Expected boolean, got " : "Expected boolean, got "
+>typeof x : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>x : any
+
+    return x;
+>x : boolean
+
+};
+
+// ---- String validators ----
+
+const _email = (s: any) => {
+>_email : (s: any) => string | undefined
+>(s: any) => {    if (typeof s != 'string') return void { error: "Expected string for email, got " + typeof s };    let at: number = s.indexOf('@');    if (at < 1) return void { error: "Invalid email '" + s + "': missing @ sign" };    let domain: string = s.slice(at + 1);    if (domain.length < 3 || !domain.includes('.')) return void { error: "Invalid email '" + s + "': invalid domain" };    let dot: number = domain.indexOf('.');    if (dot < 1 || dot == domain.length - 1) return void { error: "Invalid email '" + s + "': invalid domain" };    return s;} : (s: any) => string | undefined
+>s : any
+
+    if (typeof s != 'string') return void { error: "Expected string for email, got " + typeof s };
+>typeof s != 'string' : boolean
+>typeof s : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>s : any
+>'string' : "string"
+>void { error: "Expected string for email, got " + typeof s } : undefined
+>{ error: "Expected string for email, got " + typeof s } : { error: string; }
+>error : string
+>"Expected string for email, got " + typeof s : string
+>"Expected string for email, got " : "Expected string for email, got "
+>typeof s : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>s : any
+
+    let at: number = s.indexOf('@');
+>at : number
+>s.indexOf('@') : number
+>s.indexOf : (searchString: string, position?: number) => number
+>s : string
+>indexOf : (searchString: string, position?: number) => number
+>'@' : "@"
+
+    if (at < 1) return void { error: "Invalid email '" + s + "': missing @ sign" };
+>at < 1 : boolean
+>at : number
+>1 : 1
+>void { error: "Invalid email '" + s + "': missing @ sign" } : undefined
+>{ error: "Invalid email '" + s + "': missing @ sign" } : { error: string; }
+>error : string
+>"Invalid email '" + s + "': missing @ sign" : string
+>"Invalid email '" + s : string
+>"Invalid email '" : "Invalid email '"
+>s : string
+>"': missing @ sign" : "': missing @ sign"
+
+    let domain: string = s.slice(at + 1);
+>domain : string
+>s.slice(at + 1) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>at + 1 : number
+>at : number
+>1 : 1
+
+    if (domain.length < 3 || !domain.includes('.')) return void { error: "Invalid email '" + s + "': invalid domain" };
+>domain.length < 3 || !domain.includes('.') : boolean
+>domain.length < 3 : boolean
+>domain.length : number
+>domain : string
+>length : number
+>3 : 3
+>!domain.includes('.') : boolean
+>domain.includes('.') : boolean
+>domain.includes : (searchString: string, position?: number) => boolean
+>domain : string
+>includes : (searchString: string, position?: number) => boolean
+>'.' : "."
+>void { error: "Invalid email '" + s + "': invalid domain" } : undefined
+>{ error: "Invalid email '" + s + "': invalid domain" } : { error: string; }
+>error : string
+>"Invalid email '" + s + "': invalid domain" : string
+>"Invalid email '" + s : string
+>"Invalid email '" : "Invalid email '"
+>s : string
+>"': invalid domain" : "': invalid domain"
+
+    let dot: number = domain.indexOf('.');
+>dot : number
+>domain.indexOf('.') : number
+>domain.indexOf : (searchString: string, position?: number) => number
+>domain : string
+>indexOf : (searchString: string, position?: number) => number
+>'.' : "."
+
+    if (dot < 1 || dot == domain.length - 1) return void { error: "Invalid email '" + s + "': invalid domain" };
+>dot < 1 || dot == domain.length - 1 : boolean
+>dot < 1 : boolean
+>dot : number
+>1 : 1
+>dot == domain.length - 1 : boolean
+>dot : number
+>domain.length - 1 : number
+>domain.length : number
+>domain : string
+>length : number
+>1 : 1
+>void { error: "Invalid email '" + s + "': invalid domain" } : undefined
+>{ error: "Invalid email '" + s + "': invalid domain" } : { error: string; }
+>error : string
+>"Invalid email '" + s + "': invalid domain" : string
+>"Invalid email '" + s : string
+>"Invalid email '" : "Invalid email '"
+>s : string
+>"': invalid domain" : "': invalid domain"
+
+    return s;
+>s : string
+
+};
+
+const _url = (s: any) => {
+>_url : (s: any) => string | undefined
+>(s: any) => {    if (typeof s != 'string') return void { error: "Expected string for URL, got " + typeof s };    if (!s.startsWith('http://') && !s.startsWith('https://')) return void { error: "URL must start with http:// or https://, got '" + s + "'" };    if (s.length < 10) return void { error: "URL too short: '" + s + "'" };    return s;} : (s: any) => string | undefined
+>s : any
+
+    if (typeof s != 'string') return void { error: "Expected string for URL, got " + typeof s };
+>typeof s != 'string' : boolean
+>typeof s : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>s : any
+>'string' : "string"
+>void { error: "Expected string for URL, got " + typeof s } : undefined
+>{ error: "Expected string for URL, got " + typeof s } : { error: string; }
+>error : string
+>"Expected string for URL, got " + typeof s : string
+>"Expected string for URL, got " : "Expected string for URL, got "
+>typeof s : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>s : any
+
+    if (!s.startsWith('http://') && !s.startsWith('https://')) return void { error: "URL must start with http:// or https://, got '" + s + "'" };
+>!s.startsWith('http://') && !s.startsWith('https://') : boolean
+>!s.startsWith('http://') : boolean
+>s.startsWith('http://') : boolean
+>s.startsWith : (searchString: string, position?: number) => boolean
+>s : string
+>startsWith : (searchString: string, position?: number) => boolean
+>'http://' : "http://"
+>!s.startsWith('https://') : boolean
+>s.startsWith('https://') : boolean
+>s.startsWith : (searchString: string, position?: number) => boolean
+>s : string
+>startsWith : (searchString: string, position?: number) => boolean
+>'https://' : "https://"
+>void { error: "URL must start with http:// or https://, got '" + s + "'" } : undefined
+>{ error: "URL must start with http:// or https://, got '" + s + "'" } : { error: string; }
+>error : string
+>"URL must start with http:// or https://, got '" + s + "'" : string
+>"URL must start with http:// or https://, got '" + s : string
+>"URL must start with http:// or https://, got '" : "URL must start with http:// or https://, got '"
+>s : string
+>"'" : "'"
+
+    if (s.length < 10) return void { error: "URL too short: '" + s + "'" };
+>s.length < 10 : boolean
+>s.length : number
+>s : string
+>length : number
+>10 : 10
+>void { error: "URL too short: '" + s + "'" } : undefined
+>{ error: "URL too short: '" + s + "'" } : { error: string; }
+>error : string
+>"URL too short: '" + s + "'" : string
+>"URL too short: '" + s : string
+>"URL too short: '" : "URL too short: '"
+>s : string
+>"'" : "'"
+
+    return s;
+>s : string
+
+};
+
+const _uuid = (s: any) => {
+>_uuid : (s: any) => string | undefined
+>(s: any) => {    if (typeof s != 'string') return void { error: "Expected string for UUID, got " + typeof s };    if (s.length != 36) return void { error: "UUID must be 36 characters, got " + s.length };    let hex: string = 'abcdef0123456789';    let dashes = [8, 13, 18, 23];    let i = 0;    while (i < 36) {        if (dashes.includes(i)) {            if (s.slice(i, i + 1) != '-') return void { error: "UUID has invalid format: '" + s + "'" };        } else {            if (!hex.includes(s.slice(i, i + 1).toLowerCase())) return void { error: "UUID has invalid format: '" + s + "'" };        }        i = i + 1;    }    return s;} : (s: any) => string | undefined
+>s : any
+
+    if (typeof s != 'string') return void { error: "Expected string for UUID, got " + typeof s };
+>typeof s != 'string' : boolean
+>typeof s : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>s : any
+>'string' : "string"
+>void { error: "Expected string for UUID, got " + typeof s } : undefined
+>{ error: "Expected string for UUID, got " + typeof s } : { error: string; }
+>error : string
+>"Expected string for UUID, got " + typeof s : string
+>"Expected string for UUID, got " : "Expected string for UUID, got "
+>typeof s : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>s : any
+
+    if (s.length != 36) return void { error: "UUID must be 36 characters, got " + s.length };
+>s.length != 36 : boolean
+>s.length : number
+>s : string
+>length : number
+>36 : 36
+>void { error: "UUID must be 36 characters, got " + s.length } : undefined
+>{ error: "UUID must be 36 characters, got " + s.length } : { error: string; }
+>error : string
+>"UUID must be 36 characters, got " + s.length : string
+>"UUID must be 36 characters, got " : "UUID must be 36 characters, got "
+>s.length : number
+>s : string
+>length : number
+
+    let hex: string = 'abcdef0123456789';
+>hex : string
+>'abcdef0123456789' : "abcdef0123456789"
+
+    let dashes = [8, 13, 18, 23];
+>dashes : number[]
+>[8, 13, 18, 23] : number[]
+>8 : 8
+>13 : 13
+>18 : 18
+>23 : 23
+
+    let i = 0;
+>i : number
+>0 : 0
+
+    while (i < 36) {
+>i < 36 : boolean
+>i : number
+>36 : 36
+
+        if (dashes.includes(i)) {
+>dashes.includes(i) : boolean
+>dashes.includes : (searchElement: number, fromIndex?: number) => boolean
+>dashes : number[]
+>includes : (searchElement: number, fromIndex?: number) => boolean
+>i : number
+
+            if (s.slice(i, i + 1) != '-') return void { error: "UUID has invalid format: '" + s + "'" };
+>s.slice(i, i + 1) != '-' : boolean
+>s.slice(i, i + 1) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>i : number
+>i + 1 : number
+>i : number
+>1 : 1
+>'-' : "-"
+>void { error: "UUID has invalid format: '" + s + "'" } : undefined
+>{ error: "UUID has invalid format: '" + s + "'" } : { error: string; }
+>error : string
+>"UUID has invalid format: '" + s + "'" : string
+>"UUID has invalid format: '" + s : string
+>"UUID has invalid format: '" : "UUID has invalid format: '"
+>s : string
+>"'" : "'"
+
+        } else {
+            if (!hex.includes(s.slice(i, i + 1).toLowerCase())) return void { error: "UUID has invalid format: '" + s + "'" };
+>!hex.includes(s.slice(i, i + 1).toLowerCase()) : boolean
+>hex.includes(s.slice(i, i + 1).toLowerCase()) : boolean
+>hex.includes : (searchString: string, position?: number) => boolean
+>hex : string
+>includes : (searchString: string, position?: number) => boolean
+>s.slice(i, i + 1).toLowerCase() : string
+>s.slice(i, i + 1).toLowerCase : () => string
+>s.slice(i, i + 1) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>i : number
+>i + 1 : number
+>i : number
+>1 : 1
+>toLowerCase : () => string
+>void { error: "UUID has invalid format: '" + s + "'" } : undefined
+>{ error: "UUID has invalid format: '" + s + "'" } : { error: string; }
+>error : string
+>"UUID has invalid format: '" + s + "'" : string
+>"UUID has invalid format: '" + s : string
+>"UUID has invalid format: '" : "UUID has invalid format: '"
+>s : string
+>"'" : "'"
+        }
+        i = i + 1;
+>i = i + 1 : number
+>i : number
+>i + 1 : number
+>i : number
+>1 : 1
+    }
+    return s;
+>s : string
+
+};
+
+const _nonEmpty = (s: any) => {
+>_nonEmpty : (s: any) => string | undefined
+>(s: any) => {    if (typeof s != 'string') return void { error: "Expected string, got " + typeof s };    if (s.length == 0) return void { error: "String must not be empty" };    return s;} : (s: any) => string | undefined
+>s : any
+
+    if (typeof s != 'string') return void { error: "Expected string, got " + typeof s };
+>typeof s != 'string' : boolean
+>typeof s : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>s : any
+>'string' : "string"
+>void { error: "Expected string, got " + typeof s } : undefined
+>{ error: "Expected string, got " + typeof s } : { error: string; }
+>error : string
+>"Expected string, got " + typeof s : string
+>"Expected string, got " : "Expected string, got "
+>typeof s : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>s : any
+
+    if (s.length == 0) return void { error: "String must not be empty" };
+>s.length == 0 : boolean
+>s.length : number
+>s : string
+>length : number
+>0 : 0
+>void { error: "String must not be empty" } : undefined
+>{ error: "String must not be empty" } : { error: string; }
+>error : string
+>"String must not be empty" : "String must not be empty"
+
+    return s;
+>s : string
+
+};
+
+const _trimmed = (s: any) => {
+>_trimmed : (s: any) => string | undefined
+>(s: any) => {    if (typeof s != 'string') return void "never";    return s.trim();} : (s: any) => string | undefined
+>s : any
+
+    if (typeof s != 'string') return void "never";
+>typeof s != 'string' : boolean
+>typeof s : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>s : any
+>'string' : "string"
+>void "never" : undefined
+>"never" : "never"
+
+    return s.trim();
+>s.trim() : string
+>s.trim : () => string
+>s : string
+>trim : () => string
+
+};
+
+// ---- Number validators ----
+
+const _int = (n: any) => {
+>_int : (n: any) => number | undefined
+>(n: any) => {    if (typeof n != 'number') return void { error: "Expected number, got " + typeof n };    if (Math.floor(n) != n) return void { error: n + " is not an integer" };    return n;} : (n: any) => number | undefined
+>n : any
+
+    if (typeof n != 'number') return void { error: "Expected number, got " + typeof n };
+>typeof n != 'number' : boolean
+>typeof n : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>n : any
+>'number' : "number"
+>void { error: "Expected number, got " + typeof n } : undefined
+>{ error: "Expected number, got " + typeof n } : { error: string; }
+>error : string
+>"Expected number, got " + typeof n : string
+>"Expected number, got " : "Expected number, got "
+>typeof n : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>n : any
+
+    if (Math.floor(n) != n) return void { error: n + " is not an integer" };
+>Math.floor(n) != n : boolean
+>Math.floor(n) : number
+>Math.floor : (x: number) => number
+>Math : Math
+>floor : (x: number) => number
+>n : number
+>n : number
+>void { error: n + " is not an integer" } : undefined
+>{ error: n + " is not an integer" } : { error: string; }
+>error : string
+>n + " is not an integer" : string
+>n : number
+>" is not an integer" : " is not an integer"
+
+    return n;
+>n : number
+
+};
+
+const _positive = (n: any) => {
+>_positive : (n: any) => number | undefined
+>(n: any) => {    if (typeof n != 'number') return void { error: "Expected number, got " + typeof n };    if (n <= 0) return void { error: "Expected positive number, got " + n };    return n;} : (n: any) => number | undefined
+>n : any
+
+    if (typeof n != 'number') return void { error: "Expected number, got " + typeof n };
+>typeof n != 'number' : boolean
+>typeof n : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>n : any
+>'number' : "number"
+>void { error: "Expected number, got " + typeof n } : undefined
+>{ error: "Expected number, got " + typeof n } : { error: string; }
+>error : string
+>"Expected number, got " + typeof n : string
+>"Expected number, got " : "Expected number, got "
+>typeof n : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>n : any
+
+    if (n <= 0) return void { error: "Expected positive number, got " + n };
+>n <= 0 : boolean
+>n : number
+>0 : 0
+>void { error: "Expected positive number, got " + n } : undefined
+>{ error: "Expected positive number, got " + n } : { error: string; }
+>error : string
+>"Expected positive number, got " + n : string
+>"Expected positive number, got " : "Expected positive number, got "
+>n : number
+
+    return n;
+>n : number
+
+};
+
+const _nonnegative = (n: any) => {
+>_nonnegative : (n: any) => number | undefined
+>(n: any) => {    if (typeof n != 'number') return void { error: "Expected number, got " + typeof n };    if (n < 0) return void { error: "Expected non-negative number, got " + n };    return n;} : (n: any) => number | undefined
+>n : any
+
+    if (typeof n != 'number') return void { error: "Expected number, got " + typeof n };
+>typeof n != 'number' : boolean
+>typeof n : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>n : any
+>'number' : "number"
+>void { error: "Expected number, got " + typeof n } : undefined
+>{ error: "Expected number, got " + typeof n } : { error: string; }
+>error : string
+>"Expected number, got " + typeof n : string
+>"Expected number, got " : "Expected number, got "
+>typeof n : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>n : any
+
+    if (n < 0) return void { error: "Expected non-negative number, got " + n };
+>n < 0 : boolean
+>n : number
+>0 : 0
+>void { error: "Expected non-negative number, got " + n } : undefined
+>{ error: "Expected non-negative number, got " + n } : { error: string; }
+>error : string
+>"Expected non-negative number, got " + n : string
+>"Expected non-negative number, got " : "Expected non-negative number, got "
+>n : number
+
+    return n;
+>n : number
+
+};
+
+const _port = (n: any) => {
+>_port : (n: any) => number | undefined
+>(n: any) => {    if (typeof n != 'number') return void { error: "Port must be a number, got " + typeof n };    if (n < 1 || n > 65535) return void { error: "Port " + n + " out of range (1-65535)" };    if (Math.floor(n) != n) return void { error: "Port must be an integer, got " + n };    return n;} : (n: any) => number | undefined
+>n : any
+
+    if (typeof n != 'number') return void { error: "Port must be a number, got " + typeof n };
+>typeof n != 'number' : boolean
+>typeof n : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>n : any
+>'number' : "number"
+>void { error: "Port must be a number, got " + typeof n } : undefined
+>{ error: "Port must be a number, got " + typeof n } : { error: string; }
+>error : string
+>"Port must be a number, got " + typeof n : string
+>"Port must be a number, got " : "Port must be a number, got "
+>typeof n : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>n : any
+
+    if (n < 1 || n > 65535) return void { error: "Port " + n + " out of range (1-65535)" };
+>n < 1 || n > 65535 : boolean
+>n < 1 : boolean
+>n : number
+>1 : 1
+>n > 65535 : boolean
+>n : number
+>65535 : 65535
+>void { error: "Port " + n + " out of range (1-65535)" } : undefined
+>{ error: "Port " + n + " out of range (1-65535)" } : { error: string; }
+>error : string
+>"Port " + n + " out of range (1-65535)" : string
+>"Port " + n : string
+>"Port " : "Port "
+>n : number
+>" out of range (1-65535)" : " out of range (1-65535)"
+
+    if (Math.floor(n) != n) return void { error: "Port must be an integer, got " + n };
+>Math.floor(n) != n : boolean
+>Math.floor(n) : number
+>Math.floor : (x: number) => number
+>Math : Math
+>floor : (x: number) => number
+>n : number
+>n : number
+>void { error: "Port must be an integer, got " + n } : undefined
+>{ error: "Port must be an integer, got " + n } : { error: string; }
+>error : string
+>"Port must be an integer, got " + n : string
+>"Port must be an integer, got " : "Port must be an integer, got "
+>n : number
+
+    return n;
+>n : number
+
+};
+
+// ---- Coercions ----
+
+const _coerceNumber = (s: any) => {
+>_coerceNumber : (s: any) => number | undefined
+>(s: any) => {    if (typeof s == 'number') return s;    if (typeof s != 'string' || s.length == 0) return void "never";    let digits: string = '0123456789';    let start: number = 0;    let neg: boolean = false;    if (s.slice(0, 1) == '-') { neg = true; start = 1; }    if (start == s.length) return void "never";    let result: number = 0;    let i = start;    while (i < s.length) {        let d: number = digits.indexOf(s.slice(i, i + 1));        if (d == -1) return void "never";        result = result * 10 + d;        i = i + 1;    }    return neg ? -result : result;} : (s: any) => number | undefined
+>s : any
+
+    if (typeof s == 'number') return s;
+>typeof s == 'number' : boolean
+>typeof s : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>s : any
+>'number' : "number"
+>s : number
+
+    if (typeof s != 'string' || s.length == 0) return void "never";
+>typeof s != 'string' || s.length == 0 : boolean
+>typeof s != 'string' : boolean
+>typeof s : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>s : any
+>'string' : "string"
+>s.length == 0 : boolean
+>s.length : number
+>s : string
+>length : number
+>0 : 0
+>void "never" : undefined
+>"never" : "never"
+
+    let digits: string = '0123456789';
+>digits : string
+>'0123456789' : "0123456789"
+
+    let start: number = 0;
+>start : number
+>0 : 0
+
+    let neg: boolean = false;
+>neg : boolean
+>false : false
+
+    if (s.slice(0, 1) == '-') { neg = true; start = 1; }
+>s.slice(0, 1) == '-' : boolean
+>s.slice(0, 1) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>0 : 0
+>1 : 1
+>'-' : "-"
+>neg = true : true
+>neg : boolean
+>true : true
+>start = 1 : 1
+>start : number
+>1 : 1
+
+    if (start == s.length) return void "never";
+>start == s.length : boolean
+>start : number
+>s.length : number
+>s : string
+>length : number
+>void "never" : undefined
+>"never" : "never"
+
+    let result: number = 0;
+>result : number
+>0 : 0
+
+    let i = start;
+>i : number
+>start : number
+
+    while (i < s.length) {
+>i < s.length : boolean
+>i : number
+>s.length : number
+>s : string
+>length : number
+
+        let d: number = digits.indexOf(s.slice(i, i + 1));
+>d : number
+>digits.indexOf(s.slice(i, i + 1)) : number
+>digits.indexOf : (searchString: string, position?: number) => number
+>digits : string
+>indexOf : (searchString: string, position?: number) => number
+>s.slice(i, i + 1) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>i : number
+>i + 1 : number
+>i : number
+>1 : 1
+
+        if (d == -1) return void "never";
+>d == -1 : boolean
+>d : number
+>-1 : -1
+>1 : 1
+>void "never" : undefined
+>"never" : "never"
+
+        result = result * 10 + d;
+>result = result * 10 + d : number
+>result : number
+>result * 10 + d : number
+>result * 10 : number
+>result : number
+>10 : 10
+>d : number
+
+        i = i + 1;
+>i = i + 1 : number
+>i : number
+>i + 1 : number
+>i : number
+>1 : 1
+    }
+    return neg ? -result : result;
+>neg ? -result : result : number
+>neg : boolean
+>-result : number
+>result : number
+>result : number
+
+};
+
+const _coerceBoolean = (x: any) => {
+>_coerceBoolean : (x: any) => boolean | undefined
+>(x: any) => {    if (typeof x == 'boolean') return x;    if (x == 'true' || x == '1') return true;    if (x == 'false' || x == '0') return false;    return void "never";} : (x: any) => boolean | undefined
+>x : any
+
+    if (typeof x == 'boolean') return x;
+>typeof x == 'boolean' : boolean
+>typeof x : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>x : any
+>'boolean' : "boolean"
+>x : boolean
+
+    if (x == 'true' || x == '1') return true;
+>x == 'true' || x == '1' : boolean
+>x == 'true' : boolean
+>x : any
+>'true' : "true"
+>x == '1' : boolean
+>x : any
+>'1' : "1"
+>true : true
+
+    if (x == 'false' || x == '0') return false;
+>x == 'false' || x == '0' : boolean
+>x == 'false' : boolean
+>x : any
+>'false' : "false"
+>x == '0' : boolean
+>x : any
+>'0' : "0"
+>false : false
+
+    return void "never";
+>void "never" : undefined
+>"never" : "never"
+
+};
+
+// ---- Transforms ----
+
+const _toLowerCase = (s: any) => {
+>_toLowerCase : (s: any) => string | undefined
+>(s: any) => {    if (typeof s != 'string') return void "never";    return s.toLowerCase();} : (s: any) => string | undefined
+>s : any
+
+    if (typeof s != 'string') return void "never";
+>typeof s != 'string' : boolean
+>typeof s : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>s : any
+>'string' : "string"
+>void "never" : undefined
+>"never" : "never"
+
+    return s.toLowerCase();
+>s.toLowerCase() : string
+>s.toLowerCase : () => string
+>s : string
+>toLowerCase : () => string
+
+};
+
+const _toUpperCase = (s: any) => {
+>_toUpperCase : (s: any) => string | undefined
+>(s: any) => {    if (typeof s != 'string') return void "never";    return s.toUpperCase();} : (s: any) => string | undefined
+>s : any
+
+    if (typeof s != 'string') return void "never";
+>typeof s != 'string' : boolean
+>typeof s : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>s : any
+>'string' : "string"
+>void "never" : undefined
+>"never" : "never"
+
+    return s.toUpperCase();
+>s.toUpperCase() : string
+>s.toUpperCase : () => string
+>s : string
+>toUpperCase : () => string
+
+};
+
+const _toSlug = (s: string) => {
+>_toSlug : (s: string) => string
+>(s: string) => {    return s.toLowerCase().split(' ').join('-');} : (s: string) => string
+>s : string
+
+    return s.toLowerCase().split(' ').join('-');
+>s.toLowerCase().split(' ').join('-') : string
+>s.toLowerCase().split(' ').join : (separator?: string) => string
+>s.toLowerCase().split(' ') : string[]
+>s.toLowerCase().split : { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }
+>s.toLowerCase() : string
+>s.toLowerCase : () => string
+>s : string
+>toLowerCase : () => string
+>split : { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }
+>' ' : " "
+>join : (separator?: string) => string
+>'-' : "-"
+
+};
+
+const _toCamelCase = (s: string) => {
+>_toCamelCase : (s: string) => string
+>(s: string) => {    let [first, ...rest] = s.split('_');    return first + rest.map((p: string) => capitalize(p)).join('');} : (s: string) => string
+>s : string
+
+    let [first, ...rest] = s.split('_');
+>first : string
+>rest : string[]
+>s.split('_') : string[]
+>s.split : { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }
+>s : string
+>split : { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }
+>'_' : "_"
+
+    return first + rest.map((p: string) => capitalize(p)).join('');
+>first + rest.map((p: string) => capitalize(p)).join('') : string
+>first : string
+>rest.map((p: string) => capitalize(p)).join('') : string
+>rest.map((p: string) => capitalize(p)).join : (separator?: string) => string
+>rest.map((p: string) => capitalize(p)) : string[]
+>rest.map : <U>(callbackfn: (value: string, index: number, array: string[]) => U, thisArg?: any) => U[]
+>rest : string[]
+>map : <U>(callbackfn: (value: string, index: number, array: string[]) => U, thisArg?: any) => U[]
+>(p: string) => capitalize(p) : (p: string) => string
+>p : string
+>capitalize(p) : string
+>capitalize : (s: string) => string
+>p : string
+>join : (separator?: string) => string
+>'' : ""
+
+};
+
+// ---- Object validators ----
+
+const _serverConfig = (cfg: any) => {
+>_serverConfig : (cfg: any) => any
+>(cfg: any) => {    if (typeof cfg != 'object') return void { error: "ServerConfig: expected an object" };    if (typeof cfg['host'] != 'string' || cfg['host'].length == 0) return void { error: "ServerConfig.host: must be a non-empty string" };    if (typeof cfg['port'] != 'number') return void { error: "ServerConfig.port: must be a number" };    if (cfg['port'] < 1 || cfg['port'] > 65535) return void { error: "ServerConfig.port: " + cfg['port'] + " out of range (1-65535)" };    if (cfg['protocol'] != 'http' && cfg['protocol'] != 'https') return void { error: "ServerConfig.protocol: must be 'http' or 'https', got '" + cfg['protocol'] + "'" };    return cfg;} : (cfg: any) => any
+>cfg : any
+
+    if (typeof cfg != 'object') return void { error: "ServerConfig: expected an object" };
+>typeof cfg != 'object' : boolean
+>typeof cfg : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>cfg : any
+>'object' : "object"
+>void { error: "ServerConfig: expected an object" } : undefined
+>{ error: "ServerConfig: expected an object" } : { error: string; }
+>error : string
+>"ServerConfig: expected an object" : "ServerConfig: expected an object"
+
+    if (typeof cfg['host'] != 'string' || cfg['host'].length == 0) return void { error: "ServerConfig.host: must be a non-empty string" };
+>typeof cfg['host'] != 'string' || cfg['host'].length == 0 : boolean
+>typeof cfg['host'] != 'string' : boolean
+>typeof cfg['host'] : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>cfg['host'] : any
+>cfg : any
+>'host' : "host"
+>'string' : "string"
+>cfg['host'].length == 0 : boolean
+>cfg['host'].length : number
+>cfg['host'] : string
+>cfg : any
+>'host' : "host"
+>length : number
+>0 : 0
+>void { error: "ServerConfig.host: must be a non-empty string" } : undefined
+>{ error: "ServerConfig.host: must be a non-empty string" } : { error: string; }
+>error : string
+>"ServerConfig.host: must be a non-empty string" : "ServerConfig.host: must be a non-empty string"
+
+    if (typeof cfg['port'] != 'number') return void { error: "ServerConfig.port: must be a number" };
+>typeof cfg['port'] != 'number' : boolean
+>typeof cfg['port'] : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>cfg['port'] : any
+>cfg : any
+>'port' : "port"
+>'number' : "number"
+>void { error: "ServerConfig.port: must be a number" } : undefined
+>{ error: "ServerConfig.port: must be a number" } : { error: string; }
+>error : string
+>"ServerConfig.port: must be a number" : "ServerConfig.port: must be a number"
+
+    if (cfg['port'] < 1 || cfg['port'] > 65535) return void { error: "ServerConfig.port: " + cfg['port'] + " out of range (1-65535)" };
+>cfg['port'] < 1 || cfg['port'] > 65535 : boolean
+>cfg['port'] < 1 : boolean
+>cfg['port'] : number
+>cfg : any
+>'port' : "port"
+>1 : 1
+>cfg['port'] > 65535 : boolean
+>cfg['port'] : number
+>cfg : any
+>'port' : "port"
+>65535 : 65535
+>void { error: "ServerConfig.port: " + cfg['port'] + " out of range (1-65535)" } : undefined
+>{ error: "ServerConfig.port: " + cfg['port'] + " out of range (1-65535)" } : { error: string; }
+>error : string
+>"ServerConfig.port: " + cfg['port'] + " out of range (1-65535)" : string
+>"ServerConfig.port: " + cfg['port'] : string
+>"ServerConfig.port: " : "ServerConfig.port: "
+>cfg['port'] : number
+>cfg : any
+>'port' : "port"
+>" out of range (1-65535)" : " out of range (1-65535)"
+
+    if (cfg['protocol'] != 'http' && cfg['protocol'] != 'https') return void { error: "ServerConfig.protocol: must be 'http' or 'https', got '" + cfg['protocol'] + "'" };
+>cfg['protocol'] != 'http' && cfg['protocol'] != 'https' : boolean
+>cfg['protocol'] != 'http' : boolean
+>cfg['protocol'] : any
+>cfg : any
+>'protocol' : "protocol"
+>'http' : "http"
+>cfg['protocol'] != 'https' : boolean
+>cfg['protocol'] : any
+>cfg : any
+>'protocol' : "protocol"
+>'https' : "https"
+>void { error: "ServerConfig.protocol: must be 'http' or 'https', got '" + cfg['protocol'] + "'" } : undefined
+>{ error: "ServerConfig.protocol: must be 'http' or 'https', got '" + cfg['protocol'] + "'" } : { error: string; }
+>error : string
+>"ServerConfig.protocol: must be 'http' or 'https', got '" + cfg['protocol'] + "'" : string
+>"ServerConfig.protocol: must be 'http' or 'https', got '" + cfg['protocol'] : string
+>"ServerConfig.protocol: must be 'http' or 'https', got '" : "ServerConfig.protocol: must be 'http' or 'https', got '"
+>cfg['protocol'] : any
+>cfg : any
+>'protocol' : "protocol"
+>"'" : "'"
+
+    return cfg;
+>cfg : any
+
+};
+
+const _user = (u: any) => {
+>_user : (u: any) => any
+>(u: any) => {    if (typeof u != 'object') return void { error: "User: expected an object" };    if (typeof u['name'] != 'string' || u['name'].length == 0) return void { error: "User.name: must be a non-empty string" };    if (typeof u['email'] != 'string') return void { error: "User.email: must be a string" };    let at: number = u['email'].indexOf('@');    if (at < 1 || !u['email'].slice(at + 1).includes('.')) return void { error: "User.email: '" + u['email'] + "' is not a valid email" };    if (typeof u['age'] != 'number') return void { error: "User.age: must be a number" };    if (u['age'] < 0 || u['age'] > 150) return void { error: "User.age: " + u['age'] + " out of range (0-150)" };    if (Math.floor(u['age']) != u['age']) return void { error: "User.age: must be an integer, got " + u['age'] };    return u;} : (u: any) => any
+>u : any
+
+    if (typeof u != 'object') return void { error: "User: expected an object" };
+>typeof u != 'object' : boolean
+>typeof u : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>u : any
+>'object' : "object"
+>void { error: "User: expected an object" } : undefined
+>{ error: "User: expected an object" } : { error: string; }
+>error : string
+>"User: expected an object" : "User: expected an object"
+
+    if (typeof u['name'] != 'string' || u['name'].length == 0) return void { error: "User.name: must be a non-empty string" };
+>typeof u['name'] != 'string' || u['name'].length == 0 : boolean
+>typeof u['name'] != 'string' : boolean
+>typeof u['name'] : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>u['name'] : any
+>u : any
+>'name' : "name"
+>'string' : "string"
+>u['name'].length == 0 : boolean
+>u['name'].length : number
+>u['name'] : string
+>u : any
+>'name' : "name"
+>length : number
+>0 : 0
+>void { error: "User.name: must be a non-empty string" } : undefined
+>{ error: "User.name: must be a non-empty string" } : { error: string; }
+>error : string
+>"User.name: must be a non-empty string" : "User.name: must be a non-empty string"
+
+    if (typeof u['email'] != 'string') return void { error: "User.email: must be a string" };
+>typeof u['email'] != 'string' : boolean
+>typeof u['email'] : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>u['email'] : any
+>u : any
+>'email' : "email"
+>'string' : "string"
+>void { error: "User.email: must be a string" } : undefined
+>{ error: "User.email: must be a string" } : { error: string; }
+>error : string
+>"User.email: must be a string" : "User.email: must be a string"
+
+    let at: number = u['email'].indexOf('@');
+>at : number
+>u['email'].indexOf('@') : number
+>u['email'].indexOf : (searchString: string, position?: number) => number
+>u['email'] : string
+>u : any
+>'email' : "email"
+>indexOf : (searchString: string, position?: number) => number
+>'@' : "@"
+
+    if (at < 1 || !u['email'].slice(at + 1).includes('.')) return void { error: "User.email: '" + u['email'] + "' is not a valid email" };
+>at < 1 || !u['email'].slice(at + 1).includes('.') : boolean
+>at < 1 : boolean
+>at : number
+>1 : 1
+>!u['email'].slice(at + 1).includes('.') : boolean
+>u['email'].slice(at + 1).includes('.') : boolean
+>u['email'].slice(at + 1).includes : (searchString: string, position?: number) => boolean
+>u['email'].slice(at + 1) : string
+>u['email'].slice : (start?: number, end?: number) => string
+>u['email'] : string
+>u : any
+>'email' : "email"
+>slice : (start?: number, end?: number) => string
+>at + 1 : number
+>at : number
+>1 : 1
+>includes : (searchString: string, position?: number) => boolean
+>'.' : "."
+>void { error: "User.email: '" + u['email'] + "' is not a valid email" } : undefined
+>{ error: "User.email: '" + u['email'] + "' is not a valid email" } : { error: string; }
+>error : string
+>"User.email: '" + u['email'] + "' is not a valid email" : string
+>"User.email: '" + u['email'] : string
+>"User.email: '" : "User.email: '"
+>u['email'] : string
+>u : any
+>'email' : "email"
+>"' is not a valid email" : "' is not a valid email"
+
+    if (typeof u['age'] != 'number') return void { error: "User.age: must be a number" };
+>typeof u['age'] != 'number' : boolean
+>typeof u['age'] : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>u['age'] : any
+>u : any
+>'age' : "age"
+>'number' : "number"
+>void { error: "User.age: must be a number" } : undefined
+>{ error: "User.age: must be a number" } : { error: string; }
+>error : string
+>"User.age: must be a number" : "User.age: must be a number"
+
+    if (u['age'] < 0 || u['age'] > 150) return void { error: "User.age: " + u['age'] + " out of range (0-150)" };
+>u['age'] < 0 || u['age'] > 150 : boolean
+>u['age'] < 0 : boolean
+>u['age'] : number
+>u : any
+>'age' : "age"
+>0 : 0
+>u['age'] > 150 : boolean
+>u['age'] : number
+>u : any
+>'age' : "age"
+>150 : 150
+>void { error: "User.age: " + u['age'] + " out of range (0-150)" } : undefined
+>{ error: "User.age: " + u['age'] + " out of range (0-150)" } : { error: string; }
+>error : string
+>"User.age: " + u['age'] + " out of range (0-150)" : string
+>"User.age: " + u['age'] : string
+>"User.age: " : "User.age: "
+>u['age'] : number
+>u : any
+>'age' : "age"
+>" out of range (0-150)" : " out of range (0-150)"
+
+    if (Math.floor(u['age']) != u['age']) return void { error: "User.age: must be an integer, got " + u['age'] };
+>Math.floor(u['age']) != u['age'] : boolean
+>Math.floor(u['age']) : number
+>Math.floor : (x: number) => number
+>Math : Math
+>floor : (x: number) => number
+>u['age'] : number
+>u : any
+>'age' : "age"
+>u['age'] : number
+>u : any
+>'age' : "age"
+>void { error: "User.age: must be an integer, got " + u['age'] } : undefined
+>{ error: "User.age: must be an integer, got " + u['age'] } : { error: string; }
+>error : string
+>"User.age: must be an integer, got " + u['age'] : string
+>"User.age: must be an integer, got " : "User.age: must be an integer, got "
+>u['age'] : number
+>u : any
+>'age' : "age"
+
+    return u;
+>u : any
+
+};
+
+const _dbConfig = (cfg: any) => {
+>_dbConfig : (cfg: any) => any
+>(cfg: any) => {    if (typeof cfg != 'object') return void { error: "DbConfig: expected an object" };    let driver = cfg['driver'];    if (driver != 'postgres' && driver != 'mysql' && driver != 'sqlite') return void { error: "DbConfig.driver: must be 'postgres', 'mysql', or 'sqlite', got '" + driver + "'" };    if (typeof cfg['host'] != 'string' || cfg['host'].length == 0) return void { error: "DbConfig.host: must be a non-empty string" };    if (typeof cfg['port'] != 'number') return void { error: "DbConfig.port: must be a number" };    if (cfg['port'] < 1 || cfg['port'] > 65535) return void { error: "DbConfig.port: " + cfg['port'] + " out of range (1-65535)" };    if (typeof cfg['database'] != 'string' || cfg['database'].length == 0) return void { error: "DbConfig.database: must be a non-empty string" };    return cfg;} : (cfg: any) => any
+>cfg : any
+
+    if (typeof cfg != 'object') return void { error: "DbConfig: expected an object" };
+>typeof cfg != 'object' : boolean
+>typeof cfg : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>cfg : any
+>'object' : "object"
+>void { error: "DbConfig: expected an object" } : undefined
+>{ error: "DbConfig: expected an object" } : { error: string; }
+>error : string
+>"DbConfig: expected an object" : "DbConfig: expected an object"
+
+    let driver = cfg['driver'];
+>driver : any
+>cfg['driver'] : any
+>cfg : any
+>'driver' : "driver"
+
+    if (driver != 'postgres' && driver != 'mysql' && driver != 'sqlite') return void { error: "DbConfig.driver: must be 'postgres', 'mysql', or 'sqlite', got '" + driver + "'" };
+>driver != 'postgres' && driver != 'mysql' && driver != 'sqlite' : boolean
+>driver != 'postgres' && driver != 'mysql' : boolean
+>driver != 'postgres' : boolean
+>driver : any
+>'postgres' : "postgres"
+>driver != 'mysql' : boolean
+>driver : any
+>'mysql' : "mysql"
+>driver != 'sqlite' : boolean
+>driver : any
+>'sqlite' : "sqlite"
+>void { error: "DbConfig.driver: must be 'postgres', 'mysql', or 'sqlite', got '" + driver + "'" } : undefined
+>{ error: "DbConfig.driver: must be 'postgres', 'mysql', or 'sqlite', got '" + driver + "'" } : { error: string; }
+>error : string
+>"DbConfig.driver: must be 'postgres', 'mysql', or 'sqlite', got '" + driver + "'" : string
+>"DbConfig.driver: must be 'postgres', 'mysql', or 'sqlite', got '" + driver : string
+>"DbConfig.driver: must be 'postgres', 'mysql', or 'sqlite', got '" : "DbConfig.driver: must be 'postgres', 'mysql', or 'sqlite', got '"
+>driver : any
+>"'" : "'"
+
+    if (typeof cfg['host'] != 'string' || cfg['host'].length == 0) return void { error: "DbConfig.host: must be a non-empty string" };
+>typeof cfg['host'] != 'string' || cfg['host'].length == 0 : boolean
+>typeof cfg['host'] != 'string' : boolean
+>typeof cfg['host'] : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>cfg['host'] : any
+>cfg : any
+>'host' : "host"
+>'string' : "string"
+>cfg['host'].length == 0 : boolean
+>cfg['host'].length : number
+>cfg['host'] : string
+>cfg : any
+>'host' : "host"
+>length : number
+>0 : 0
+>void { error: "DbConfig.host: must be a non-empty string" } : undefined
+>{ error: "DbConfig.host: must be a non-empty string" } : { error: string; }
+>error : string
+>"DbConfig.host: must be a non-empty string" : "DbConfig.host: must be a non-empty string"
+
+    if (typeof cfg['port'] != 'number') return void { error: "DbConfig.port: must be a number" };
+>typeof cfg['port'] != 'number' : boolean
+>typeof cfg['port'] : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>cfg['port'] : any
+>cfg : any
+>'port' : "port"
+>'number' : "number"
+>void { error: "DbConfig.port: must be a number" } : undefined
+>{ error: "DbConfig.port: must be a number" } : { error: string; }
+>error : string
+>"DbConfig.port: must be a number" : "DbConfig.port: must be a number"
+
+    if (cfg['port'] < 1 || cfg['port'] > 65535) return void { error: "DbConfig.port: " + cfg['port'] + " out of range (1-65535)" };
+>cfg['port'] < 1 || cfg['port'] > 65535 : boolean
+>cfg['port'] < 1 : boolean
+>cfg['port'] : number
+>cfg : any
+>'port' : "port"
+>1 : 1
+>cfg['port'] > 65535 : boolean
+>cfg['port'] : number
+>cfg : any
+>'port' : "port"
+>65535 : 65535
+>void { error: "DbConfig.port: " + cfg['port'] + " out of range (1-65535)" } : undefined
+>{ error: "DbConfig.port: " + cfg['port'] + " out of range (1-65535)" } : { error: string; }
+>error : string
+>"DbConfig.port: " + cfg['port'] + " out of range (1-65535)" : string
+>"DbConfig.port: " + cfg['port'] : string
+>"DbConfig.port: " : "DbConfig.port: "
+>cfg['port'] : number
+>cfg : any
+>'port' : "port"
+>" out of range (1-65535)" : " out of range (1-65535)"
+
+    if (typeof cfg['database'] != 'string' || cfg['database'].length == 0) return void { error: "DbConfig.database: must be a non-empty string" };
+>typeof cfg['database'] != 'string' || cfg['database'].length == 0 : boolean
+>typeof cfg['database'] != 'string' : boolean
+>typeof cfg['database'] : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>cfg['database'] : any
+>cfg : any
+>'database' : "database"
+>'string' : "string"
+>cfg['database'].length == 0 : boolean
+>cfg['database'].length : number
+>cfg['database'] : string
+>cfg : any
+>'database' : "database"
+>length : number
+>0 : 0
+>void { error: "DbConfig.database: must be a non-empty string" } : undefined
+>{ error: "DbConfig.database: must be a non-empty string" } : { error: string; }
+>error : string
+>"DbConfig.database: must be a non-empty string" : "DbConfig.database: must be a non-empty string"
+
+    return cfg;
+>cfg : any
+
+};
+
+const _envConfig = (env: any) => {
+>_envConfig : (env: any) => any
+>(env: any) => {    if (typeof env != 'object') return void { error: "EnvConfig: expected an object" };    let nodeEnv = env['NODE_ENV'];    if (nodeEnv != 'development' && nodeEnv != 'production' && nodeEnv != 'test') return void { error: "EnvConfig.NODE_ENV: must be 'development', 'production', or 'test', got '" + nodeEnv + "'" };    if (typeof env['PORT'] != 'number') return void { error: "EnvConfig.PORT: must be a number" };    if (typeof env['DATABASE_URL'] != 'string' || env['DATABASE_URL'].length == 0) return void { error: "EnvConfig.DATABASE_URL: must be a non-empty string" };    if (typeof env['DEBUG'] != 'boolean') return void { error: "EnvConfig.DEBUG: must be a boolean" };    return env;} : (env: any) => any
+>env : any
+
+    if (typeof env != 'object') return void { error: "EnvConfig: expected an object" };
+>typeof env != 'object' : boolean
+>typeof env : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>env : any
+>'object' : "object"
+>void { error: "EnvConfig: expected an object" } : undefined
+>{ error: "EnvConfig: expected an object" } : { error: string; }
+>error : string
+>"EnvConfig: expected an object" : "EnvConfig: expected an object"
+
+    let nodeEnv = env['NODE_ENV'];
+>nodeEnv : any
+>env['NODE_ENV'] : any
+>env : any
+>'NODE_ENV' : "NODE_ENV"
+
+    if (nodeEnv != 'development' && nodeEnv != 'production' && nodeEnv != 'test') return void { error: "EnvConfig.NODE_ENV: must be 'development', 'production', or 'test', got '" + nodeEnv + "'" };
+>nodeEnv != 'development' && nodeEnv != 'production' && nodeEnv != 'test' : boolean
+>nodeEnv != 'development' && nodeEnv != 'production' : boolean
+>nodeEnv != 'development' : boolean
+>nodeEnv : any
+>'development' : "development"
+>nodeEnv != 'production' : boolean
+>nodeEnv : any
+>'production' : "production"
+>nodeEnv != 'test' : boolean
+>nodeEnv : any
+>'test' : "test"
+>void { error: "EnvConfig.NODE_ENV: must be 'development', 'production', or 'test', got '" + nodeEnv + "'" } : undefined
+>{ error: "EnvConfig.NODE_ENV: must be 'development', 'production', or 'test', got '" + nodeEnv + "'" } : { error: string; }
+>error : string
+>"EnvConfig.NODE_ENV: must be 'development', 'production', or 'test', got '" + nodeEnv + "'" : string
+>"EnvConfig.NODE_ENV: must be 'development', 'production', or 'test', got '" + nodeEnv : string
+>"EnvConfig.NODE_ENV: must be 'development', 'production', or 'test', got '" : "EnvConfig.NODE_ENV: must be 'development', 'production', or 'test', got '"
+>nodeEnv : any
+>"'" : "'"
+
+    if (typeof env['PORT'] != 'number') return void { error: "EnvConfig.PORT: must be a number" };
+>typeof env['PORT'] != 'number' : boolean
+>typeof env['PORT'] : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>env['PORT'] : any
+>env : any
+>'PORT' : "PORT"
+>'number' : "number"
+>void { error: "EnvConfig.PORT: must be a number" } : undefined
+>{ error: "EnvConfig.PORT: must be a number" } : { error: string; }
+>error : string
+>"EnvConfig.PORT: must be a number" : "EnvConfig.PORT: must be a number"
+
+    if (typeof env['DATABASE_URL'] != 'string' || env['DATABASE_URL'].length == 0) return void { error: "EnvConfig.DATABASE_URL: must be a non-empty string" };
+>typeof env['DATABASE_URL'] != 'string' || env['DATABASE_URL'].length == 0 : boolean
+>typeof env['DATABASE_URL'] != 'string' : boolean
+>typeof env['DATABASE_URL'] : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>env['DATABASE_URL'] : any
+>env : any
+>'DATABASE_URL' : "DATABASE_URL"
+>'string' : "string"
+>env['DATABASE_URL'].length == 0 : boolean
+>env['DATABASE_URL'].length : number
+>env['DATABASE_URL'] : string
+>env : any
+>'DATABASE_URL' : "DATABASE_URL"
+>length : number
+>0 : 0
+>void { error: "EnvConfig.DATABASE_URL: must be a non-empty string" } : undefined
+>{ error: "EnvConfig.DATABASE_URL: must be a non-empty string" } : { error: string; }
+>error : string
+>"EnvConfig.DATABASE_URL: must be a non-empty string" : "EnvConfig.DATABASE_URL: must be a non-empty string"
+
+    if (typeof env['DEBUG'] != 'boolean') return void { error: "EnvConfig.DEBUG: must be a boolean" };
+>typeof env['DEBUG'] != 'boolean' : boolean
+>typeof env['DEBUG'] : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>env['DEBUG'] : any
+>env : any
+>'DEBUG' : "DEBUG"
+>'boolean' : "boolean"
+>void { error: "EnvConfig.DEBUG: must be a boolean" } : undefined
+>{ error: "EnvConfig.DEBUG: must be a boolean" } : { error: string; }
+>error : string
+>"EnvConfig.DEBUG: must be a boolean" : "EnvConfig.DEBUG: must be a boolean"
+
+    return env;
+>env : any
+
+};
+
+// ---- Object transforms ----
+
+const _camelCaseKeys = (obj: any) => {
+>_camelCaseKeys : (obj: any) => Record<string, any>
+>(obj: any) => {    let result: Record<string, any> = {};    for (let k of Object.keys(obj)) {        let [first, ...rest] = k.split('_');        let newKey: string = first + rest.map((p: string) => capitalize(p)).join('');        result[newKey] = obj[k];    }    return result;} : (obj: any) => Record<string, any>
+>obj : any
+
+    let result: Record<string, any> = {};
+>result : Record<string, any>
+>{} : {}
+
+    for (let k of Object.keys(obj)) {
+>k : string
+>Object.keys(obj) : string[]
+>Object.keys : { (o: object): string[]; (o: {}): string[]; }
+>Object : ObjectConstructor
+>keys : { (o: object): string[]; (o: {}): string[]; }
+>obj : any
+
+        let [first, ...rest] = k.split('_');
+>first : string
+>rest : string[]
+>k.split('_') : string[]
+>k.split : { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }
+>k : string
+>split : { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }
+>'_' : "_"
+
+        let newKey: string = first + rest.map((p: string) => capitalize(p)).join('');
+>newKey : string
+>first + rest.map((p: string) => capitalize(p)).join('') : string
+>first : string
+>rest.map((p: string) => capitalize(p)).join('') : string
+>rest.map((p: string) => capitalize(p)).join : (separator?: string) => string
+>rest.map((p: string) => capitalize(p)) : string[]
+>rest.map : <U>(callbackfn: (value: string, index: number, array: string[]) => U, thisArg?: any) => U[]
+>rest : string[]
+>map : <U>(callbackfn: (value: string, index: number, array: string[]) => U, thisArg?: any) => U[]
+>(p: string) => capitalize(p) : (p: string) => string
+>p : string
+>capitalize(p) : string
+>capitalize : (s: string) => string
+>p : string
+>join : (separator?: string) => string
+>'' : ""
+
+        result[newKey] = obj[k];
+>result[newKey] = obj[k] : any
+>result[newKey] : any
+>result : Record<string, any>
+>newKey : string
+>obj[k] : any
+>obj : any
+>k : string
+    }
+    return result;
+>result : Record<string, any>
+
+};
+
+const _buildUrl = (cfg: any) => {
+>_buildUrl : (cfg: any) => string | undefined
+>(cfg: any) => {    if (typeof cfg != 'object') return void "never";    let url: string = cfg['protocol'] + '://' + cfg['host'];    if (typeof cfg['port'] == 'number') url = url + ':' + cfg['port'];    if (typeof cfg['path'] == 'string') url = url + cfg['path'];    return url;} : (cfg: any) => string | undefined
+>cfg : any
+
+    if (typeof cfg != 'object') return void "never";
+>typeof cfg != 'object' : boolean
+>typeof cfg : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>cfg : any
+>'object' : "object"
+>void "never" : undefined
+>"never" : "never"
+
+    let url: string = cfg['protocol'] + '://' + cfg['host'];
+>url : string
+>cfg['protocol'] + '://' + cfg['host'] : string
+>cfg['protocol'] + '://' : string
+>cfg['protocol'] : any
+>cfg : any
+>'protocol' : "protocol"
+>'://' : "://"
+>cfg['host'] : any
+>cfg : any
+>'host' : "host"
+
+    if (typeof cfg['port'] == 'number') url = url + ':' + cfg['port'];
+>typeof cfg['port'] == 'number' : boolean
+>typeof cfg['port'] : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>cfg['port'] : any
+>cfg : any
+>'port' : "port"
+>'number' : "number"
+>url = url + ':' + cfg['port'] : string
+>url : string
+>url + ':' + cfg['port'] : string
+>url + ':' : string
+>url : string
+>':' : ":"
+>cfg['port'] : number
+>cfg : any
+>'port' : "port"
+
+    if (typeof cfg['path'] == 'string') url = url + cfg['path'];
+>typeof cfg['path'] == 'string' : boolean
+>typeof cfg['path'] : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>cfg['path'] : any
+>cfg : any
+>'path' : "path"
+>'string' : "string"
+>url = url + cfg['path'] : string
+>url : string
+>url + cfg['path'] : string
+>url : string
+>cfg['path'] : string
+>cfg : any
+>'path' : "path"
+
+    return url;
+>url : string
+
+};
+
+const _parseDate = (s: any) => {
+>_parseDate : (s: any) => Record<string, any> | undefined
+>(s: any) => {    if (typeof s != 'string' || s.length != 10) return void "never";    if (s.slice(4, 5) != '-' || s.slice(7, 8) != '-') return void "never";    let digits: string = '0123456789';    for (let p of [0, 1, 2, 3, 5, 6, 8, 9]) {        if (!digits.includes(s.slice(p, p + 1))) return void "never";    }    let year: number = digits.indexOf(s.slice(0, 1)) * 1000 + digits.indexOf(s.slice(1, 2)) * 100 + digits.indexOf(s.slice(2, 3)) * 10 + digits.indexOf(s.slice(3, 4));    let month: number = digits.indexOf(s.slice(5, 6)) * 10 + digits.indexOf(s.slice(6, 7));    let day: number = digits.indexOf(s.slice(8, 9)) * 10 + digits.indexOf(s.slice(9, 10));    if (month < 1 || month > 12 || day < 1 || day > 31) return void "never";    let result: Record<string, any> = {};    result['year'] = year;    result['month'] = month;    result['day'] = day;    return result;} : (s: any) => Record<string, any> | undefined
+>s : any
+
+    if (typeof s != 'string' || s.length != 10) return void "never";
+>typeof s != 'string' || s.length != 10 : boolean
+>typeof s != 'string' : boolean
+>typeof s : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>s : any
+>'string' : "string"
+>s.length != 10 : boolean
+>s.length : number
+>s : string
+>length : number
+>10 : 10
+>void "never" : undefined
+>"never" : "never"
+
+    if (s.slice(4, 5) != '-' || s.slice(7, 8) != '-') return void "never";
+>s.slice(4, 5) != '-' || s.slice(7, 8) != '-' : boolean
+>s.slice(4, 5) != '-' : boolean
+>s.slice(4, 5) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>4 : 4
+>5 : 5
+>'-' : "-"
+>s.slice(7, 8) != '-' : boolean
+>s.slice(7, 8) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>7 : 7
+>8 : 8
+>'-' : "-"
+>void "never" : undefined
+>"never" : "never"
+
+    let digits: string = '0123456789';
+>digits : string
+>'0123456789' : "0123456789"
+
+    for (let p of [0, 1, 2, 3, 5, 6, 8, 9]) {
+>p : number
+>[0, 1, 2, 3, 5, 6, 8, 9] : number[]
+>0 : 0
+>1 : 1
+>2 : 2
+>3 : 3
+>5 : 5
+>6 : 6
+>8 : 8
+>9 : 9
+
+        if (!digits.includes(s.slice(p, p + 1))) return void "never";
+>!digits.includes(s.slice(p, p + 1)) : boolean
+>digits.includes(s.slice(p, p + 1)) : boolean
+>digits.includes : (searchString: string, position?: number) => boolean
+>digits : string
+>includes : (searchString: string, position?: number) => boolean
+>s.slice(p, p + 1) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>p : number
+>p + 1 : number
+>p : number
+>1 : 1
+>void "never" : undefined
+>"never" : "never"
+    }
+    let year: number = digits.indexOf(s.slice(0, 1)) * 1000 + digits.indexOf(s.slice(1, 2)) * 100 + digits.indexOf(s.slice(2, 3)) * 10 + digits.indexOf(s.slice(3, 4));
+>year : number
+>digits.indexOf(s.slice(0, 1)) * 1000 + digits.indexOf(s.slice(1, 2)) * 100 + digits.indexOf(s.slice(2, 3)) * 10 + digits.indexOf(s.slice(3, 4)) : number
+>digits.indexOf(s.slice(0, 1)) * 1000 + digits.indexOf(s.slice(1, 2)) * 100 + digits.indexOf(s.slice(2, 3)) * 10 : number
+>digits.indexOf(s.slice(0, 1)) * 1000 + digits.indexOf(s.slice(1, 2)) * 100 : number
+>digits.indexOf(s.slice(0, 1)) * 1000 : number
+>digits.indexOf(s.slice(0, 1)) : number
+>digits.indexOf : (searchString: string, position?: number) => number
+>digits : string
+>indexOf : (searchString: string, position?: number) => number
+>s.slice(0, 1) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>0 : 0
+>1 : 1
+>1000 : 1000
+>digits.indexOf(s.slice(1, 2)) * 100 : number
+>digits.indexOf(s.slice(1, 2)) : number
+>digits.indexOf : (searchString: string, position?: number) => number
+>digits : string
+>indexOf : (searchString: string, position?: number) => number
+>s.slice(1, 2) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>1 : 1
+>2 : 2
+>100 : 100
+>digits.indexOf(s.slice(2, 3)) * 10 : number
+>digits.indexOf(s.slice(2, 3)) : number
+>digits.indexOf : (searchString: string, position?: number) => number
+>digits : string
+>indexOf : (searchString: string, position?: number) => number
+>s.slice(2, 3) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>2 : 2
+>3 : 3
+>10 : 10
+>digits.indexOf(s.slice(3, 4)) : number
+>digits.indexOf : (searchString: string, position?: number) => number
+>digits : string
+>indexOf : (searchString: string, position?: number) => number
+>s.slice(3, 4) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>3 : 3
+>4 : 4
+
+    let month: number = digits.indexOf(s.slice(5, 6)) * 10 + digits.indexOf(s.slice(6, 7));
+>month : number
+>digits.indexOf(s.slice(5, 6)) * 10 + digits.indexOf(s.slice(6, 7)) : number
+>digits.indexOf(s.slice(5, 6)) * 10 : number
+>digits.indexOf(s.slice(5, 6)) : number
+>digits.indexOf : (searchString: string, position?: number) => number
+>digits : string
+>indexOf : (searchString: string, position?: number) => number
+>s.slice(5, 6) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>5 : 5
+>6 : 6
+>10 : 10
+>digits.indexOf(s.slice(6, 7)) : number
+>digits.indexOf : (searchString: string, position?: number) => number
+>digits : string
+>indexOf : (searchString: string, position?: number) => number
+>s.slice(6, 7) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>6 : 6
+>7 : 7
+
+    let day: number = digits.indexOf(s.slice(8, 9)) * 10 + digits.indexOf(s.slice(9, 10));
+>day : number
+>digits.indexOf(s.slice(8, 9)) * 10 + digits.indexOf(s.slice(9, 10)) : number
+>digits.indexOf(s.slice(8, 9)) * 10 : number
+>digits.indexOf(s.slice(8, 9)) : number
+>digits.indexOf : (searchString: string, position?: number) => number
+>digits : string
+>indexOf : (searchString: string, position?: number) => number
+>s.slice(8, 9) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>8 : 8
+>9 : 9
+>10 : 10
+>digits.indexOf(s.slice(9, 10)) : number
+>digits.indexOf : (searchString: string, position?: number) => number
+>digits : string
+>indexOf : (searchString: string, position?: number) => number
+>s.slice(9, 10) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>9 : 9
+>10 : 10
+
+    if (month < 1 || month > 12 || day < 1 || day > 31) return void "never";
+>month < 1 || month > 12 || day < 1 || day > 31 : boolean
+>month < 1 || month > 12 || day < 1 : boolean
+>month < 1 || month > 12 : boolean
+>month < 1 : boolean
+>month : number
+>1 : 1
+>month > 12 : boolean
+>month : number
+>12 : 12
+>day < 1 : boolean
+>day : number
+>1 : 1
+>day > 31 : boolean
+>day : number
+>31 : 31
+>void "never" : undefined
+>"never" : "never"
+
+    let result: Record<string, any> = {};
+>result : Record<string, any>
+>{} : {}
+
+    result['year'] = year;
+>result['year'] = year : number
+>result['year'] : any
+>result : Record<string, any>
+>'year' : "year"
+>year : number
+
+    result['month'] = month;
+>result['month'] = month : number
+>result['month'] : any
+>result : Record<string, any>
+>'month' : "month"
+>month : number
+
+    result['day'] = day;
+>result['day'] = day : number
+>result['day'] : any
+>result : Record<string, any>
+>'day' : "day"
+>day : number
+
+    return result;
+>result : Record<string, any>
+
+};
+
+// ---- Parsers ----
+
+const _parseRoute = (path: any) => {
+>_parseRoute : (path: any) => Record<string, any> | undefined
+>(path: any) => {    if (typeof path != 'string' || !path.startsWith('/api/')) return void "never";    let parts: string[] = path.slice(5).split('/');    if (parts.length < 2) return void "never";    let result: Record<string, any> = {};    result['version'] = parts[0];    result['resource'] = parts[1];    if (parts.length > 2) result['id'] = parts[2];    return result;} : (path: any) => Record<string, any> | undefined
+>path : any
+
+    if (typeof path != 'string' || !path.startsWith('/api/')) return void "never";
+>typeof path != 'string' || !path.startsWith('/api/') : boolean
+>typeof path != 'string' : boolean
+>typeof path : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>path : any
+>'string' : "string"
+>!path.startsWith('/api/') : boolean
+>path.startsWith('/api/') : boolean
+>path.startsWith : (searchString: string, position?: number) => boolean
+>path : string
+>startsWith : (searchString: string, position?: number) => boolean
+>'/api/' : "/api/"
+>void "never" : undefined
+>"never" : "never"
+
+    let parts: string[] = path.slice(5).split('/');
+>parts : string[]
+>path.slice(5).split('/') : string[]
+>path.slice(5).split : { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }
+>path.slice(5) : string
+>path.slice : (start?: number, end?: number) => string
+>path : string
+>slice : (start?: number, end?: number) => string
+>5 : 5
+>split : { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }
+>'/' : "/"
+
+    if (parts.length < 2) return void "never";
+>parts.length < 2 : boolean
+>parts.length : number
+>parts : string[]
+>length : number
+>2 : 2
+>void "never" : undefined
+>"never" : "never"
+
+    let result: Record<string, any> = {};
+>result : Record<string, any>
+>{} : {}
+
+    result['version'] = parts[0];
+>result['version'] = parts[0] : string
+>result['version'] : any
+>result : Record<string, any>
+>'version' : "version"
+>parts[0] : string
+>parts : string[]
+>0 : 0
+
+    result['resource'] = parts[1];
+>result['resource'] = parts[1] : string
+>result['resource'] : any
+>result : Record<string, any>
+>'resource' : "resource"
+>parts[1] : string
+>parts : string[]
+>1 : 1
+
+    if (parts.length > 2) result['id'] = parts[2];
+>parts.length > 2 : boolean
+>parts.length : number
+>parts : string[]
+>length : number
+>2 : 2
+>result['id'] = parts[2] : string
+>result['id'] : any
+>result : Record<string, any>
+>'id' : "id"
+>parts[2] : string
+>parts : string[]
+>2 : 2
+
+    return result;
+>result : Record<string, any>
+
+};
+
+const _hexToRgb = (s: any) => {
+>_hexToRgb : (s: any) => Record<string, any> | undefined
+>(s: any) => {    if (typeof s != 'string' || s.length != 7 || s.slice(0, 1) != '#') return void "never";    let hex: string = '0123456789abcdef';    let result: Record<string, any> = {};    let r1: number = hex.indexOf(s.slice(1, 2).toLowerCase());    let r2: number = hex.indexOf(s.slice(2, 3).toLowerCase());    let g1: number = hex.indexOf(s.slice(3, 4).toLowerCase());    let g2: number = hex.indexOf(s.slice(4, 5).toLowerCase());    let b1: number = hex.indexOf(s.slice(5, 6).toLowerCase());    let b2: number = hex.indexOf(s.slice(6, 7).toLowerCase());    if (r1 == -1 || r2 == -1 || g1 == -1 || g2 == -1 || b1 == -1 || b2 == -1) return void "never";    result['r'] = r1 * 16 + r2;    result['g'] = g1 * 16 + g2;    result['b'] = b1 * 16 + b2;    return result;} : (s: any) => Record<string, any> | undefined
+>s : any
+
+    if (typeof s != 'string' || s.length != 7 || s.slice(0, 1) != '#') return void "never";
+>typeof s != 'string' || s.length != 7 || s.slice(0, 1) != '#' : boolean
+>typeof s != 'string' || s.length != 7 : boolean
+>typeof s != 'string' : boolean
+>typeof s : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>s : any
+>'string' : "string"
+>s.length != 7 : boolean
+>s.length : number
+>s : string
+>length : number
+>7 : 7
+>s.slice(0, 1) != '#' : boolean
+>s.slice(0, 1) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>0 : 0
+>1 : 1
+>'#' : "#"
+>void "never" : undefined
+>"never" : "never"
+
+    let hex: string = '0123456789abcdef';
+>hex : string
+>'0123456789abcdef' : "0123456789abcdef"
+
+    let result: Record<string, any> = {};
+>result : Record<string, any>
+>{} : {}
+
+    let r1: number = hex.indexOf(s.slice(1, 2).toLowerCase());
+>r1 : number
+>hex.indexOf(s.slice(1, 2).toLowerCase()) : number
+>hex.indexOf : (searchString: string, position?: number) => number
+>hex : string
+>indexOf : (searchString: string, position?: number) => number
+>s.slice(1, 2).toLowerCase() : string
+>s.slice(1, 2).toLowerCase : () => string
+>s.slice(1, 2) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>1 : 1
+>2 : 2
+>toLowerCase : () => string
+
+    let r2: number = hex.indexOf(s.slice(2, 3).toLowerCase());
+>r2 : number
+>hex.indexOf(s.slice(2, 3).toLowerCase()) : number
+>hex.indexOf : (searchString: string, position?: number) => number
+>hex : string
+>indexOf : (searchString: string, position?: number) => number
+>s.slice(2, 3).toLowerCase() : string
+>s.slice(2, 3).toLowerCase : () => string
+>s.slice(2, 3) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>2 : 2
+>3 : 3
+>toLowerCase : () => string
+
+    let g1: number = hex.indexOf(s.slice(3, 4).toLowerCase());
+>g1 : number
+>hex.indexOf(s.slice(3, 4).toLowerCase()) : number
+>hex.indexOf : (searchString: string, position?: number) => number
+>hex : string
+>indexOf : (searchString: string, position?: number) => number
+>s.slice(3, 4).toLowerCase() : string
+>s.slice(3, 4).toLowerCase : () => string
+>s.slice(3, 4) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>3 : 3
+>4 : 4
+>toLowerCase : () => string
+
+    let g2: number = hex.indexOf(s.slice(4, 5).toLowerCase());
+>g2 : number
+>hex.indexOf(s.slice(4, 5).toLowerCase()) : number
+>hex.indexOf : (searchString: string, position?: number) => number
+>hex : string
+>indexOf : (searchString: string, position?: number) => number
+>s.slice(4, 5).toLowerCase() : string
+>s.slice(4, 5).toLowerCase : () => string
+>s.slice(4, 5) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>4 : 4
+>5 : 5
+>toLowerCase : () => string
+
+    let b1: number = hex.indexOf(s.slice(5, 6).toLowerCase());
+>b1 : number
+>hex.indexOf(s.slice(5, 6).toLowerCase()) : number
+>hex.indexOf : (searchString: string, position?: number) => number
+>hex : string
+>indexOf : (searchString: string, position?: number) => number
+>s.slice(5, 6).toLowerCase() : string
+>s.slice(5, 6).toLowerCase : () => string
+>s.slice(5, 6) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>5 : 5
+>6 : 6
+>toLowerCase : () => string
+
+    let b2: number = hex.indexOf(s.slice(6, 7).toLowerCase());
+>b2 : number
+>hex.indexOf(s.slice(6, 7).toLowerCase()) : number
+>hex.indexOf : (searchString: string, position?: number) => number
+>hex : string
+>indexOf : (searchString: string, position?: number) => number
+>s.slice(6, 7).toLowerCase() : string
+>s.slice(6, 7).toLowerCase : () => string
+>s.slice(6, 7) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>6 : 6
+>7 : 7
+>toLowerCase : () => string
+
+    if (r1 == -1 || r2 == -1 || g1 == -1 || g2 == -1 || b1 == -1 || b2 == -1) return void "never";
+>r1 == -1 || r2 == -1 || g1 == -1 || g2 == -1 || b1 == -1 || b2 == -1 : boolean
+>r1 == -1 || r2 == -1 || g1 == -1 || g2 == -1 || b1 == -1 : boolean
+>r1 == -1 || r2 == -1 || g1 == -1 || g2 == -1 : boolean
+>r1 == -1 || r2 == -1 || g1 == -1 : boolean
+>r1 == -1 || r2 == -1 : boolean
+>r1 == -1 : boolean
+>r1 : number
+>-1 : -1
+>1 : 1
+>r2 == -1 : boolean
+>r2 : number
+>-1 : -1
+>1 : 1
+>g1 == -1 : boolean
+>g1 : number
+>-1 : -1
+>1 : 1
+>g2 == -1 : boolean
+>g2 : number
+>-1 : -1
+>1 : 1
+>b1 == -1 : boolean
+>b1 : number
+>-1 : -1
+>1 : 1
+>b2 == -1 : boolean
+>b2 : number
+>-1 : -1
+>1 : 1
+>void "never" : undefined
+>"never" : "never"
+
+    result['r'] = r1 * 16 + r2;
+>result['r'] = r1 * 16 + r2 : number
+>result['r'] : any
+>result : Record<string, any>
+>'r' : "r"
+>r1 * 16 + r2 : number
+>r1 * 16 : number
+>r1 : number
+>16 : 16
+>r2 : number
+
+    result['g'] = g1 * 16 + g2;
+>result['g'] = g1 * 16 + g2 : number
+>result['g'] : any
+>result : Record<string, any>
+>'g' : "g"
+>g1 * 16 + g2 : number
+>g1 * 16 : number
+>g1 : number
+>16 : 16
+>g2 : number
+
+    result['b'] = b1 * 16 + b2;
+>result['b'] = b1 * 16 + b2 : number
+>result['b'] : any
+>result : Record<string, any>
+>'b' : "b"
+>b1 * 16 + b2 : number
+>b1 * 16 : number
+>b1 : number
+>16 : 16
+>b2 : number
+
+    return result;
+>result : Record<string, any>
+
+};
+
+const _parseSemver = (s: any) => {
+>_parseSemver : (s: any) => Record<string, any> | undefined
+>(s: any) => {    if (typeof s != 'string') return void "never";    let parts: string[] = s.split('.');    if (parts.length != 3) return void "never";    let digits: string = '0123456789';    let nums: number[] = [];    for (let part of parts) {        if (part.length == 0) return void "never";        let n: number = 0;        let i = 0;        while (i < part.length) {            let d: number = digits.indexOf(part.slice(i, i + 1));            if (d == -1) return void "never";            n = n * 10 + d;            i = i + 1;        }        nums = [...nums, n];    }    let result: Record<string, any> = {};    result['major'] = nums[0];    result['minor'] = nums[1];    result['patch'] = nums[2];    return result;} : (s: any) => Record<string, any> | undefined
+>s : any
+
+    if (typeof s != 'string') return void "never";
+>typeof s != 'string' : boolean
+>typeof s : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>s : any
+>'string' : "string"
+>void "never" : undefined
+>"never" : "never"
+
+    let parts: string[] = s.split('.');
+>parts : string[]
+>s.split('.') : string[]
+>s.split : { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }
+>s : string
+>split : { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }
+>'.' : "."
+
+    if (parts.length != 3) return void "never";
+>parts.length != 3 : boolean
+>parts.length : number
+>parts : string[]
+>length : number
+>3 : 3
+>void "never" : undefined
+>"never" : "never"
+
+    let digits: string = '0123456789';
+>digits : string
+>'0123456789' : "0123456789"
+
+    let nums: number[] = [];
+>nums : number[]
+>[] : never[]
+
+    for (let part of parts) {
+>part : string
+>parts : string[]
+
+        if (part.length == 0) return void "never";
+>part.length == 0 : boolean
+>part.length : number
+>part : string
+>length : number
+>0 : 0
+>void "never" : undefined
+>"never" : "never"
+
+        let n: number = 0;
+>n : number
+>0 : 0
+
+        let i = 0;
+>i : number
+>0 : 0
+
+        while (i < part.length) {
+>i < part.length : boolean
+>i : number
+>part.length : number
+>part : string
+>length : number
+
+            let d: number = digits.indexOf(part.slice(i, i + 1));
+>d : number
+>digits.indexOf(part.slice(i, i + 1)) : number
+>digits.indexOf : (searchString: string, position?: number) => number
+>digits : string
+>indexOf : (searchString: string, position?: number) => number
+>part.slice(i, i + 1) : string
+>part.slice : (start?: number, end?: number) => string
+>part : string
+>slice : (start?: number, end?: number) => string
+>i : number
+>i + 1 : number
+>i : number
+>1 : 1
+
+            if (d == -1) return void "never";
+>d == -1 : boolean
+>d : number
+>-1 : -1
+>1 : 1
+>void "never" : undefined
+>"never" : "never"
+
+            n = n * 10 + d;
+>n = n * 10 + d : number
+>n : number
+>n * 10 + d : number
+>n * 10 : number
+>n : number
+>10 : 10
+>d : number
+
+            i = i + 1;
+>i = i + 1 : number
+>i : number
+>i + 1 : number
+>i : number
+>1 : 1
+        }
+        nums = [...nums, n];
+>nums = [...nums, n] : number[]
+>nums : number[]
+>[...nums, n] : number[]
+>...nums : number
+>nums : number[]
+>n : number
+    }
+    let result: Record<string, any> = {};
+>result : Record<string, any>
+>{} : {}
+
+    result['major'] = nums[0];
+>result['major'] = nums[0] : number
+>result['major'] : any
+>result : Record<string, any>
+>'major' : "major"
+>nums[0] : number
+>nums : number[]
+>0 : 0
+
+    result['minor'] = nums[1];
+>result['minor'] = nums[1] : number
+>result['minor'] : any
+>result : Record<string, any>
+>'minor' : "minor"
+>nums[1] : number
+>nums : number[]
+>1 : 1
+
+    result['patch'] = nums[2];
+>result['patch'] = nums[2] : number
+>result['patch'] : any
+>result : Record<string, any>
+>'patch' : "patch"
+>nums[2] : number
+>nums : number[]
+>2 : 2
+
+    return result;
+>result : Record<string, any>
+
+};
+
+const _parseConnectionString = (s: any) => {
+>_parseConnectionString : (s: any) => Record<string, any> | undefined
+>(s: any) => {    if (typeof s != 'string') return void "never";    let protocolEnd: number = s.indexOf('://');    if (protocolEnd == -1) return void "never";    let protocol: string = s.slice(0, protocolEnd);    let rest: string = s.slice(protocolEnd + 3);    let pathStart: number = rest.indexOf('/');    let hostPort: string = pathStart == -1 ? rest : rest.slice(0, pathStart);    let database: string = pathStart == -1 ? '' : rest.slice(pathStart + 1);    let colonIdx: number = hostPort.indexOf(':');    let host: string = colonIdx == -1 ? hostPort : hostPort.slice(0, colonIdx);    let result: Record<string, any> = {};    result['protocol'] = protocol;    result['host'] = host;    if (database.length > 0) result['database'] = database;    return result;} : (s: any) => Record<string, any> | undefined
+>s : any
+
+    if (typeof s != 'string') return void "never";
+>typeof s != 'string' : boolean
+>typeof s : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>s : any
+>'string' : "string"
+>void "never" : undefined
+>"never" : "never"
+
+    let protocolEnd: number = s.indexOf('://');
+>protocolEnd : number
+>s.indexOf('://') : number
+>s.indexOf : (searchString: string, position?: number) => number
+>s : string
+>indexOf : (searchString: string, position?: number) => number
+>'://' : "://"
+
+    if (protocolEnd == -1) return void "never";
+>protocolEnd == -1 : boolean
+>protocolEnd : number
+>-1 : -1
+>1 : 1
+>void "never" : undefined
+>"never" : "never"
+
+    let protocol: string = s.slice(0, protocolEnd);
+>protocol : string
+>s.slice(0, protocolEnd) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>0 : 0
+>protocolEnd : number
+
+    let rest: string = s.slice(protocolEnd + 3);
+>rest : string
+>s.slice(protocolEnd + 3) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>protocolEnd + 3 : number
+>protocolEnd : number
+>3 : 3
+
+    let pathStart: number = rest.indexOf('/');
+>pathStart : number
+>rest.indexOf('/') : number
+>rest.indexOf : (searchString: string, position?: number) => number
+>rest : string
+>indexOf : (searchString: string, position?: number) => number
+>'/' : "/"
+
+    let hostPort: string = pathStart == -1 ? rest : rest.slice(0, pathStart);
+>hostPort : string
+>pathStart == -1 ? rest : rest.slice(0, pathStart) : string
+>pathStart == -1 : boolean
+>pathStart : number
+>-1 : -1
+>1 : 1
+>rest : string
+>rest.slice(0, pathStart) : string
+>rest.slice : (start?: number, end?: number) => string
+>rest : string
+>slice : (start?: number, end?: number) => string
+>0 : 0
+>pathStart : number
+
+    let database: string = pathStart == -1 ? '' : rest.slice(pathStart + 1);
+>database : string
+>pathStart == -1 ? '' : rest.slice(pathStart + 1) : string
+>pathStart == -1 : boolean
+>pathStart : number
+>-1 : -1
+>1 : 1
+>'' : ""
+>rest.slice(pathStart + 1) : string
+>rest.slice : (start?: number, end?: number) => string
+>rest : string
+>slice : (start?: number, end?: number) => string
+>pathStart + 1 : number
+>pathStart : number
+>1 : 1
+
+    let colonIdx: number = hostPort.indexOf(':');
+>colonIdx : number
+>hostPort.indexOf(':') : number
+>hostPort.indexOf : (searchString: string, position?: number) => number
+>hostPort : string
+>indexOf : (searchString: string, position?: number) => number
+>':' : ":"
+
+    let host: string = colonIdx == -1 ? hostPort : hostPort.slice(0, colonIdx);
+>host : string
+>colonIdx == -1 ? hostPort : hostPort.slice(0, colonIdx) : string
+>colonIdx == -1 : boolean
+>colonIdx : number
+>-1 : -1
+>1 : 1
+>hostPort : string
+>hostPort.slice(0, colonIdx) : string
+>hostPort.slice : (start?: number, end?: number) => string
+>hostPort : string
+>slice : (start?: number, end?: number) => string
+>0 : 0
+>colonIdx : number
+
+    let result: Record<string, any> = {};
+>result : Record<string, any>
+>{} : {}
+
+    result['protocol'] = protocol;
+>result['protocol'] = protocol : string
+>result['protocol'] : any
+>result : Record<string, any>
+>'protocol' : "protocol"
+>protocol : string
+
+    result['host'] = host;
+>result['host'] = host : string
+>result['host'] : any
+>result : Record<string, any>
+>'host' : "host"
+>host : string
+
+    if (database.length > 0) result['database'] = database;
+>database.length > 0 : boolean
+>database.length : number
+>database : string
+>length : number
+>0 : 0
+>result['database'] = database : string
+>result['database'] : any
+>result : Record<string, any>
+>'database' : "database"
+>database : string
+
+    return result;
+>result : Record<string, any>
+
+};
+
+// ---- Pick / Omit ----
+
+const _pick = (obj: any, fields: string[]) => {
+>_pick : (obj: any, fields: string[]) => Record<string, any> | undefined
+>(obj: any, fields: string[]) => {    if (typeof obj != 'object') return void "never";    let result: Record<string, any> = {};    for (let f of fields) {        if (obj[f] != undefined) result[f] = obj[f];    }    return result;} : (obj: any, fields: string[]) => Record<string, any> | undefined
+>obj : any
+>fields : string[]
+
+    if (typeof obj != 'object') return void "never";
+>typeof obj != 'object' : boolean
+>typeof obj : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>obj : any
+>'object' : "object"
+>void "never" : undefined
+>"never" : "never"
+
+    let result: Record<string, any> = {};
+>result : Record<string, any>
+>{} : {}
+
+    for (let f of fields) {
+>f : string
+>fields : string[]
+
+        if (obj[f] != undefined) result[f] = obj[f];
+>obj[f] != undefined : boolean
+>obj[f] : any
+>obj : any
+>f : string
+>undefined : undefined
+>result[f] = obj[f] : any
+>result[f] : any
+>result : Record<string, any>
+>f : string
+>obj[f] : any
+>obj : any
+>f : string
+    }
+    return result;
+>result : Record<string, any>
+
+};
+
+const _omit = (obj: any, fields: string[]) => {
+>_omit : (obj: any, fields: string[]) => Record<string, any> | undefined
+>(obj: any, fields: string[]) => {    if (typeof obj != 'object') return void "never";    let result: Record<string, any> = {};    for (let k of Object.keys(obj)) {        if (!fields.includes(k)) result[k] = obj[k];    }    return result;} : (obj: any, fields: string[]) => Record<string, any> | undefined
+>obj : any
+>fields : string[]
+
+    if (typeof obj != 'object') return void "never";
+>typeof obj != 'object' : boolean
+>typeof obj : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>obj : any
+>'object' : "object"
+>void "never" : undefined
+>"never" : "never"
+
+    let result: Record<string, any> = {};
+>result : Record<string, any>
+>{} : {}
+
+    for (let k of Object.keys(obj)) {
+>k : string
+>Object.keys(obj) : string[]
+>Object.keys : { (o: object): string[]; (o: {}): string[]; }
+>Object : ObjectConstructor
+>keys : { (o: object): string[]; (o: {}): string[]; }
+>obj : any
+
+        if (!fields.includes(k)) result[k] = obj[k];
+>!fields.includes(k) : boolean
+>fields.includes(k) : boolean
+>fields.includes : (searchElement: string, fromIndex?: number) => boolean
+>fields : string[]
+>includes : (searchElement: string, fromIndex?: number) => boolean
+>k : string
+>result[k] = obj[k] : any
+>result[k] : any
+>result : Record<string, any>
+>k : string
+>obj[k] : any
+>obj : any
+>k : string
+    }
+    return result;
+>result : Record<string, any>
+
+};
+
+const _enrichUser = (u: any) => {
+>_enrichUser : (u: any) => Record<string, any> | undefined
+>(u: any) => {    if (typeof u != 'object') return void "never";    if (typeof u['firstName'] != 'string' || typeof u['lastName'] != 'string') return void "never";    let result: Record<string, any> = {};    result['firstName'] = u['firstName'];    result['lastName'] = u['lastName'];    result['email'] = u['email'];    result['fullName'] = u['firstName'] + ' ' + u['lastName'];    result['handle'] = u['firstName'].toLowerCase() + u['lastName'].toLowerCase();    return result;} : (u: any) => Record<string, any> | undefined
+>u : any
+
+    if (typeof u != 'object') return void "never";
+>typeof u != 'object' : boolean
+>typeof u : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>u : any
+>'object' : "object"
+>void "never" : undefined
+>"never" : "never"
+
+    if (typeof u['firstName'] != 'string' || typeof u['lastName'] != 'string') return void "never";
+>typeof u['firstName'] != 'string' || typeof u['lastName'] != 'string' : boolean
+>typeof u['firstName'] != 'string' : boolean
+>typeof u['firstName'] : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>u['firstName'] : any
+>u : any
+>'firstName' : "firstName"
+>'string' : "string"
+>typeof u['lastName'] != 'string' : boolean
+>typeof u['lastName'] : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>u['lastName'] : any
+>u : any
+>'lastName' : "lastName"
+>'string' : "string"
+>void "never" : undefined
+>"never" : "never"
+
+    let result: Record<string, any> = {};
+>result : Record<string, any>
+>{} : {}
+
+    result['firstName'] = u['firstName'];
+>result['firstName'] = u['firstName'] : string
+>result['firstName'] : any
+>result : Record<string, any>
+>'firstName' : "firstName"
+>u['firstName'] : string
+>u : any
+>'firstName' : "firstName"
+
+    result['lastName'] = u['lastName'];
+>result['lastName'] = u['lastName'] : string
+>result['lastName'] : any
+>result : Record<string, any>
+>'lastName' : "lastName"
+>u['lastName'] : string
+>u : any
+>'lastName' : "lastName"
+
+    result['email'] = u['email'];
+>result['email'] = u['email'] : any
+>result['email'] : any
+>result : Record<string, any>
+>'email' : "email"
+>u['email'] : any
+>u : any
+>'email' : "email"
+
+    result['fullName'] = u['firstName'] + ' ' + u['lastName'];
+>result['fullName'] = u['firstName'] + ' ' + u['lastName'] : string
+>result['fullName'] : any
+>result : Record<string, any>
+>'fullName' : "fullName"
+>u['firstName'] + ' ' + u['lastName'] : string
+>u['firstName'] + ' ' : string
+>u['firstName'] : string
+>u : any
+>'firstName' : "firstName"
+>' ' : " "
+>u['lastName'] : string
+>u : any
+>'lastName' : "lastName"
+
+    result['handle'] = u['firstName'].toLowerCase() + u['lastName'].toLowerCase();
+>result['handle'] = u['firstName'].toLowerCase() + u['lastName'].toLowerCase() : string
+>result['handle'] : any
+>result : Record<string, any>
+>'handle' : "handle"
+>u['firstName'].toLowerCase() + u['lastName'].toLowerCase() : string
+>u['firstName'].toLowerCase() : string
+>u['firstName'].toLowerCase : () => string
+>u['firstName'] : string
+>u : any
+>'firstName' : "firstName"
+>toLowerCase : () => string
+>u['lastName'].toLowerCase() : string
+>u['lastName'].toLowerCase : () => string
+>u['lastName'] : string
+>u : any
+>'lastName' : "lastName"
+>toLowerCase : () => string
+
+    return result;
+>result : Record<string, any>
+
+};
+
+// ---- Validators with custom error messages ----
+// Use void "error:message" to produce compile-time diagnostics.
+
+const _strictEmail = (s: any) => {
+>_strictEmail : (s: any) => string | undefined
+>(s: any) => {    if (typeof s != 'string') return void { error: "Expected a string, got " + typeof s };    let at: number = s.indexOf('@');    if (at < 1) return void { error: "Invalid email '" + s + "': missing @ sign" };    let domain: string = s.slice(at + 1);    if (!domain.includes('.')) return void { error: "Invalid email '" + s + "': domain has no dot" };    return s;} : (s: any) => string | undefined
+>s : any
+
+    if (typeof s != 'string') return void { error: "Expected a string, got " + typeof s };
+>typeof s != 'string' : boolean
+>typeof s : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>s : any
+>'string' : "string"
+>void { error: "Expected a string, got " + typeof s } : undefined
+>{ error: "Expected a string, got " + typeof s } : { error: string; }
+>error : string
+>"Expected a string, got " + typeof s : string
+>"Expected a string, got " : "Expected a string, got "
+>typeof s : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>s : any
+
+    let at: number = s.indexOf('@');
+>at : number
+>s.indexOf('@') : number
+>s.indexOf : (searchString: string, position?: number) => number
+>s : string
+>indexOf : (searchString: string, position?: number) => number
+>'@' : "@"
+
+    if (at < 1) return void { error: "Invalid email '" + s + "': missing @ sign" };
+>at < 1 : boolean
+>at : number
+>1 : 1
+>void { error: "Invalid email '" + s + "': missing @ sign" } : undefined
+>{ error: "Invalid email '" + s + "': missing @ sign" } : { error: string; }
+>error : string
+>"Invalid email '" + s + "': missing @ sign" : string
+>"Invalid email '" + s : string
+>"Invalid email '" : "Invalid email '"
+>s : string
+>"': missing @ sign" : "': missing @ sign"
+
+    let domain: string = s.slice(at + 1);
+>domain : string
+>s.slice(at + 1) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>at + 1 : number
+>at : number
+>1 : 1
+
+    if (!domain.includes('.')) return void { error: "Invalid email '" + s + "': domain has no dot" };
+>!domain.includes('.') : boolean
+>domain.includes('.') : boolean
+>domain.includes : (searchString: string, position?: number) => boolean
+>domain : string
+>includes : (searchString: string, position?: number) => boolean
+>'.' : "."
+>void { error: "Invalid email '" + s + "': domain has no dot" } : undefined
+>{ error: "Invalid email '" + s + "': domain has no dot" } : { error: string; }
+>error : string
+>"Invalid email '" + s + "': domain has no dot" : string
+>"Invalid email '" + s : string
+>"Invalid email '" : "Invalid email '"
+>s : string
+>"': domain has no dot" : "': domain has no dot"
+
+    return s;
+>s : string
+
+};
+
+const _strictPort = (n: any) => {
+>_strictPort : (n: any) => number | undefined
+>(n: any) => {    if (typeof n != 'number') return void { error: "Port must be a number, got " + typeof n };    if (n < 1 || n > 65535) return void { error: "Port " + n + " is out of range (1-65535)" };    if (Math.floor(n) != n) return void { error: "Port must be an integer, got " + n };    return n;} : (n: any) => number | undefined
+>n : any
+
+    if (typeof n != 'number') return void { error: "Port must be a number, got " + typeof n };
+>typeof n != 'number' : boolean
+>typeof n : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>n : any
+>'number' : "number"
+>void { error: "Port must be a number, got " + typeof n } : undefined
+>{ error: "Port must be a number, got " + typeof n } : { error: string; }
+>error : string
+>"Port must be a number, got " + typeof n : string
+>"Port must be a number, got " : "Port must be a number, got "
+>typeof n : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>n : any
+
+    if (n < 1 || n > 65535) return void { error: "Port " + n + " is out of range (1-65535)" };
+>n < 1 || n > 65535 : boolean
+>n < 1 : boolean
+>n : number
+>1 : 1
+>n > 65535 : boolean
+>n : number
+>65535 : 65535
+>void { error: "Port " + n + " is out of range (1-65535)" } : undefined
+>{ error: "Port " + n + " is out of range (1-65535)" } : { error: string; }
+>error : string
+>"Port " + n + " is out of range (1-65535)" : string
+>"Port " + n : string
+>"Port " : "Port "
+>n : number
+>" is out of range (1-65535)" : " is out of range (1-65535)"
+
+    if (Math.floor(n) != n) return void { error: "Port must be an integer, got " + n };
+>Math.floor(n) != n : boolean
+>Math.floor(n) : number
+>Math.floor : (x: number) => number
+>Math : Math
+>floor : (x: number) => number
+>n : number
+>n : number
+>void { error: "Port must be an integer, got " + n } : undefined
+>{ error: "Port must be an integer, got " + n } : { error: string; }
+>error : string
+>"Port must be an integer, got " + n : string
+>"Port must be an integer, got " : "Port must be an integer, got "
+>n : number
+
+    return n;
+>n : number
+
+};
+
+const _strictPositive = (n: any) => {
+>_strictPositive : (n: any) => number | undefined
+>(n: any) => {    if (typeof n != 'number') return void { error: "Expected a number, got " + typeof n };    if (n <= 0) return void { error: "Expected a positive number, got " + n };    return n;} : (n: any) => number | undefined
+>n : any
+
+    if (typeof n != 'number') return void { error: "Expected a number, got " + typeof n };
+>typeof n != 'number' : boolean
+>typeof n : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>n : any
+>'number' : "number"
+>void { error: "Expected a number, got " + typeof n } : undefined
+>{ error: "Expected a number, got " + typeof n } : { error: string; }
+>error : string
+>"Expected a number, got " + typeof n : string
+>"Expected a number, got " : "Expected a number, got "
+>typeof n : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>n : any
+
+    if (n <= 0) return void { error: "Expected a positive number, got " + n };
+>n <= 0 : boolean
+>n : number
+>0 : 0
+>void { error: "Expected a positive number, got " + n } : undefined
+>{ error: "Expected a positive number, got " + n } : { error: string; }
+>error : string
+>"Expected a positive number, got " + n : string
+>"Expected a positive number, got " : "Expected a positive number, got "
+>n : number
+
+    return n;
+>n : number
+
+};
+
+// ---- Exported type aliases (the public API) ----
+
+export type ZString<T> = Intrinsic<typeof _string, [T]>;
+>ZString : intrinsic
+>_string : (x: any) => string | undefined
+
+export type ZNumber<T> = Intrinsic<typeof _number, [T]>;
+>ZNumber : intrinsic
+>_number : (x: any) => number | undefined
+
+export type ZBoolean<T> = Intrinsic<typeof _boolean, [T]>;
+>ZBoolean : intrinsic
+>_boolean : (x: any) => boolean | undefined
+
+export type ZEmail<T> = Intrinsic<typeof _email, [T]>;
+>ZEmail : intrinsic
+>_email : (s: any) => string | undefined
+
+export type ZUrl<T> = Intrinsic<typeof _url, [T]>;
+>ZUrl : intrinsic
+>_url : (s: any) => string | undefined
+
+export type ZUuid<T> = Intrinsic<typeof _uuid, [T]>;
+>ZUuid : intrinsic
+>_uuid : (s: any) => string | undefined
+
+export type ZNonEmpty<T> = Intrinsic<typeof _nonEmpty, [T]>;
+>ZNonEmpty : intrinsic
+>_nonEmpty : (s: any) => string | undefined
+
+export type ZTrimmed<T> = Intrinsic<typeof _trimmed, [T]>;
+>ZTrimmed : intrinsic
+>_trimmed : (s: any) => string | undefined
+
+export type ZInt<T> = Intrinsic<typeof _int, [T]>;
+>ZInt : intrinsic
+>_int : (n: any) => number | undefined
+
+export type ZPositive<T> = Intrinsic<typeof _positive, [T]>;
+>ZPositive : intrinsic
+>_positive : (n: any) => number | undefined
+
+export type ZNonnegative<T> = Intrinsic<typeof _nonnegative, [T]>;
+>ZNonnegative : intrinsic
+>_nonnegative : (n: any) => number | undefined
+
+export type ZPort<T> = Intrinsic<typeof _port, [T]>;
+>ZPort : intrinsic
+>_port : (n: any) => number | undefined
+
+export type ZCoerceNumber<T> = Intrinsic<typeof _coerceNumber, [T]>;
+>ZCoerceNumber : intrinsic
+>_coerceNumber : (s: any) => number | undefined
+
+export type ZCoerceBoolean<T> = Intrinsic<typeof _coerceBoolean, [T]>;
+>ZCoerceBoolean : intrinsic
+>_coerceBoolean : (x: any) => boolean | undefined
+
+export type ZToLowerCase<T> = Intrinsic<typeof _toLowerCase, [T]>;
+>ZToLowerCase : intrinsic
+>_toLowerCase : (s: any) => string | undefined
+
+export type ZToUpperCase<T> = Intrinsic<typeof _toUpperCase, [T]>;
+>ZToUpperCase : intrinsic
+>_toUpperCase : (s: any) => string | undefined
+
+export type ZToSlug<T> = Intrinsic<typeof _toSlug, [T]>;
+>ZToSlug : intrinsic
+>_toSlug : (s: string) => string
+
+export type ZToCamelCase<T> = Intrinsic<typeof _toCamelCase, [T]>;
+>ZToCamelCase : intrinsic
+>_toCamelCase : (s: string) => string
+
+export type ZServerConfig<T> = Intrinsic<typeof _serverConfig, [T]>;
+>ZServerConfig : intrinsic
+>_serverConfig : (cfg: any) => any
+
+export type ZUser<T> = Intrinsic<typeof _user, [T]>;
+>ZUser : intrinsic
+>_user : (u: any) => any
+
+export type ZDbConfig<T> = Intrinsic<typeof _dbConfig, [T]>;
+>ZDbConfig : intrinsic
+>_dbConfig : (cfg: any) => any
+
+export type ZEnvConfig<T> = Intrinsic<typeof _envConfig, [T]>;
+>ZEnvConfig : intrinsic
+>_envConfig : (env: any) => any
+
+export type ZCamelCaseKeys<T> = Intrinsic<typeof _camelCaseKeys, [T]>;
+>ZCamelCaseKeys : intrinsic
+>_camelCaseKeys : (obj: any) => Record<string, any>
+
+export type ZBuildUrl<T> = Intrinsic<typeof _buildUrl, [T]>;
+>ZBuildUrl : intrinsic
+>_buildUrl : (cfg: any) => string | undefined
+
+export type ZParseDate<T> = Intrinsic<typeof _parseDate, [T]>;
+>ZParseDate : intrinsic
+>_parseDate : (s: any) => Record<string, any> | undefined
+
+export type ZParseRoute<T> = Intrinsic<typeof _parseRoute, [T]>;
+>ZParseRoute : intrinsic
+>_parseRoute : (path: any) => Record<string, any> | undefined
+
+export type ZHexToRgb<T> = Intrinsic<typeof _hexToRgb, [T]>;
+>ZHexToRgb : intrinsic
+>_hexToRgb : (s: any) => Record<string, any> | undefined
+
+export type ZParseSemver<T> = Intrinsic<typeof _parseSemver, [T]>;
+>ZParseSemver : intrinsic
+>_parseSemver : (s: any) => Record<string, any> | undefined
+
+export type ZParseConnectionString<T> = Intrinsic<typeof _parseConnectionString, [T]>;
+>ZParseConnectionString : intrinsic
+>_parseConnectionString : (s: any) => Record<string, any> | undefined
+
+export type Pick_<T, F extends string[]> = Intrinsic<typeof _pick, [T, F]>;
+>Pick_ : intrinsic
+>_pick : (obj: any, fields: string[]) => Record<string, any> | undefined
+
+export type Omit_<T, F extends string[]> = Intrinsic<typeof _omit, [T, F]>;
+>Omit_ : intrinsic
+>_omit : (obj: any, fields: string[]) => Record<string, any> | undefined
+
+export type ZEnrichUser<T> = Intrinsic<typeof _enrichUser, [T]>;
+>ZEnrichUser : intrinsic
+>_enrichUser : (u: any) => Record<string, any> | undefined
+
+export type ZStrictEmail<T> = Intrinsic<typeof _strictEmail, [T]>;
+>ZStrictEmail : intrinsic
+>_strictEmail : (s: any) => string | undefined
+
+export type ZStrictPort<T> = Intrinsic<typeof _strictPort, [T]>;
+>ZStrictPort : intrinsic
+>_strictPort : (n: any) => number | undefined
+
+export type ZStrictPositive<T> = Intrinsic<typeof _strictPositive, [T]>;
+>ZStrictPositive : intrinsic
+>_strictPositive : (n: any) => number | undefined
+
+
+=== zod_test.ts ===
+// Consumer file - imports type aliases and uses them.
+
+import type {
+    ZString, ZNumber, ZBoolean,
+>ZString : intrinsic
+>ZNumber : intrinsic
+>ZBoolean : intrinsic
+
+    ZEmail, ZUrl, ZUuid, ZNonEmpty, ZTrimmed,
+>ZEmail : intrinsic
+>ZUrl : intrinsic
+>ZUuid : intrinsic
+>ZNonEmpty : intrinsic
+>ZTrimmed : intrinsic
+
+    ZInt, ZPositive, ZNonnegative, ZPort,
+>ZInt : intrinsic
+>ZPositive : intrinsic
+>ZNonnegative : intrinsic
+>ZPort : intrinsic
+
+    ZCoerceNumber, ZCoerceBoolean,
+>ZCoerceNumber : intrinsic
+>ZCoerceBoolean : intrinsic
+
+    ZToLowerCase, ZToUpperCase, ZToSlug, ZToCamelCase,
+>ZToLowerCase : intrinsic
+>ZToUpperCase : intrinsic
+>ZToSlug : intrinsic
+>ZToCamelCase : intrinsic
+
+    ZServerConfig, ZUser, ZDbConfig, ZEnvConfig,
+>ZServerConfig : intrinsic
+>ZUser : intrinsic
+>ZDbConfig : intrinsic
+>ZEnvConfig : intrinsic
+
+    ZCamelCaseKeys, ZBuildUrl, ZParseDate,
+>ZCamelCaseKeys : intrinsic
+>ZBuildUrl : intrinsic
+>ZParseDate : intrinsic
+
+    ZParseRoute, ZHexToRgb, ZParseSemver, ZParseConnectionString,
+>ZParseRoute : intrinsic
+>ZHexToRgb : intrinsic
+>ZParseSemver : intrinsic
+>ZParseConnectionString : intrinsic
+
+    Pick_, Omit_, ZEnrichUser,
+>Pick_ : intrinsic
+>Omit_ : intrinsic
+>ZEnrichUser : intrinsic
+
+    ZStrictEmail, ZStrictPort, ZStrictPositive,
+>ZStrictEmail : intrinsic
+>ZStrictPort : intrinsic
+>ZStrictPositive : intrinsic
+
+} from './zod';
+
+// ==== Primitive validation ====
+
+type T01 = ZString<"hello">;       // "hello"
+>T01 : "hello"
+
+type T02 = ZString<42>;            // never
+>T02 : any
+
+type T03 = ZNumber<42>;            // 42
+>T03 : 42
+
+type T04 = ZNumber<"nope">;        // never
+>T04 : any
+
+type T05 = ZBoolean<true>;         // true
+>T05 : true
+>true : true
+
+type T06 = ZBoolean<"yes">;        // never
+>T06 : any
+
+// ==== String format validation ====
+
+type T10 = ZEmail<"user@example.com">;     // "user@example.com"
+>T10 : "user@example.com"
+
+type T11 = ZEmail<"bad">;                   // never
+>T11 : any
+
+type T12 = ZUrl<"https://example.com">;     // "https://example.com"
+>T12 : "https://example.com"
+
+type T13 = ZUrl<"not-a-url">;               // never
+>T13 : any
+
+type T14 = ZUuid<"550e8400-e29b-41d4-a716-446655440000">;  // the uuid
+>T14 : "550e8400-e29b-41d4-a716-446655440000"
+
+type T15 = ZUuid<"not-a-uuid">;             // never
+>T15 : any
+
+type T16 = ZNonEmpty<"hi">;                 // "hi"
+>T16 : "hi"
+
+type T17 = ZNonEmpty<"">;                   // never
+>T17 : any
+
+// ==== Number validation ====
+
+type T20 = ZInt<42>;           // 42
+>T20 : 42
+
+type T21 = ZInt<3.14>;         // never
+>T21 : any
+
+type T22 = ZPositive<5>;       // 5
+>T22 : 5
+
+type T23 = ZPositive<0>;       // never
+>T23 : any
+
+type T24 = ZPositive<-1>;      // never
+>T24 : any
+>-1 : -1
+>1 : 1
+
+type T25 = ZNonnegative<0>;    // 0
+>T25 : 0
+
+type T26 = ZNonnegative<-1>;   // never
+>T26 : any
+>-1 : -1
+>1 : 1
+
+type T27 = ZPort<443>;         // 443
+>T27 : 443
+
+type T28 = ZPort<0>;           // never
+>T28 : any
+
+type T29 = ZPort<70000>;       // never
+>T29 : any
+
+// ==== Coercions ====
+
+type T30 = ZCoerceNumber<"42">;      // 42
+>T30 : 42
+
+type T31 = ZCoerceNumber<"-7">;      // -7
+>T31 : -7
+
+type T32 = ZCoerceNumber<"abc">;     // never
+>T32 : never
+
+type T33 = ZCoerceNumber<100>;       // 100 (passthrough)
+>T33 : 100
+
+type T34 = ZCoerceBoolean<"true">;   // true
+>T34 : true
+
+type T35 = ZCoerceBoolean<"false">;  // false
+>T35 : false
+
+type T36 = ZCoerceBoolean<true>;     // true (passthrough)
+>T36 : true
+>true : true
+
+// ==== Transforms ====
+
+type T40 = ZToLowerCase<"HELLO">;                // "hello"
+>T40 : "hello"
+
+type T41 = ZToUpperCase<"hello">;                // "HELLO"
+>T41 : "HELLO"
+
+type T42 = ZToSlug<"Hello World">;               // "hello-world"
+>T42 : "hello-world"
+
+type T43 = ZToCamelCase<"user_first_name">;      // "userFirstName"
+>T43 : "userFirstName"
+
+type T44 = ZTrimmed<"  hello  ">;                // "hello"
+>T44 : "hello"
+
+// ==== Object validation ====
+
+type T50 = ZServerConfig<{ host: "localhost", port: 3000, protocol: "http" }>;
+>T50 : { host: "localhost"; port: 3000; protocol: "http"; }
+>host : "localhost"
+>port : 3000
+>protocol : "http"
+
+type T51 = ZServerConfig<{ host: "api.example.com", port: 443, protocol: "https" }>;
+>T51 : { host: "api.example.com"; port: 443; protocol: "https"; }
+>host : "api.example.com"
+>port : 443
+>protocol : "https"
+
+type T52 = ZServerConfig<{ host: "", port: 3000, protocol: "http" }>;          // never
+>T52 : any
+>host : ""
+>port : 3000
+>protocol : "http"
+
+type T53 = ZServerConfig<{ host: "localhost", port: 0, protocol: "http" }>;     // never
+>T53 : any
+>host : "localhost"
+>port : 0
+>protocol : "http"
+
+type T60 = ZUser<{ name: "Alice", email: "alice@example.com", age: 30 }>;
+>T60 : { name: "Alice"; email: "alice@example.com"; age: 30; }
+>name : "Alice"
+>email : "alice@example.com"
+>age : 30
+
+type T61 = ZUser<{ name: "", email: "alice@example.com", age: 30 }>;           // never
+>T61 : any
+>name : ""
+>email : "alice@example.com"
+>age : 30
+
+type T62 = ZUser<{ name: "Bob", email: "invalid", age: 25 }>;                  // never
+>T62 : any
+>name : "Bob"
+>email : "invalid"
+>age : 25
+
+type T63 = ZUser<{ name: "Eve", email: "eve@test.com", age: -1 }>;             // never
+>T63 : any
+>name : "Eve"
+>email : "eve@test.com"
+>age : -1
+>-1 : -1
+>1 : 1
+
+type T70 = ZDbConfig<{ driver: "postgres", host: "localhost", port: 5432, database: "myapp" }>;
+>T70 : { driver: "postgres"; host: "localhost"; port: 5432; database: "myapp"; }
+>driver : "postgres"
+>host : "localhost"
+>port : 5432
+>database : "myapp"
+
+type T71 = ZDbConfig<{ driver: "mysql", host: "db.internal", port: 3306, database: "users" }>;
+>T71 : { driver: "mysql"; host: "db.internal"; port: 3306; database: "users"; }
+>driver : "mysql"
+>host : "db.internal"
+>port : 3306
+>database : "users"
+
+type T72 = ZDbConfig<{ driver: "redis", host: "localhost", port: 6379, database: "cache" }>;  // never
+>T72 : any
+>driver : "redis"
+>host : "localhost"
+>port : 6379
+>database : "cache"
+
+type T80 = ZEnvConfig<{ NODE_ENV: "production", PORT: 3000, DATABASE_URL: "postgres://localhost/db", DEBUG: false }>;
+>T80 : { NODE_ENV: "production"; PORT: 3000; DATABASE_URL: "postgres://localhost/db"; DEBUG: false; }
+>NODE_ENV : "production"
+>PORT : 3000
+>DATABASE_URL : "postgres://localhost/db"
+>DEBUG : false
+>false : false
+
+type T81 = ZEnvConfig<{ NODE_ENV: "invalid", PORT: 3000, DATABASE_URL: "postgres://localhost/db", DEBUG: false }>;  // never
+>T81 : any
+>NODE_ENV : "invalid"
+>PORT : 3000
+>DATABASE_URL : "postgres://localhost/db"
+>DEBUG : false
+>false : false
+
+// ==== Object transforms ====
+
+type T90 = ZCamelCaseKeys<{ user_id: 1, first_name: "Alice", is_active: true }>;
+>T90 : { userId: 1; firstName: "Alice"; isActive: true; }
+>user_id : 1
+>first_name : "Alice"
+>is_active : true
+>true : true
+
+type T91 = ZCamelCaseKeys<{ created_at: "2024-01-01", updated_at: "2024-03-15" }>;
+>T91 : { createdAt: "2024-01-01"; updatedAt: "2024-03-15"; }
+>created_at : "2024-01-01"
+>updated_at : "2024-03-15"
+
+type T92 = ZBuildUrl<{ protocol: "https", host: "api.example.com", port: 443, path: "/v1/users" }>;
+>T92 : "https://api.example.com:443/v1/users"
+>protocol : "https"
+>host : "api.example.com"
+>port : 443
+>path : "/v1/users"
+
+type T93 = ZBuildUrl<{ protocol: "http", host: "localhost", port: 8080, path: "/health" }>;
+>T93 : "http://localhost:8080/health"
+>protocol : "http"
+>host : "localhost"
+>port : 8080
+>path : "/health"
+
+type T94 = ZParseDate<"2024-03-15">;
+>T94 : { year: 2024; month: 3; day: 15; }
+
+type T95 = ZParseDate<"1999-12-31">;
+>T95 : { year: 1999; month: 12; day: 31; }
+
+type T96 = ZParseDate<"2024-13-01">;   // never
+>T96 : never
+
+type T97 = ZParseDate<"not-a-date">;   // never
+>T97 : never
+
+// ==== Route / color / semver parsing ====
+
+type P1 = ZParseRoute<"/api/v1/users">;        // { version: "v1", resource: "users" }
+>P1 : { version: "v1"; resource: "users"; }
+
+type P2 = ZParseRoute<"/api/v2/posts/42">;     // { version: "v2", resource: "posts", id: "42" }
+>P2 : { version: "v2"; resource: "posts"; id: "42"; }
+
+type P3 = ZParseRoute<"/not/api">;              // never
+>P3 : never
+
+type C1 = ZHexToRgb<"#ff0000">;   // { r: 255, g: 0, b: 0 }
+>C1 : { r: 255; g: 0; b: 0; }
+
+type C2 = ZHexToRgb<"#00ff00">;   // { r: 0, g: 255, b: 0 }
+>C2 : { r: 0; g: 255; b: 0; }
+
+type C3 = ZHexToRgb<"#1a2b3c">;   // { r: 26, g: 43, b: 60 }
+>C3 : { r: 26; g: 43; b: 60; }
+
+type C4 = ZHexToRgb<"red">;        // never
+>C4 : never
+
+type V1 = ZParseSemver<"1.0.0">;    // { major: 1, minor: 0, patch: 0 }
+>V1 : { major: 1; minor: 0; patch: 0; }
+
+type V2 = ZParseSemver<"16.4.2">;   // { major: 16, minor: 4, patch: 2 }
+>V2 : { major: 16; minor: 4; patch: 2; }
+
+type V3 = ZParseSemver<"1.0">;       // never
+>V3 : never
+
+type V4 = ZParseSemver<"a.b.c">;     // never
+>V4 : never
+
+// ==== Connection string ====
+
+type CS1 = ZParseConnectionString<"postgres://localhost/mydb">;
+>CS1 : { protocol: "postgres"; host: "localhost"; database: "mydb"; }
+
+type CS2 = ZParseConnectionString<"redis://cache.internal">;
+>CS2 : { protocol: "redis"; host: "cache.internal"; }
+
+type CS3 = ZParseConnectionString<"mysql://db.prod:3306/users">;
+>CS3 : { protocol: "mysql"; host: "db.prod"; database: "users"; }
+
+type CS4 = ZParseConnectionString<"not-a-connection-string">;  // never
+>CS4 : never
+
+// ==== Pick / Omit / Enrich ====
+
+type FullUser = { id: 1, name: "Alice", email: "alice@test.com", password: "secret" };
+>FullUser : FullUser
+>id : 1
+>name : "Alice"
+>email : "alice@test.com"
+>password : "secret"
+
+type PublicUser = Omit_<FullUser, ["password"]>;   // { id: 1, name: "Alice", email: "alice@test.com" }
+>PublicUser : { id: 1; name: "Alice"; email: "alice@test.com"; }
+
+type UserRef = Pick_<FullUser, ["id", "name"]>;    // { id: 1, name: "Alice" }
+>UserRef : { id: 1; name: "Alice"; }
+
+type D1 = ZEnrichUser<{ firstName: "Alice", lastName: "Smith", email: "a@b.c" }>;
+>D1 : { firstName: "Alice"; lastName: "Smith"; email: "a@b.c"; fullName: "Alice Smith"; handle: "alicesmith"; }
+>firstName : "Alice"
+>lastName : "Smith"
+>email : "a@b.c"
+
+// { firstName: "Alice", lastName: "Smith", email: "a@b.c", fullName: "Alice Smith", handle: "alicesmith" }
+
+// ==== Custom error messages (void "error:...") ====
+
+// Valid inputs - no errors, types resolve normally
+type SE1 = ZStrictEmail<"user@example.com">;       // "user@example.com"
+>SE1 : "user@example.com"
+
+type SP1 = ZStrictPort<443>;                        // 443
+>SP1 : 443
+
+type SN1 = ZStrictPositive<42>;                     // 42
+>SN1 : 42
+
+// Invalid inputs - should produce compile errors with custom messages
+type SE2 = ZStrictEmail<"no-at-sign">;              // error: Invalid email 'no-at-sign': missing @ sign
+>SE2 : any
+
+type SE3 = ZStrictEmail<"user@nodot">;              // error: Invalid email 'user@nodot': domain has no dot
+>SE3 : any
+
+type SE4 = ZStrictEmail<42>;                        // error: Expected a string, got number
+>SE4 : any
+
+type SP2 = ZStrictPort<0>;                          // error: Port 0 is out of range (1-65535)
+>SP2 : any
+
+type SP3 = ZStrictPort<99999>;                      // error: Port 99999 is out of range (1-65535)
+>SP3 : any
+
+type SN2 = ZStrictPositive<-5>;                     // error: Expected a positive number, got -5
+>SN2 : any
+>-5 : -5
+>5 : 5
+
+type SN3 = ZStrictPositive<0>;                      // error: Expected a positive number, got 0
+>SN3 : any
+

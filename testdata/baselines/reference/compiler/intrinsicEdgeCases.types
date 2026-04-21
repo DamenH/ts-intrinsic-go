@@ -1,0 +1,450 @@
+//// [tests/cases/compiler/intrinsic/intrinsicEdgeCases.ts] ////
+
+=== intrinsicEdgeCases.ts ===
+// --- Circular / self-referencing type arguments ---
+
+const identity = (x: any) => x;
+>identity : (x: any) => any
+>(x: any) => x : (x: any) => any
+>x : any
+>x : any
+
+type Id<T> = Intrinsic<typeof identity, [T]>;
+>Id : intrinsic
+>identity : (x: any) => any
+
+// Self-referencing (should not infinite-loop)
+type Recursive<T> = Id<Recursive<T>>;
+>Recursive : any
+
+// Mutual recursion
+type PingPong<T> = Id<PongPing<T>>;
+>PingPong : any
+
+type PongPing<T> = Id<PingPong<T>>;
+>PongPing : any
+
+// Concrete nested use
+type R1 = Id<Id<Id<42>>>;  // 42
+>R1 : 42
+
+
+// --- Deeply nested closures ---
+
+const nestedClosures = (n: number) => {
+>nestedClosures : (n: number) => number
+>(n: number) => {    let a = (x: number) => {        let b = (y: number) => {            let c = (z: number) => {                let d = (w: number) => w + z + y + x;                return d(1);            };            return c(2);        };        return b(3);    };    return a(n);} : (n: number) => number
+>n : number
+
+    let a = (x: number) => {
+>a : (x: number) => number
+>(x: number) => {        let b = (y: number) => {            let c = (z: number) => {                let d = (w: number) => w + z + y + x;                return d(1);            };            return c(2);        };        return b(3);    } : (x: number) => number
+>x : number
+
+        let b = (y: number) => {
+>b : (y: number) => number
+>(y: number) => {            let c = (z: number) => {                let d = (w: number) => w + z + y + x;                return d(1);            };            return c(2);        } : (y: number) => number
+>y : number
+
+            let c = (z: number) => {
+>c : (z: number) => number
+>(z: number) => {                let d = (w: number) => w + z + y + x;                return d(1);            } : (z: number) => number
+>z : number
+
+                let d = (w: number) => w + z + y + x;
+>d : (w: number) => number
+>(w: number) => w + z + y + x : (w: number) => number
+>w : number
+>w + z + y + x : number
+>w + z + y : number
+>w + z : number
+>w : number
+>z : number
+>y : number
+>x : number
+
+                return d(1);
+>d(1) : number
+>d : (w: number) => number
+>1 : 1
+
+            };
+            return c(2);
+>c(2) : number
+>c : (z: number) => number
+>2 : 2
+
+        };
+        return b(3);
+>b(3) : number
+>b : (y: number) => number
+>3 : 3
+
+    };
+    return a(n);
+>a(n) : number
+>a : (x: number) => number
+>n : number
+
+};
+type NC1 = Intrinsic<typeof nestedClosures, [10]>;  // 10 + 3 + 2 + 1 = 16
+>NC1 : 16
+>nestedClosures : (n: number) => number
+
+// Closure that builds and calls functions in a loop
+const closureLoop = (n: number) => {
+>closureLoop : (n: number) => number
+>(n: number) => {    let result: number = 0;    let i: number = 0;    while (i < n) {        let captured: number = i;        let f = (x: number) => x + captured;        result = f(result);        i = i + 1;    }    return result;} : (n: number) => number
+>n : number
+
+    let result: number = 0;
+>result : number
+>0 : 0
+
+    let i: number = 0;
+>i : number
+>0 : 0
+
+    while (i < n) {
+>i < n : boolean
+>i : number
+>n : number
+
+        let captured: number = i;
+>captured : number
+>i : number
+
+        let f = (x: number) => x + captured;
+>f : (x: number) => number
+>(x: number) => x + captured : (x: number) => number
+>x : number
+>x + captured : number
+>x : number
+>captured : number
+
+        result = f(result);
+>result = f(result) : number
+>result : number
+>f(result) : number
+>f : (x: number) => number
+>result : number
+
+        i = i + 1;
+>i = i + 1 : number
+>i : number
+>i + 1 : number
+>i : number
+>1 : 1
+    }
+    return result;
+>result : number
+
+};
+type NC2 = Intrinsic<typeof closureLoop, [10]>;  // 0+0+1+2+...+9 = 45
+>NC2 : 45
+>closureLoop : (n: number) => number
+
+
+// --- Closing over top-level const values ---
+
+const MULTIPLIER = 3;
+>MULTIPLIER : 3
+>3 : 3
+
+const scaleUp = (n: number) => n * MULTIPLIER;
+>scaleUp : (n: number) => number
+>(n: number) => n * MULTIPLIER : (n: number) => number
+>n : number
+>n * MULTIPLIER : number
+>n : number
+>MULTIPLIER : 3
+
+type CL1 = Intrinsic<typeof scaleUp, [7]>;  // 21
+>CL1 : 21
+>scaleUp : (n: number) => number
+
+const OFFSET = 100;
+>OFFSET : 100
+>100 : 100
+
+const addOffset = (n: number) => n + OFFSET;
+>addOffset : (n: number) => number
+>(n: number) => n + OFFSET : (n: number) => number
+>n : number
+>n + OFFSET : number
+>n : number
+>OFFSET : 100
+
+type CL2 = Intrinsic<typeof addOffset, [10]>;  // 110
+>CL2 : 110
+>addOffset : (n: number) => number
+
+const GREETING = "hi";
+>GREETING : "hi"
+>"hi" : "hi"
+
+const greetWith = (name: string) => GREETING + " " + name;
+>greetWith : (name: string) => string
+>(name: string) => GREETING + " " + name : (name: string) => string
+>name : string
+>GREETING + " " + name : string
+>GREETING + " " : string
+>GREETING : "hi"
+>" " : " "
+>name : string
+
+type CL3 = Intrinsic<typeof greetWith, ["world"]>;  // "hi world"
+>CL3 : "hi world"
+>greetWith : (name: string) => string
+
+
+// --- Union types as arguments ---
+
+const double = (n: number) => n * 2;
+>double : (n: number) => number
+>(n: number) => n * 2 : (n: number) => number
+>n : number
+>n * 2 : number
+>n : number
+>2 : 2
+
+type Double<T> = Intrinsic<typeof double, [T]>;
+>Double : intrinsic
+>double : (n: number) => number
+
+type U1 = Double<5>;          // 10
+>U1 : 10
+
+type U2 = Double<1 | 2 | 3>;  // distribution over union
+>U2 : intrinsic
+
+type U3 = Double<number>;     // deferred (non-literal)
+>U3 : any
+
+const toUpper = (s: string) => s.toUpperCase();
+>toUpper : (s: string) => string
+>(s: string) => s.toUpperCase() : (s: string) => string
+>s : string
+>s.toUpperCase() : string
+>s.toUpperCase : () => string
+>s : string
+>toUpperCase : () => string
+
+type Upper<T> = Intrinsic<typeof toUpper, [T]>;
+>Upper : intrinsic
+>toUpper : (s: string) => string
+
+type U4 = Upper<"a" | "b" | "c">;
+>U4 : intrinsic
+
+type U5 = Upper<string>;  // deferred
+>U5 : any
+
+
+// --- Type parameter forwarding ---
+
+const add = (a: number, b: number) => a + b;
+>add : (a: number, b: number) => number
+>(a: number, b: number) => a + b : (a: number, b: number) => number
+>a : number
+>b : number
+>a + b : number
+>a : number
+>b : number
+
+type Add<A extends number, B extends number> = Intrinsic<typeof add, [A, B]>;
+>Add : intrinsic
+>add : (a: number, b: number) => number
+
+type Increment<N extends number> = Add<N, 1>;
+>Increment : intrinsic
+
+type I1 = Increment<41>;  // 42
+>I1 : 42
+
+type AddTen<N extends number> = Add<N, 10>;
+>AddTen : intrinsic
+
+type AddTwenty<N extends number> = AddTen<AddTen<N>>;
+>AddTwenty : intrinsic
+
+type F1 = AddTwenty<0>;   // 20
+>F1 : 20
+
+type F2 = AddTwenty<5>;   // 25
+>F2 : 25
+
+function incr<N extends number>(n: N): Increment<N> {
+>incr : <N extends number>(n: N) => Increment<N>
+>n : N
+
+    return undefined!;
+>undefined! : never
+>undefined : undefined
+}
+
+type PositiveOrZero<N extends number> = Add<N, 0> extends never ? 0 : Add<N, 0>;
+>PositiveOrZero : intrinsic
+
+type PZ1 = PositiveOrZero<5>;  // 5
+>PZ1 : 5
+
+
+// --- Argument count and type mismatches ---
+
+const greet = (name: string) => "hello " + name;
+>greet : (name: string) => string
+>(name: string) => "hello " + name : (name: string) => string
+>name : string
+>"hello " + name : string
+>"hello " : "hello "
+>name : string
+
+type Greet<T> = Intrinsic<typeof greet, [T]>;
+>Greet : intrinsic
+>greet : (name: string) => string
+
+type A1 = Greet<"world">;  // "hello world"
+>A1 : "hello world"
+
+type A2 = Greet<42>;       // "hello 42" (string + number coercion)
+>A2 : "hello 42"
+
+const needsTwo = (a: number, b: number) => a + b;
+>needsTwo : (a: number, b: number) => number
+>(a: number, b: number) => a + b : (a: number, b: number) => number
+>a : number
+>b : number
+>a + b : number
+>a : number
+>b : number
+
+type A3 = Intrinsic<typeof needsTwo, [5]>;        // second arg is undefined
+>A3 : any
+>needsTwo : (a: number, b: number) => number
+
+type A4 = Intrinsic<typeof greet, ["world", 42]>; // extra arg ignored
+>A4 : "hello world"
+>greet : (name: string) => string
+
+type A5 = Intrinsic<typeof greet, []>;             // no args
+>A5 : any
+>greet : (name: string) => string
+
+type A6 = Greet<string>;                           // deferred (non-literal)
+>A6 : any
+
+
+// --- Semantic mismatches that should stay explicit ---
+
+const kindOf = (x: any) => typeof x;
+>kindOf : (x: any) => "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>(x: any) => typeof x : (x: any) => "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>x : any
+>typeof x : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>x : any
+
+type S1 = Intrinsic<typeof kindOf, [null]>;        // "null" (not JS "object")
+>S1 : "null"
+>kindOf : (x: any) => "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+
+type S2 = Intrinsic<typeof kindOf, [undefined]>;   // "undefined"
+>S2 : "undefined"
+>kindOf : (x: any) => "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+
+type S3 = Intrinsic<typeof kindOf, [[1, 2, 3]]>;   // "tuple" (not JS "object")
+>S3 : "tuple"
+>kindOf : (x: any) => "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+
+type S4 = Intrinsic<typeof kindOf, [{ a: 1 }]>;    // "object"
+>S4 : "object"
+>kindOf : (x: any) => "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>a : 1
+
+const kindOfLocalFn = () => {
+>kindOfLocalFn : () => "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>() => {    let f = (x: number) => x + 1;    return typeof f;} : () => "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+
+    let f = (x: number) => x + 1;
+>f : (x: number) => number
+>(x: number) => x + 1 : (x: number) => number
+>x : number
+>x + 1 : number
+>x : number
+>1 : 1
+
+    return typeof f;
+>typeof f : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>f : (x: number) => number
+
+};
+
+type S5 = Intrinsic<typeof kindOfLocalFn, []>;     // "function"
+>S5 : "function"
+>kindOfLocalFn : () => "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+
+const looseEq = (a: any, b: any) => a == b;
+>looseEq : (a: any, b: any) => boolean
+>(a: any, b: any) => a == b : (a: any, b: any) => boolean
+>a : any
+>b : any
+>a == b : boolean
+>a : any
+>b : any
+
+type S6 = Intrinsic<typeof looseEq, [0, "0"]>;       // false (not JS true)
+>S6 : false
+>looseEq : (a: any, b: any) => boolean
+
+type S7 = Intrinsic<typeof looseEq, [false, 0]>;      // false (not JS true)
+>S7 : false
+>looseEq : (a: any, b: any) => boolean
+>false : false
+
+type S8 = Intrinsic<typeof looseEq, [null, undefined]>; // false (not JS true)
+>S8 : false
+>looseEq : (a: any, b: any) => boolean
+
+type S9 = Intrinsic<typeof looseEq, ["", 0]>;        // false (not JS true)
+>S9 : false
+>looseEq : (a: any, b: any) => boolean
+
+type S10 = Intrinsic<typeof looseEq, [[1, 2], [1, 2]]>; // true (not JS reference equality)
+>S10 : true
+>looseEq : (a: any, b: any) => boolean
+
+const objectWithFn = () => {
+>objectWithFn : () => any
+>() => {    let r: any = {};    r['x'] = 1;    r['fn'] = (n: number) => n + 1;    return r;} : () => any
+
+    let r: any = {};
+>r : any
+>{} : {}
+
+    r['x'] = 1;
+>r['x'] = 1 : 1
+>r['x'] : any
+>r : any
+>'x' : "x"
+>1 : 1
+
+    r['fn'] = (n: number) => n + 1;
+>r['fn'] = (n: number) => n + 1 : (n: number) => number
+>r['fn'] : any
+>r : any
+>'fn' : "fn"
+>(n: number) => n + 1 : (n: number) => number
+>n : number
+>n + 1 : number
+>n : number
+>1 : 1
+
+    return r;
+>r : any
+
+};
+
+type S11 = Intrinsic<typeof objectWithFn, []>;     // { x: 1, fn: never }
+>S11 : { x: 1; fn: never; }
+>objectWithFn : () => any
+

@@ -1,0 +1,132 @@
+//// [tests/cases/compiler/intrinsic/intrinsicDepsErrors.ts] ////
+
+=== intrinsicDepsErrors.ts ===
+// let declaration: not extracted
+let mutableHelper = (n: number) => n + 1;
+>mutableHelper : (n: number) => number
+>(n: number) => n + 1 : (n: number) => number
+>n : number
+>n + 1 : number
+>n : number
+>1 : 1
+
+const usesMutable = (x: number) => mutableHelper(x);
+>usesMutable : (x: number) => number
+>(x: number) => mutableHelper(x) : (x: number) => number
+>x : number
+>mutableHelper(x) : number
+>mutableHelper : (n: number) => number
+>x : number
+
+type E1 = Intrinsic<typeof usesMutable, [5]>;
+>E1 : any
+>usesMutable : (x: number) => number
+
+// Inner function: works via DSL's own let handling
+const outerFn = (x: number) => {
+>outerFn : (x: number) => number
+>(x: number) => {    let innerHelper = (n: number) => n * 2;    return innerHelper(x);} : (x: number) => number
+>x : number
+
+    let innerHelper = (n: number) => n * 2;
+>innerHelper : (n: number) => number
+>(n: number) => n * 2 : (n: number) => number
+>n : number
+>n * 2 : number
+>n : number
+>2 : 2
+
+    return innerHelper(x);
+>innerHelper(x) : number
+>innerHelper : (n: number) => number
+>x : number
+
+};
+type E2 = Intrinsic<typeof outerFn, [5]>;  // 10
+>E2 : 10
+>outerFn : (x: number) => number
+
+// Undefined reference
+const callsGhost = (x: number) => ghostFn(x);
+>callsGhost : (x: number) => any
+>(x: number) => ghostFn(x) : (x: number) => any
+>x : number
+>ghostFn(x) : any
+>ghostFn : any
+>x : number
+
+type E3 = Intrinsic<typeof callsGhost, [5]>;
+>E3 : any
+>callsGhost : (x: number) => any
+
+// var declaration: not extracted
+var varHelper = (n: number) => n + 1;
+>varHelper : (n: number) => number
+>(n: number) => n + 1 : (n: number) => number
+>n : number
+>n + 1 : number
+>n : number
+>1 : 1
+
+const usesVar = (x: number) => varHelper(x);
+>usesVar : (x: number) => number
+>(x: number) => varHelper(x) : (x: number) => number
+>x : number
+>varHelper(x) : number
+>varHelper : (n: number) => number
+>x : number
+
+type E4 = Intrinsic<typeof usesVar, [5]>;
+>E4 : any
+>usesVar : (x: number) => number
+
+// Const value dependency
+const NUM_VALUE = 42;
+>NUM_VALUE : 42
+>42 : 42
+
+const usesNum = (x: number) => x + NUM_VALUE;
+>usesNum : (x: number) => number
+>(x: number) => x + NUM_VALUE : (x: number) => number
+>x : number
+>x + NUM_VALUE : number
+>x : number
+>NUM_VALUE : 42
+
+type E5 = Intrinsic<typeof usesNum, [8]>;  // 50
+>E5 : 50
+>usesNum : (x: number) => number
+
+// Const expression dependency
+const computed = 2 + 3;
+>computed : number
+>2 + 3 : number
+>2 : 2
+>3 : 3
+
+const usesComputed = (x: number) => x + computed;
+>usesComputed : (x: number) => number
+>(x: number) => x + computed : (x: number) => number
+>x : number
+>x + computed : number
+>x : number
+>computed : number
+
+type E6 = Intrinsic<typeof usesComputed, [10]>;  // 15
+>E6 : 15
+>usesComputed : (x: number) => number
+
+// Division is not confused with comments
+const divides = (a: number, b: number) => a / b;
+>divides : (a: number, b: number) => number
+>(a: number, b: number) => a / b : (a: number, b: number) => number
+>a : number
+>b : number
+>a / b : number
+>a : number
+>b : number
+
+type E7 = Intrinsic<typeof divides, [10, 2]>;  // 5
+>E7 : 5
+>divides : (a: number, b: number) => number
+

@@ -1,0 +1,1731 @@
+//// [tests/cases/compiler/intrinsic/sql.ts] ////
+
+=== sql_helpers.ts ===
+// Shared helpers for compile-time SQL validation and parsing via Intrinsic<>.
+
+export const ne = { $never$: {} } ;
+>ne : Symbol(ne, Decl(sql_helpers.ts, 2, 12))
+>$never$ : Symbol($never$, Decl(sql_helpers.ts, 2, 19))
+
+export function range(startOrEnd: number, end?: number): number[] {
+>range : Symbol(range, Decl(sql_helpers.ts, 2, 35))
+>startOrEnd : Symbol(startOrEnd, Decl(sql_helpers.ts, 4, 22))
+>end : Symbol(end, Decl(sql_helpers.ts, 4, 41))
+
+    const s = end === undefined ? 0 : startOrEnd;
+>s : Symbol(s, Decl(sql_helpers.ts, 5, 9))
+>end : Symbol(end, Decl(sql_helpers.ts, 4, 41))
+>undefined : Symbol(undefined)
+>startOrEnd : Symbol(startOrEnd, Decl(sql_helpers.ts, 4, 22))
+
+    const e = end === undefined ? startOrEnd : end;
+>e : Symbol(e, Decl(sql_helpers.ts, 6, 9))
+>end : Symbol(end, Decl(sql_helpers.ts, 4, 41))
+>undefined : Symbol(undefined)
+>startOrEnd : Symbol(startOrEnd, Decl(sql_helpers.ts, 4, 22))
+>end : Symbol(end, Decl(sql_helpers.ts, 4, 41))
+
+    return Array.from({ length: Math.max(e - s, 0) }, (_, i) => s + i);
+>Array.from : Symbol(ArrayConstructor.from, Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.iterable.d.ts, --, --), Decl(lib.es2015.iterable.d.ts, --, --))
+>Array : Symbol(Array, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.iterable.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --) ... and 4 more)
+>from : Symbol(ArrayConstructor.from, Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.iterable.d.ts, --, --), Decl(lib.es2015.iterable.d.ts, --, --))
+>length : Symbol(length, Decl(sql_helpers.ts, 7, 23))
+>Math.max : Symbol(Math.max, Decl(lib.es5.d.ts, --, --))
+>Math : Symbol(Math, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --), Decl(lib.es2025.float16.d.ts, --, --))
+>max : Symbol(Math.max, Decl(lib.es5.d.ts, --, --))
+>e : Symbol(e, Decl(sql_helpers.ts, 6, 9))
+>s : Symbol(s, Decl(sql_helpers.ts, 5, 9))
+>_ : Symbol(_, Decl(sql_helpers.ts, 7, 55))
+>i : Symbol(i, Decl(sql_helpers.ts, 7, 57))
+>s : Symbol(s, Decl(sql_helpers.ts, 5, 9))
+>i : Symbol(i, Decl(sql_helpers.ts, 7, 57))
+}
+
+// Collapse runs of whitespace to a single space, preserving single-quoted strings.
+export const normalizeSql = (sql: string) => {
+>normalizeSql : Symbol(normalizeSql, Decl(sql_helpers.ts, 11, 12))
+>sql : Symbol(sql, Decl(sql_helpers.ts, 11, 29))
+
+    let norm: string = '';
+>norm : Symbol(norm, Decl(sql_helpers.ts, 12, 7))
+
+    let lastWasSpace: boolean = true;
+>lastWasSpace : Symbol(lastWasSpace, Decl(sql_helpers.ts, 13, 7))
+
+    let inStr: boolean = false;
+>inStr : Symbol(inStr, Decl(sql_helpers.ts, 14, 7))
+
+    let i = 0;
+>i : Symbol(i, Decl(sql_helpers.ts, 15, 7))
+
+    while (i < sql.length) {
+>i : Symbol(i, Decl(sql_helpers.ts, 15, 7))
+>sql.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>sql : Symbol(sql, Decl(sql_helpers.ts, 11, 29))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+        let c: string = sql.slice(i, i + 1);
+>c : Symbol(c, Decl(sql_helpers.ts, 17, 11))
+>sql.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>sql : Symbol(sql, Decl(sql_helpers.ts, 11, 29))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>i : Symbol(i, Decl(sql_helpers.ts, 15, 7))
+>i : Symbol(i, Decl(sql_helpers.ts, 15, 7))
+
+        if (c == "'") { inStr = !inStr; norm = norm + c; lastWasSpace = false; }
+>c : Symbol(c, Decl(sql_helpers.ts, 17, 11))
+>inStr : Symbol(inStr, Decl(sql_helpers.ts, 14, 7))
+>inStr : Symbol(inStr, Decl(sql_helpers.ts, 14, 7))
+>norm : Symbol(norm, Decl(sql_helpers.ts, 12, 7))
+>norm : Symbol(norm, Decl(sql_helpers.ts, 12, 7))
+>c : Symbol(c, Decl(sql_helpers.ts, 17, 11))
+>lastWasSpace : Symbol(lastWasSpace, Decl(sql_helpers.ts, 13, 7))
+
+        else if (inStr) { norm = norm + c; lastWasSpace = false; }
+>inStr : Symbol(inStr, Decl(sql_helpers.ts, 14, 7))
+>norm : Symbol(norm, Decl(sql_helpers.ts, 12, 7))
+>norm : Symbol(norm, Decl(sql_helpers.ts, 12, 7))
+>c : Symbol(c, Decl(sql_helpers.ts, 17, 11))
+>lastWasSpace : Symbol(lastWasSpace, Decl(sql_helpers.ts, 13, 7))
+
+        else if (c == ' ' || c == '\n' || c == '\t') {
+>c : Symbol(c, Decl(sql_helpers.ts, 17, 11))
+>c : Symbol(c, Decl(sql_helpers.ts, 17, 11))
+>c : Symbol(c, Decl(sql_helpers.ts, 17, 11))
+
+            if (!lastWasSpace) { norm = norm + ' '; lastWasSpace = true; }
+>lastWasSpace : Symbol(lastWasSpace, Decl(sql_helpers.ts, 13, 7))
+>norm : Symbol(norm, Decl(sql_helpers.ts, 12, 7))
+>norm : Symbol(norm, Decl(sql_helpers.ts, 12, 7))
+>lastWasSpace : Symbol(lastWasSpace, Decl(sql_helpers.ts, 13, 7))
+
+        } else { norm = norm + c; lastWasSpace = false; }
+>norm : Symbol(norm, Decl(sql_helpers.ts, 12, 7))
+>norm : Symbol(norm, Decl(sql_helpers.ts, 12, 7))
+>c : Symbol(c, Decl(sql_helpers.ts, 17, 11))
+>lastWasSpace : Symbol(lastWasSpace, Decl(sql_helpers.ts, 13, 7))
+
+        i = i + 1;
+>i : Symbol(i, Decl(sql_helpers.ts, 15, 7))
+>i : Symbol(i, Decl(sql_helpers.ts, 15, 7))
+    }
+    return norm.trim();
+>norm.trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>norm : Symbol(norm, Decl(sql_helpers.ts, 12, 7))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+};
+
+// Find a SQL keyword at a word boundary in an uppercased string. Returns index or -1.
+export const findKw = (upper: string, kw: string) => {
+>findKw : Symbol(findKw, Decl(sql_helpers.ts, 29, 12))
+>upper : Symbol(upper, Decl(sql_helpers.ts, 29, 23))
+>kw : Symbol(kw, Decl(sql_helpers.ts, 29, 37))
+
+    let idx: number = upper.indexOf(kw);
+>idx : Symbol(idx, Decl(sql_helpers.ts, 30, 7))
+>upper.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>upper : Symbol(upper, Decl(sql_helpers.ts, 29, 23))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>kw : Symbol(kw, Decl(sql_helpers.ts, 29, 37))
+
+    while (idx != -1) {
+>idx : Symbol(idx, Decl(sql_helpers.ts, 30, 7))
+
+        let before: boolean = idx == 0 || upper.slice(idx - 1, idx) == ' ' || upper.slice(idx - 1, idx) == '(';
+>before : Symbol(before, Decl(sql_helpers.ts, 32, 11))
+>idx : Symbol(idx, Decl(sql_helpers.ts, 30, 7))
+>upper.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>upper : Symbol(upper, Decl(sql_helpers.ts, 29, 23))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>idx : Symbol(idx, Decl(sql_helpers.ts, 30, 7))
+>idx : Symbol(idx, Decl(sql_helpers.ts, 30, 7))
+>upper.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>upper : Symbol(upper, Decl(sql_helpers.ts, 29, 23))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>idx : Symbol(idx, Decl(sql_helpers.ts, 30, 7))
+>idx : Symbol(idx, Decl(sql_helpers.ts, 30, 7))
+
+        let end: number = idx + kw.length;
+>end : Symbol(end, Decl(sql_helpers.ts, 33, 11))
+>idx : Symbol(idx, Decl(sql_helpers.ts, 30, 7))
+>kw.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>kw : Symbol(kw, Decl(sql_helpers.ts, 29, 37))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+        let after: boolean = end == upper.length || upper.slice(end, end + 1) == ' ' || upper.slice(end, end + 1) == '(' || upper.slice(end, end + 1) == ')';
+>after : Symbol(after, Decl(sql_helpers.ts, 34, 11))
+>end : Symbol(end, Decl(sql_helpers.ts, 33, 11))
+>upper.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>upper : Symbol(upper, Decl(sql_helpers.ts, 29, 23))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>upper.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>upper : Symbol(upper, Decl(sql_helpers.ts, 29, 23))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>end : Symbol(end, Decl(sql_helpers.ts, 33, 11))
+>end : Symbol(end, Decl(sql_helpers.ts, 33, 11))
+>upper.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>upper : Symbol(upper, Decl(sql_helpers.ts, 29, 23))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>end : Symbol(end, Decl(sql_helpers.ts, 33, 11))
+>end : Symbol(end, Decl(sql_helpers.ts, 33, 11))
+>upper.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>upper : Symbol(upper, Decl(sql_helpers.ts, 29, 23))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>end : Symbol(end, Decl(sql_helpers.ts, 33, 11))
+>end : Symbol(end, Decl(sql_helpers.ts, 33, 11))
+
+        if (before && after) return idx;
+>before : Symbol(before, Decl(sql_helpers.ts, 32, 11))
+>after : Symbol(after, Decl(sql_helpers.ts, 34, 11))
+>idx : Symbol(idx, Decl(sql_helpers.ts, 30, 7))
+
+        idx = upper.indexOf(kw, idx + 1);
+>idx : Symbol(idx, Decl(sql_helpers.ts, 30, 7))
+>upper.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>upper : Symbol(upper, Decl(sql_helpers.ts, 29, 23))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>kw : Symbol(kw, Decl(sql_helpers.ts, 29, 37))
+>idx : Symbol(idx, Decl(sql_helpers.ts, 30, 7))
+    }
+    return -1;
+};
+
+// Extract $1, $2, ... parameter placeholders from a SQL string.
+export const findParams = (s: string) => {
+>findParams : Symbol(findParams, Decl(sql_helpers.ts, 42, 12))
+>s : Symbol(s, Decl(sql_helpers.ts, 42, 27))
+
+    let params: string[] = [];
+>params : Symbol(params, Decl(sql_helpers.ts, 43, 7))
+
+    let i = 0;
+>i : Symbol(i, Decl(sql_helpers.ts, 44, 7))
+
+    while (i < s.length - 1) {
+>i : Symbol(i, Decl(sql_helpers.ts, 44, 7))
+>s.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(sql_helpers.ts, 42, 27))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+        if (s.slice(i, i + 1) == '$') {
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(sql_helpers.ts, 42, 27))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>i : Symbol(i, Decl(sql_helpers.ts, 44, 7))
+>i : Symbol(i, Decl(sql_helpers.ts, 44, 7))
+
+            let j: number = i + 1;
+>j : Symbol(j, Decl(sql_helpers.ts, 47, 15))
+>i : Symbol(i, Decl(sql_helpers.ts, 44, 7))
+
+            while (j < s.length && '0123456789'.includes(s.slice(j, j + 1))) { j = j + 1; }
+>j : Symbol(j, Decl(sql_helpers.ts, 47, 15))
+>s.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(sql_helpers.ts, 42, 27))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>'0123456789'.includes : Symbol(String.includes, Decl(lib.es2015.core.d.ts, --, --))
+>includes : Symbol(String.includes, Decl(lib.es2015.core.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(sql_helpers.ts, 42, 27))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>j : Symbol(j, Decl(sql_helpers.ts, 47, 15))
+>j : Symbol(j, Decl(sql_helpers.ts, 47, 15))
+>j : Symbol(j, Decl(sql_helpers.ts, 47, 15))
+>j : Symbol(j, Decl(sql_helpers.ts, 47, 15))
+
+            if (j > i + 1) {
+>j : Symbol(j, Decl(sql_helpers.ts, 47, 15))
+>i : Symbol(i, Decl(sql_helpers.ts, 44, 7))
+
+                let p: string = s.slice(i, j);
+>p : Symbol(p, Decl(sql_helpers.ts, 50, 19))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(sql_helpers.ts, 42, 27))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>i : Symbol(i, Decl(sql_helpers.ts, 44, 7))
+>j : Symbol(j, Decl(sql_helpers.ts, 47, 15))
+
+                if (!params.includes(p)) params = [...params, p];
+>params.includes : Symbol(Array.includes, Decl(lib.es2016.array.include.d.ts, --, --))
+>params : Symbol(params, Decl(sql_helpers.ts, 43, 7))
+>includes : Symbol(Array.includes, Decl(lib.es2016.array.include.d.ts, --, --))
+>p : Symbol(p, Decl(sql_helpers.ts, 50, 19))
+>params : Symbol(params, Decl(sql_helpers.ts, 43, 7))
+>params : Symbol(params, Decl(sql_helpers.ts, 43, 7))
+>p : Symbol(p, Decl(sql_helpers.ts, 50, 19))
+            }
+        }
+        i = i + 1;
+>i : Symbol(i, Decl(sql_helpers.ts, 44, 7))
+>i : Symbol(i, Decl(sql_helpers.ts, 44, 7))
+    }
+    return params;
+>params : Symbol(params, Decl(sql_helpers.ts, 43, 7))
+
+};
+
+// Extract the first word (table name) from a string. Returns [table, rest].
+export const extractTable = (s: string) => {
+>extractTable : Symbol(extractTable, Decl(sql_helpers.ts, 60, 12))
+>s : Symbol(s, Decl(sql_helpers.ts, 60, 29))
+
+    let spaceIdx: number = s.indexOf(' ');
+>spaceIdx : Symbol(spaceIdx, Decl(sql_helpers.ts, 61, 7))
+>s.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(sql_helpers.ts, 60, 29))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+
+    if (spaceIdx == -1) return [s, ''];
+>spaceIdx : Symbol(spaceIdx, Decl(sql_helpers.ts, 61, 7))
+>s : Symbol(s, Decl(sql_helpers.ts, 60, 29))
+
+    return [s.slice(0, spaceIdx), s.slice(spaceIdx + 1)];
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(sql_helpers.ts, 60, 29))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>spaceIdx : Symbol(spaceIdx, Decl(sql_helpers.ts, 61, 7))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(sql_helpers.ts, 60, 29))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>spaceIdx : Symbol(spaceIdx, Decl(sql_helpers.ts, 61, 7))
+
+};
+
+// Extract WHERE clause, trimming anything after ORDER BY / LIMIT / GROUP BY.
+export const extractWhere = (norm: string, upper: string) => {
+>extractWhere : Symbol(extractWhere, Decl(sql_helpers.ts, 67, 12))
+>norm : Symbol(norm, Decl(sql_helpers.ts, 67, 29))
+>upper : Symbol(upper, Decl(sql_helpers.ts, 67, 42))
+
+    let whereIdx: number = findKw(upper, 'WHERE');
+>whereIdx : Symbol(whereIdx, Decl(sql_helpers.ts, 68, 7))
+>findKw : Symbol(findKw, Decl(sql_helpers.ts, 29, 12))
+>upper : Symbol(upper, Decl(sql_helpers.ts, 67, 42))
+
+    if (whereIdx == -1) return '';
+>whereIdx : Symbol(whereIdx, Decl(sql_helpers.ts, 68, 7))
+
+    let afterWhere: string = norm.slice(whereIdx + 6).trim();
+>afterWhere : Symbol(afterWhere, Decl(sql_helpers.ts, 70, 7))
+>norm.slice(whereIdx + 6).trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>norm.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>norm : Symbol(norm, Decl(sql_helpers.ts, 67, 29))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>whereIdx : Symbol(whereIdx, Decl(sql_helpers.ts, 68, 7))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+    let endIdx: number = afterWhere.length;
+>endIdx : Symbol(endIdx, Decl(sql_helpers.ts, 71, 7))
+>afterWhere.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>afterWhere : Symbol(afterWhere, Decl(sql_helpers.ts, 70, 7))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+    let orderCheck: number = afterWhere.toUpperCase().indexOf(' ORDER BY ');
+>orderCheck : Symbol(orderCheck, Decl(sql_helpers.ts, 72, 7))
+>afterWhere.toUpperCase().indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>afterWhere.toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>afterWhere : Symbol(afterWhere, Decl(sql_helpers.ts, 70, 7))
+>toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+
+    let limitCheck: number = afterWhere.toUpperCase().indexOf(' LIMIT ');
+>limitCheck : Symbol(limitCheck, Decl(sql_helpers.ts, 73, 7))
+>afterWhere.toUpperCase().indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>afterWhere.toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>afterWhere : Symbol(afterWhere, Decl(sql_helpers.ts, 70, 7))
+>toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+
+    let groupCheck: number = afterWhere.toUpperCase().indexOf(' GROUP BY ');
+>groupCheck : Symbol(groupCheck, Decl(sql_helpers.ts, 74, 7))
+>afterWhere.toUpperCase().indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>afterWhere.toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>afterWhere : Symbol(afterWhere, Decl(sql_helpers.ts, 70, 7))
+>toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+
+    if (orderCheck != -1 && orderCheck < endIdx) endIdx = orderCheck;
+>orderCheck : Symbol(orderCheck, Decl(sql_helpers.ts, 72, 7))
+>orderCheck : Symbol(orderCheck, Decl(sql_helpers.ts, 72, 7))
+>endIdx : Symbol(endIdx, Decl(sql_helpers.ts, 71, 7))
+>endIdx : Symbol(endIdx, Decl(sql_helpers.ts, 71, 7))
+>orderCheck : Symbol(orderCheck, Decl(sql_helpers.ts, 72, 7))
+
+    if (limitCheck != -1 && limitCheck < endIdx) endIdx = limitCheck;
+>limitCheck : Symbol(limitCheck, Decl(sql_helpers.ts, 73, 7))
+>limitCheck : Symbol(limitCheck, Decl(sql_helpers.ts, 73, 7))
+>endIdx : Symbol(endIdx, Decl(sql_helpers.ts, 71, 7))
+>endIdx : Symbol(endIdx, Decl(sql_helpers.ts, 71, 7))
+>limitCheck : Symbol(limitCheck, Decl(sql_helpers.ts, 73, 7))
+
+    if (groupCheck != -1 && groupCheck < endIdx) endIdx = groupCheck;
+>groupCheck : Symbol(groupCheck, Decl(sql_helpers.ts, 74, 7))
+>groupCheck : Symbol(groupCheck, Decl(sql_helpers.ts, 74, 7))
+>endIdx : Symbol(endIdx, Decl(sql_helpers.ts, 71, 7))
+>endIdx : Symbol(endIdx, Decl(sql_helpers.ts, 71, 7))
+>groupCheck : Symbol(groupCheck, Decl(sql_helpers.ts, 74, 7))
+
+    return afterWhere.slice(0, endIdx).trim();
+>afterWhere.slice(0, endIdx).trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>afterWhere.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>afterWhere : Symbol(afterWhere, Decl(sql_helpers.ts, 70, 7))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>endIdx : Symbol(endIdx, Decl(sql_helpers.ts, 71, 7))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+};
+
+// Extract ORDER BY clause value.
+export const extractOrderBy = (norm: string, upper: string) => {
+>extractOrderBy : Symbol(extractOrderBy, Decl(sql_helpers.ts, 82, 12))
+>norm : Symbol(norm, Decl(sql_helpers.ts, 82, 31))
+>upper : Symbol(upper, Decl(sql_helpers.ts, 82, 44))
+
+    let orderIdx: number = findKw(upper, 'ORDER BY');
+>orderIdx : Symbol(orderIdx, Decl(sql_helpers.ts, 83, 7))
+>findKw : Symbol(findKw, Decl(sql_helpers.ts, 29, 12))
+>upper : Symbol(upper, Decl(sql_helpers.ts, 82, 44))
+
+    if (orderIdx == -1) return '';
+>orderIdx : Symbol(orderIdx, Decl(sql_helpers.ts, 83, 7))
+
+    let afterOrder: string = norm.slice(orderIdx + 9).trim();
+>afterOrder : Symbol(afterOrder, Decl(sql_helpers.ts, 85, 7))
+>norm.slice(orderIdx + 9).trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>norm.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>norm : Symbol(norm, Decl(sql_helpers.ts, 82, 31))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>orderIdx : Symbol(orderIdx, Decl(sql_helpers.ts, 83, 7))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+    let limitCheck: number = afterOrder.toUpperCase().indexOf(' LIMIT ');
+>limitCheck : Symbol(limitCheck, Decl(sql_helpers.ts, 86, 7))
+>afterOrder.toUpperCase().indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>afterOrder.toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>afterOrder : Symbol(afterOrder, Decl(sql_helpers.ts, 85, 7))
+>toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+
+    return limitCheck == -1 ? afterOrder : afterOrder.slice(0, limitCheck).trim();
+>limitCheck : Symbol(limitCheck, Decl(sql_helpers.ts, 86, 7))
+>afterOrder : Symbol(afterOrder, Decl(sql_helpers.ts, 85, 7))
+>afterOrder.slice(0, limitCheck).trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>afterOrder.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>afterOrder : Symbol(afterOrder, Decl(sql_helpers.ts, 85, 7))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>limitCheck : Symbol(limitCheck, Decl(sql_helpers.ts, 86, 7))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+};
+
+// Extract LIMIT clause value.
+export const extractLimit = (norm: string, upper: string) => {
+>extractLimit : Symbol(extractLimit, Decl(sql_helpers.ts, 91, 12))
+>norm : Symbol(norm, Decl(sql_helpers.ts, 91, 29))
+>upper : Symbol(upper, Decl(sql_helpers.ts, 91, 42))
+
+    let limitIdx: number = findKw(upper, 'LIMIT');
+>limitIdx : Symbol(limitIdx, Decl(sql_helpers.ts, 92, 7))
+>findKw : Symbol(findKw, Decl(sql_helpers.ts, 29, 12))
+>upper : Symbol(upper, Decl(sql_helpers.ts, 91, 42))
+
+    if (limitIdx == -1) return '';
+>limitIdx : Symbol(limitIdx, Decl(sql_helpers.ts, 92, 7))
+
+    let afterLimit: string = norm.slice(limitIdx + 6).trim();
+>afterLimit : Symbol(afterLimit, Decl(sql_helpers.ts, 94, 7))
+>norm.slice(limitIdx + 6).trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>norm.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>norm : Symbol(norm, Decl(sql_helpers.ts, 91, 29))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>limitIdx : Symbol(limitIdx, Decl(sql_helpers.ts, 92, 7))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+    let offsetCheck: number = afterLimit.toUpperCase().indexOf(' OFFSET ');
+>offsetCheck : Symbol(offsetCheck, Decl(sql_helpers.ts, 95, 7))
+>afterLimit.toUpperCase().indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>afterLimit.toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>afterLimit : Symbol(afterLimit, Decl(sql_helpers.ts, 94, 7))
+>toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+
+    return offsetCheck == -1 ? afterLimit : afterLimit.slice(0, offsetCheck).trim();
+>offsetCheck : Symbol(offsetCheck, Decl(sql_helpers.ts, 95, 7))
+>afterLimit : Symbol(afterLimit, Decl(sql_helpers.ts, 94, 7))
+>afterLimit.slice(0, offsetCheck).trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>afterLimit.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>afterLimit : Symbol(afterLimit, Decl(sql_helpers.ts, 94, 7))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>offsetCheck : Symbol(offsetCheck, Decl(sql_helpers.ts, 95, 7))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+};
+
+// Split comma-separated items and trim each.
+export const splitTrim = (s: string) => s.split(',').map((c: string) => c.trim());
+>splitTrim : Symbol(splitTrim, Decl(sql_helpers.ts, 100, 12))
+>s : Symbol(s, Decl(sql_helpers.ts, 100, 26))
+>s.split(',').map : Symbol(Array.map, Decl(lib.es5.d.ts, --, --))
+>s.split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+>s : Symbol(s, Decl(sql_helpers.ts, 100, 26))
+>split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+>map : Symbol(Array.map, Decl(lib.es5.d.ts, --, --))
+>c : Symbol(c, Decl(sql_helpers.ts, 100, 58))
+>c.trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>c : Symbol(c, Decl(sql_helpers.ts, 100, 58))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+// Parse CREATE TABLE statements from a schema string into { tableName: [col, ...] }.
+export const parseSchema = (schemaSql: string) => {
+>parseSchema : Symbol(parseSchema, Decl(sql_helpers.ts, 103, 12))
+>schemaSql : Symbol(schemaSql, Decl(sql_helpers.ts, 103, 28))
+
+    let tables: Record<string, any> = {};
+>tables : Symbol(tables, Decl(sql_helpers.ts, 104, 7))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+    let stmts: string[] = schemaSql.split(';');
+>stmts : Symbol(stmts, Decl(sql_helpers.ts, 105, 7))
+>schemaSql.split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+>schemaSql : Symbol(schemaSql, Decl(sql_helpers.ts, 103, 28))
+>split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+
+    for (let stmt of stmts) {
+>stmt : Symbol(stmt, Decl(sql_helpers.ts, 106, 12))
+>stmts : Symbol(stmts, Decl(sql_helpers.ts, 105, 7))
+
+        let s: string = stmt.trim();
+>s : Symbol(s, Decl(sql_helpers.ts, 107, 11))
+>stmt.trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>stmt : Symbol(stmt, Decl(sql_helpers.ts, 106, 12))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+        if (s.length == 0) { }
+>s.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(sql_helpers.ts, 107, 11))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+        else if (s.toUpperCase().startsWith('CREATE TABLE ')) {
+>s.toUpperCase().startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>s.toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(sql_helpers.ts, 107, 11))
+>toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+
+            let afterCT: string = s.slice(13).trim();
+>afterCT : Symbol(afterCT, Decl(sql_helpers.ts, 110, 15))
+>s.slice(13).trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(sql_helpers.ts, 107, 11))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+            if (afterCT.toUpperCase().startsWith('IF NOT EXISTS ')) {
+>afterCT.toUpperCase().startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>afterCT.toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>afterCT : Symbol(afterCT, Decl(sql_helpers.ts, 110, 15))
+>toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+
+                afterCT = afterCT.slice(14).trim();
+>afterCT : Symbol(afterCT, Decl(sql_helpers.ts, 110, 15))
+>afterCT.slice(14).trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>afterCT.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>afterCT : Symbol(afterCT, Decl(sql_helpers.ts, 110, 15))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+            }
+            let parenIdx: number = afterCT.indexOf('(');
+>parenIdx : Symbol(parenIdx, Decl(sql_helpers.ts, 114, 15))
+>afterCT.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>afterCT : Symbol(afterCT, Decl(sql_helpers.ts, 110, 15))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+
+            if (parenIdx == -1) return 'Error: invalid schema: missing ( in CREATE TABLE';
+>parenIdx : Symbol(parenIdx, Decl(sql_helpers.ts, 114, 15))
+
+            let tableName: string = afterCT.slice(0, parenIdx).trim();
+>tableName : Symbol(tableName, Decl(sql_helpers.ts, 116, 15))
+>afterCT.slice(0, parenIdx).trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>afterCT.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>afterCT : Symbol(afterCT, Decl(sql_helpers.ts, 110, 15))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>parenIdx : Symbol(parenIdx, Decl(sql_helpers.ts, 114, 15))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+            let endParen: number = -1;
+>endParen : Symbol(endParen, Decl(sql_helpers.ts, 117, 15))
+
+            let ei = 0;
+>ei : Symbol(ei, Decl(sql_helpers.ts, 118, 15))
+
+            while (ei < afterCT.length) {
+>ei : Symbol(ei, Decl(sql_helpers.ts, 118, 15))
+>afterCT.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>afterCT : Symbol(afterCT, Decl(sql_helpers.ts, 110, 15))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+                if (afterCT.slice(ei, ei + 1) == ')') endParen = ei;
+>afterCT.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>afterCT : Symbol(afterCT, Decl(sql_helpers.ts, 110, 15))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>ei : Symbol(ei, Decl(sql_helpers.ts, 118, 15))
+>ei : Symbol(ei, Decl(sql_helpers.ts, 118, 15))
+>endParen : Symbol(endParen, Decl(sql_helpers.ts, 117, 15))
+>ei : Symbol(ei, Decl(sql_helpers.ts, 118, 15))
+
+                ei = ei + 1;
+>ei : Symbol(ei, Decl(sql_helpers.ts, 118, 15))
+>ei : Symbol(ei, Decl(sql_helpers.ts, 118, 15))
+            }
+            if (endParen == -1) return 'Error: invalid schema: missing ) in CREATE TABLE';
+>endParen : Symbol(endParen, Decl(sql_helpers.ts, 117, 15))
+
+            let colDefs: string = afterCT.slice(parenIdx + 1, endParen);
+>colDefs : Symbol(colDefs, Decl(sql_helpers.ts, 124, 15))
+>afterCT.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>afterCT : Symbol(afterCT, Decl(sql_helpers.ts, 110, 15))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>parenIdx : Symbol(parenIdx, Decl(sql_helpers.ts, 114, 15))
+>endParen : Symbol(endParen, Decl(sql_helpers.ts, 117, 15))
+
+            let colNames: string[] = [];
+>colNames : Symbol(colNames, Decl(sql_helpers.ts, 125, 15))
+
+            let parts: string[] = colDefs.split(',');
+>parts : Symbol(parts, Decl(sql_helpers.ts, 126, 15))
+>colDefs.split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+>colDefs : Symbol(colDefs, Decl(sql_helpers.ts, 124, 15))
+>split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+
+            for (let part of parts) {
+>part : Symbol(part, Decl(sql_helpers.ts, 127, 20))
+>parts : Symbol(parts, Decl(sql_helpers.ts, 126, 15))
+
+                let p: string = part.trim();
+>p : Symbol(p, Decl(sql_helpers.ts, 128, 19))
+>part.trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>part : Symbol(part, Decl(sql_helpers.ts, 127, 20))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+                if (p.length > 0) {
+>p.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>p : Symbol(p, Decl(sql_helpers.ts, 128, 19))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+                    let firstWord: string = p.includes(' ') ? p.slice(0, p.indexOf(' ')) : p;
+>firstWord : Symbol(firstWord, Decl(sql_helpers.ts, 130, 23))
+>p.includes : Symbol(String.includes, Decl(lib.es2015.core.d.ts, --, --))
+>p : Symbol(p, Decl(sql_helpers.ts, 128, 19))
+>includes : Symbol(String.includes, Decl(lib.es2015.core.d.ts, --, --))
+>p.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>p : Symbol(p, Decl(sql_helpers.ts, 128, 19))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>p.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>p : Symbol(p, Decl(sql_helpers.ts, 128, 19))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>p : Symbol(p, Decl(sql_helpers.ts, 128, 19))
+
+                    let upper: string = firstWord.toUpperCase();
+>upper : Symbol(upper, Decl(sql_helpers.ts, 131, 23))
+>firstWord.toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>firstWord : Symbol(firstWord, Decl(sql_helpers.ts, 130, 23))
+>toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+
+                    if (upper != 'PRIMARY' && upper != 'FOREIGN' && upper != 'UNIQUE'
+>upper : Symbol(upper, Decl(sql_helpers.ts, 131, 23))
+>upper : Symbol(upper, Decl(sql_helpers.ts, 131, 23))
+>upper : Symbol(upper, Decl(sql_helpers.ts, 131, 23))
+
+                        && upper != 'CHECK' && upper != 'CONSTRAINT') {
+>upper : Symbol(upper, Decl(sql_helpers.ts, 131, 23))
+>upper : Symbol(upper, Decl(sql_helpers.ts, 131, 23))
+
+                        colNames = [...colNames, firstWord];
+>colNames : Symbol(colNames, Decl(sql_helpers.ts, 125, 15))
+>colNames : Symbol(colNames, Decl(sql_helpers.ts, 125, 15))
+>firstWord : Symbol(firstWord, Decl(sql_helpers.ts, 130, 23))
+                    }
+                }
+            }
+            tables[tableName] = colNames;
+>tables : Symbol(tables, Decl(sql_helpers.ts, 104, 7))
+>tableName : Symbol(tableName, Decl(sql_helpers.ts, 116, 15))
+>colNames : Symbol(colNames, Decl(sql_helpers.ts, 125, 15))
+        }
+    }
+    return tables;
+>tables : Symbol(tables, Decl(sql_helpers.ts, 104, 7))
+
+};
+
+// Resolve selected columns against a schema, returning [cols] or an error string.
+export const resolveColumns = (columnsStr: string, validColumns: any, tableName: string) => {
+>resolveColumns : Symbol(resolveColumns, Decl(sql_helpers.ts, 145, 12))
+>columnsStr : Symbol(columnsStr, Decl(sql_helpers.ts, 145, 31))
+>validColumns : Symbol(validColumns, Decl(sql_helpers.ts, 145, 50))
+>tableName : Symbol(tableName, Decl(sql_helpers.ts, 145, 69))
+
+    if (columnsStr == '*') return validColumns;
+>columnsStr : Symbol(columnsStr, Decl(sql_helpers.ts, 145, 31))
+>validColumns : Symbol(validColumns, Decl(sql_helpers.ts, 145, 50))
+
+    let selectedCols: string[] = [];
+>selectedCols : Symbol(selectedCols, Decl(sql_helpers.ts, 147, 7))
+
+    let rawCols: string[] = splitTrim(columnsStr);
+>rawCols : Symbol(rawCols, Decl(sql_helpers.ts, 148, 7))
+>splitTrim : Symbol(splitTrim, Decl(sql_helpers.ts, 100, 12))
+>columnsStr : Symbol(columnsStr, Decl(sql_helpers.ts, 145, 31))
+
+    for (let col of rawCols) {
+>col : Symbol(col, Decl(sql_helpers.ts, 149, 12))
+>rawCols : Symbol(rawCols, Decl(sql_helpers.ts, 148, 7))
+
+        let colUpper: string = col.toUpperCase();
+>colUpper : Symbol(colUpper, Decl(sql_helpers.ts, 150, 11))
+>col.toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>col : Symbol(col, Decl(sql_helpers.ts, 149, 12))
+>toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+
+        if (colUpper.startsWith('COUNT(') || colUpper.startsWith('SUM(')
+>colUpper.startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>colUpper : Symbol(colUpper, Decl(sql_helpers.ts, 150, 11))
+>startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>colUpper.startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>colUpper : Symbol(colUpper, Decl(sql_helpers.ts, 150, 11))
+>startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+
+            || colUpper.startsWith('AVG(') || colUpper.startsWith('MIN(')
+>colUpper.startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>colUpper : Symbol(colUpper, Decl(sql_helpers.ts, 150, 11))
+>startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>colUpper.startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>colUpper : Symbol(colUpper, Decl(sql_helpers.ts, 150, 11))
+>startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+
+            || colUpper.startsWith('MAX(')) {
+>colUpper.startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>colUpper : Symbol(colUpper, Decl(sql_helpers.ts, 150, 11))
+>startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+
+            let inner: string = col.slice(col.indexOf('(') + 1, col.indexOf(')'));
+>inner : Symbol(inner, Decl(sql_helpers.ts, 154, 15))
+>col.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>col : Symbol(col, Decl(sql_helpers.ts, 149, 12))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>col.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>col : Symbol(col, Decl(sql_helpers.ts, 149, 12))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>col.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>col : Symbol(col, Decl(sql_helpers.ts, 149, 12))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+
+            if (inner != '*' && !validColumns.includes(inner)) {
+>inner : Symbol(inner, Decl(sql_helpers.ts, 154, 15))
+>validColumns : Symbol(validColumns, Decl(sql_helpers.ts, 145, 50))
+>inner : Symbol(inner, Decl(sql_helpers.ts, 154, 15))
+
+                return 'Error: column \'' + inner + '\' not found in table \'' + tableName + '\'';
+>inner : Symbol(inner, Decl(sql_helpers.ts, 154, 15))
+>tableName : Symbol(tableName, Decl(sql_helpers.ts, 145, 69))
+            }
+            selectedCols = [...selectedCols, col];
+>selectedCols : Symbol(selectedCols, Decl(sql_helpers.ts, 147, 7))
+>selectedCols : Symbol(selectedCols, Decl(sql_helpers.ts, 147, 7))
+>col : Symbol(col, Decl(sql_helpers.ts, 149, 12))
+
+        } else {
+            let colName: string = col.includes(' ') ? col.slice(0, col.indexOf(' ')) : col;
+>colName : Symbol(colName, Decl(sql_helpers.ts, 160, 15))
+>col.includes : Symbol(String.includes, Decl(lib.es2015.core.d.ts, --, --))
+>col : Symbol(col, Decl(sql_helpers.ts, 149, 12))
+>includes : Symbol(String.includes, Decl(lib.es2015.core.d.ts, --, --))
+>col.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>col : Symbol(col, Decl(sql_helpers.ts, 149, 12))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>col.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>col : Symbol(col, Decl(sql_helpers.ts, 149, 12))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>col : Symbol(col, Decl(sql_helpers.ts, 149, 12))
+
+            if (!validColumns.includes(colName)) {
+>validColumns : Symbol(validColumns, Decl(sql_helpers.ts, 145, 50))
+>colName : Symbol(colName, Decl(sql_helpers.ts, 160, 15))
+
+                return 'Error: column \'' + colName + '\' not found in table \'' + tableName + '\'';
+>colName : Symbol(colName, Decl(sql_helpers.ts, 160, 15))
+>tableName : Symbol(tableName, Decl(sql_helpers.ts, 145, 69))
+            }
+            selectedCols = [...selectedCols, colName];
+>selectedCols : Symbol(selectedCols, Decl(sql_helpers.ts, 147, 7))
+>selectedCols : Symbol(selectedCols, Decl(sql_helpers.ts, 147, 7))
+>colName : Symbol(colName, Decl(sql_helpers.ts, 160, 15))
+        }
+    }
+    return selectedCols;
+>selectedCols : Symbol(selectedCols, Decl(sql_helpers.ts, 147, 7))
+
+};
+
+// Validate a SELECT's WHERE clause columns against the schema.
+export const validateWhereColumns = (norm: string, upper: string, validColumns: any, tableName: string) => {
+>validateWhereColumns : Symbol(validateWhereColumns, Decl(sql_helpers.ts, 171, 12))
+>norm : Symbol(norm, Decl(sql_helpers.ts, 171, 37))
+>upper : Symbol(upper, Decl(sql_helpers.ts, 171, 50))
+>validColumns : Symbol(validColumns, Decl(sql_helpers.ts, 171, 65))
+>tableName : Symbol(tableName, Decl(sql_helpers.ts, 171, 84))
+
+    let w: string = extractWhere(norm, upper);
+>w : Symbol(w, Decl(sql_helpers.ts, 172, 7))
+>extractWhere : Symbol(extractWhere, Decl(sql_helpers.ts, 67, 12))
+>norm : Symbol(norm, Decl(sql_helpers.ts, 171, 37))
+>upper : Symbol(upper, Decl(sql_helpers.ts, 171, 50))
+
+    if (w.length == 0) return '';
+>w.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>w : Symbol(w, Decl(sql_helpers.ts, 172, 7))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+    let firstWord: string = w.includes(' ') ? w.slice(0, w.indexOf(' ')) : w;
+>firstWord : Symbol(firstWord, Decl(sql_helpers.ts, 174, 7))
+>w.includes : Symbol(String.includes, Decl(lib.es2015.core.d.ts, --, --))
+>w : Symbol(w, Decl(sql_helpers.ts, 172, 7))
+>includes : Symbol(String.includes, Decl(lib.es2015.core.d.ts, --, --))
+>w.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>w : Symbol(w, Decl(sql_helpers.ts, 172, 7))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>w.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>w : Symbol(w, Decl(sql_helpers.ts, 172, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>w : Symbol(w, Decl(sql_helpers.ts, 172, 7))
+
+    if (firstWord.length > 0 && !firstWord.startsWith('$') && !firstWord.startsWith('(')
+>firstWord.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>firstWord : Symbol(firstWord, Decl(sql_helpers.ts, 174, 7))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>firstWord.startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>firstWord : Symbol(firstWord, Decl(sql_helpers.ts, 174, 7))
+>startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>firstWord.startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>firstWord : Symbol(firstWord, Decl(sql_helpers.ts, 174, 7))
+>startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+
+        && !firstWord.startsWith("'") && !'0123456789'.includes(firstWord.slice(0, 1))
+>firstWord.startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>firstWord : Symbol(firstWord, Decl(sql_helpers.ts, 174, 7))
+>startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>'0123456789'.includes : Symbol(String.includes, Decl(lib.es2015.core.d.ts, --, --))
+>includes : Symbol(String.includes, Decl(lib.es2015.core.d.ts, --, --))
+>firstWord.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>firstWord : Symbol(firstWord, Decl(sql_helpers.ts, 174, 7))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+
+        && !validColumns.includes(firstWord)) {
+>validColumns : Symbol(validColumns, Decl(sql_helpers.ts, 171, 65))
+>firstWord : Symbol(firstWord, Decl(sql_helpers.ts, 174, 7))
+
+        return 'Error: column \'' + firstWord + '\' not found in table \'' + tableName + '\'';
+>firstWord : Symbol(firstWord, Decl(sql_helpers.ts, 174, 7))
+>tableName : Symbol(tableName, Decl(sql_helpers.ts, 171, 84))
+    }
+    return '';
+};
+
+=== sql.ts ===
+// Compile-time SQL validation and parsing via Intrinsic<>.
+// Returns a structured breakdown on success, or a descriptive error string on failure.
+
+import { normalizeSql, findKw, findParams, extractTable, extractWhere, extractOrderBy, extractLimit, splitTrim, parseSchema, resolveColumns, validateWhereColumns } from "./sql_helpers";
+>normalizeSql : Symbol(normalizeSql, Decl(sql.ts, 3, 8))
+>findKw : Symbol(findKw, Decl(sql.ts, 3, 22))
+>findParams : Symbol(findParams, Decl(sql.ts, 3, 30))
+>extractTable : Symbol(extractTable, Decl(sql.ts, 3, 42))
+>extractWhere : Symbol(extractWhere, Decl(sql.ts, 3, 56))
+>extractOrderBy : Symbol(extractOrderBy, Decl(sql.ts, 3, 70))
+>extractLimit : Symbol(extractLimit, Decl(sql.ts, 3, 86))
+>splitTrim : Symbol(splitTrim, Decl(sql.ts, 3, 100))
+>parseSchema : Symbol(parseSchema, Decl(sql.ts, 3, 111))
+>resolveColumns : Symbol(resolveColumns, Decl(sql.ts, 3, 124))
+>validateWhereColumns : Symbol(validateWhereColumns, Decl(sql.ts, 3, 140))
+
+// ---- Statement parsers ----
+
+const parseSelect = (norm: string, upper: string) => {
+>parseSelect : Symbol(parseSelect, Decl(sql.ts, 7, 5))
+>norm : Symbol(norm, Decl(sql.ts, 7, 21))
+>upper : Symbol(upper, Decl(sql.ts, 7, 34))
+
+    let fromIdx: number = findKw(upper, 'FROM');
+>fromIdx : Symbol(fromIdx, Decl(sql.ts, 8, 7))
+>findKw : Symbol(findKw, Decl(sql.ts, 3, 22))
+>upper : Symbol(upper, Decl(sql.ts, 7, 34))
+
+    if (fromIdx == -1) return 'Error: SELECT requires FROM clause';
+>fromIdx : Symbol(fromIdx, Decl(sql.ts, 8, 7))
+
+    let columnsStr: string = norm.slice(7, fromIdx).trim();
+>columnsStr : Symbol(columnsStr, Decl(sql.ts, 10, 7))
+>norm.slice(7, fromIdx).trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>norm.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>norm : Symbol(norm, Decl(sql.ts, 7, 21))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>fromIdx : Symbol(fromIdx, Decl(sql.ts, 8, 7))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+    if (columnsStr.length == 0) return 'Error: SELECT requires column list';
+>columnsStr.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>columnsStr : Symbol(columnsStr, Decl(sql.ts, 10, 7))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+    let afterFrom: string = norm.slice(fromIdx + 5).trim();
+>afterFrom : Symbol(afterFrom, Decl(sql.ts, 12, 7))
+>norm.slice(fromIdx + 5).trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>norm.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>norm : Symbol(norm, Decl(sql.ts, 7, 21))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>fromIdx : Symbol(fromIdx, Decl(sql.ts, 8, 7))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+    if (afterFrom.length == 0) return 'Error: FROM requires table name';
+>afterFrom.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>afterFrom : Symbol(afterFrom, Decl(sql.ts, 12, 7))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+    let [table] = extractTable(afterFrom);
+>table : Symbol(table, Decl(sql.ts, 14, 9))
+>extractTable : Symbol(extractTable, Decl(sql.ts, 3, 42))
+>afterFrom : Symbol(afterFrom, Decl(sql.ts, 12, 7))
+
+    let result: Record<string, any> = {};
+>result : Symbol(result, Decl(sql.ts, 15, 7))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+    result['statement'] = 'SELECT';
+>result : Symbol(result, Decl(sql.ts, 15, 7))
+
+    result['table'] = table;
+>result : Symbol(result, Decl(sql.ts, 15, 7))
+>table : Symbol(table, Decl(sql.ts, 14, 9))
+
+    result['columns'] = splitTrim(columnsStr);
+>result : Symbol(result, Decl(sql.ts, 15, 7))
+>splitTrim : Symbol(splitTrim, Decl(sql.ts, 3, 100))
+>columnsStr : Symbol(columnsStr, Decl(sql.ts, 10, 7))
+
+    result['params'] = findParams(norm);
+>result : Symbol(result, Decl(sql.ts, 15, 7))
+>findParams : Symbol(findParams, Decl(sql.ts, 3, 30))
+>norm : Symbol(norm, Decl(sql.ts, 7, 21))
+
+    let w: string = extractWhere(norm, upper);
+>w : Symbol(w, Decl(sql.ts, 20, 7))
+>extractWhere : Symbol(extractWhere, Decl(sql.ts, 3, 56))
+>norm : Symbol(norm, Decl(sql.ts, 7, 21))
+>upper : Symbol(upper, Decl(sql.ts, 7, 34))
+
+    if (w.length > 0) result['where'] = w;
+>w.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>w : Symbol(w, Decl(sql.ts, 20, 7))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>result : Symbol(result, Decl(sql.ts, 15, 7))
+>w : Symbol(w, Decl(sql.ts, 20, 7))
+
+    let o: string = extractOrderBy(norm, upper);
+>o : Symbol(o, Decl(sql.ts, 22, 7))
+>extractOrderBy : Symbol(extractOrderBy, Decl(sql.ts, 3, 70))
+>norm : Symbol(norm, Decl(sql.ts, 7, 21))
+>upper : Symbol(upper, Decl(sql.ts, 7, 34))
+
+    if (o.length > 0) result['orderBy'] = o;
+>o.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>o : Symbol(o, Decl(sql.ts, 22, 7))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>result : Symbol(result, Decl(sql.ts, 15, 7))
+>o : Symbol(o, Decl(sql.ts, 22, 7))
+
+    let l: string = extractLimit(norm, upper);
+>l : Symbol(l, Decl(sql.ts, 24, 7))
+>extractLimit : Symbol(extractLimit, Decl(sql.ts, 3, 86))
+>norm : Symbol(norm, Decl(sql.ts, 7, 21))
+>upper : Symbol(upper, Decl(sql.ts, 7, 34))
+
+    if (l.length > 0) result['limit'] = l;
+>l.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>l : Symbol(l, Decl(sql.ts, 24, 7))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>result : Symbol(result, Decl(sql.ts, 15, 7))
+>l : Symbol(l, Decl(sql.ts, 24, 7))
+
+    return result;
+>result : Symbol(result, Decl(sql.ts, 15, 7))
+
+};
+
+const parseInsert = (norm: string, upper: string) => {
+>parseInsert : Symbol(parseInsert, Decl(sql.ts, 29, 5))
+>norm : Symbol(norm, Decl(sql.ts, 29, 21))
+>upper : Symbol(upper, Decl(sql.ts, 29, 34))
+
+    let afterInsert: string = norm.slice(12).trim();
+>afterInsert : Symbol(afterInsert, Decl(sql.ts, 30, 7))
+>norm.slice(12).trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>norm.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>norm : Symbol(norm, Decl(sql.ts, 29, 21))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+    let parenIdx: number = afterInsert.indexOf('(');
+>parenIdx : Symbol(parenIdx, Decl(sql.ts, 31, 7))
+>afterInsert.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>afterInsert : Symbol(afterInsert, Decl(sql.ts, 30, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+
+    let valIdx: number = findKw(upper, 'VALUES');
+>valIdx : Symbol(valIdx, Decl(sql.ts, 32, 7))
+>findKw : Symbol(findKw, Decl(sql.ts, 3, 22))
+>upper : Symbol(upper, Decl(sql.ts, 29, 34))
+
+    if (valIdx == -1) return 'Error: INSERT requires VALUES clause';
+>valIdx : Symbol(valIdx, Decl(sql.ts, 32, 7))
+
+    let table: string = '';
+>table : Symbol(table, Decl(sql.ts, 34, 7))
+
+    let insertCols: string[] = [];
+>insertCols : Symbol(insertCols, Decl(sql.ts, 35, 7))
+
+    if (parenIdx != -1 && parenIdx + 12 < valIdx) {
+>parenIdx : Symbol(parenIdx, Decl(sql.ts, 31, 7))
+>parenIdx : Symbol(parenIdx, Decl(sql.ts, 31, 7))
+>valIdx : Symbol(valIdx, Decl(sql.ts, 32, 7))
+
+        table = afterInsert.slice(0, parenIdx).trim();
+>table : Symbol(table, Decl(sql.ts, 34, 7))
+>afterInsert.slice(0, parenIdx).trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>afterInsert.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>afterInsert : Symbol(afterInsert, Decl(sql.ts, 30, 7))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>parenIdx : Symbol(parenIdx, Decl(sql.ts, 31, 7))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+        let closeParen: number = afterInsert.indexOf(')');
+>closeParen : Symbol(closeParen, Decl(sql.ts, 38, 11))
+>afterInsert.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>afterInsert : Symbol(afterInsert, Decl(sql.ts, 30, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+
+        if (closeParen != -1) insertCols = splitTrim(afterInsert.slice(parenIdx + 1, closeParen));
+>closeParen : Symbol(closeParen, Decl(sql.ts, 38, 11))
+>insertCols : Symbol(insertCols, Decl(sql.ts, 35, 7))
+>splitTrim : Symbol(splitTrim, Decl(sql.ts, 3, 100))
+>afterInsert.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>afterInsert : Symbol(afterInsert, Decl(sql.ts, 30, 7))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>parenIdx : Symbol(parenIdx, Decl(sql.ts, 31, 7))
+>closeParen : Symbol(closeParen, Decl(sql.ts, 38, 11))
+
+    } else {
+        let [t] = extractTable(afterInsert);
+>t : Symbol(t, Decl(sql.ts, 41, 13))
+>extractTable : Symbol(extractTable, Decl(sql.ts, 3, 42))
+>afterInsert : Symbol(afterInsert, Decl(sql.ts, 30, 7))
+
+        table = t;
+>table : Symbol(table, Decl(sql.ts, 34, 7))
+>t : Symbol(t, Decl(sql.ts, 41, 13))
+    }
+    if (table.length == 0) return 'Error: INSERT requires table name';
+>table.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>table : Symbol(table, Decl(sql.ts, 34, 7))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+    let result: Record<string, any> = {};
+>result : Symbol(result, Decl(sql.ts, 45, 7))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+    result['statement'] = 'INSERT';
+>result : Symbol(result, Decl(sql.ts, 45, 7))
+
+    result['table'] = table;
+>result : Symbol(result, Decl(sql.ts, 45, 7))
+>table : Symbol(table, Decl(sql.ts, 34, 7))
+
+    if (insertCols.length > 0) result['columns'] = insertCols;
+>insertCols.length : Symbol(Array.length, Decl(lib.es5.d.ts, --, --))
+>insertCols : Symbol(insertCols, Decl(sql.ts, 35, 7))
+>length : Symbol(Array.length, Decl(lib.es5.d.ts, --, --))
+>result : Symbol(result, Decl(sql.ts, 45, 7))
+>insertCols : Symbol(insertCols, Decl(sql.ts, 35, 7))
+
+    result['params'] = findParams(norm);
+>result : Symbol(result, Decl(sql.ts, 45, 7))
+>findParams : Symbol(findParams, Decl(sql.ts, 3, 30))
+>norm : Symbol(norm, Decl(sql.ts, 29, 21))
+
+    return result;
+>result : Symbol(result, Decl(sql.ts, 45, 7))
+
+};
+
+const parseUpdate = (norm: string, upper: string) => {
+>parseUpdate : Symbol(parseUpdate, Decl(sql.ts, 53, 5))
+>norm : Symbol(norm, Decl(sql.ts, 53, 21))
+>upper : Symbol(upper, Decl(sql.ts, 53, 34))
+
+    let setIdx: number = findKw(upper, 'SET');
+>setIdx : Symbol(setIdx, Decl(sql.ts, 54, 7))
+>findKw : Symbol(findKw, Decl(sql.ts, 3, 22))
+>upper : Symbol(upper, Decl(sql.ts, 53, 34))
+
+    if (setIdx == -1) return 'Error: UPDATE requires SET clause';
+>setIdx : Symbol(setIdx, Decl(sql.ts, 54, 7))
+
+    let table: string = norm.slice(7, setIdx).trim();
+>table : Symbol(table, Decl(sql.ts, 56, 7))
+>norm.slice(7, setIdx).trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>norm.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>norm : Symbol(norm, Decl(sql.ts, 53, 21))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>setIdx : Symbol(setIdx, Decl(sql.ts, 54, 7))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+    if (table.length == 0) return 'Error: UPDATE requires table name';
+>table.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>table : Symbol(table, Decl(sql.ts, 56, 7))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+    let afterSet: string = norm.slice(setIdx + 4).trim();
+>afterSet : Symbol(afterSet, Decl(sql.ts, 58, 7))
+>norm.slice(setIdx + 4).trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>norm.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>norm : Symbol(norm, Decl(sql.ts, 53, 21))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>setIdx : Symbol(setIdx, Decl(sql.ts, 54, 7))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+    if (afterSet.length == 0) return 'Error: SET requires assignments';
+>afterSet.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>afterSet : Symbol(afterSet, Decl(sql.ts, 58, 7))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+    let whereIdx: number = findKw(upper, 'WHERE');
+>whereIdx : Symbol(whereIdx, Decl(sql.ts, 60, 7))
+>findKw : Symbol(findKw, Decl(sql.ts, 3, 22))
+>upper : Symbol(upper, Decl(sql.ts, 53, 34))
+
+    let assignments: string = whereIdx == -1 ? afterSet : afterSet.slice(0, whereIdx - setIdx - 4).trim();
+>assignments : Symbol(assignments, Decl(sql.ts, 61, 7))
+>whereIdx : Symbol(whereIdx, Decl(sql.ts, 60, 7))
+>afterSet : Symbol(afterSet, Decl(sql.ts, 58, 7))
+>afterSet.slice(0, whereIdx - setIdx - 4).trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>afterSet.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>afterSet : Symbol(afterSet, Decl(sql.ts, 58, 7))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>whereIdx : Symbol(whereIdx, Decl(sql.ts, 60, 7))
+>setIdx : Symbol(setIdx, Decl(sql.ts, 54, 7))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+    let result: Record<string, any> = {};
+>result : Symbol(result, Decl(sql.ts, 62, 7))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+    result['statement'] = 'UPDATE';
+>result : Symbol(result, Decl(sql.ts, 62, 7))
+
+    result['table'] = table;
+>result : Symbol(result, Decl(sql.ts, 62, 7))
+>table : Symbol(table, Decl(sql.ts, 56, 7))
+
+    result['set'] = splitTrim(assignments);
+>result : Symbol(result, Decl(sql.ts, 62, 7))
+>splitTrim : Symbol(splitTrim, Decl(sql.ts, 3, 100))
+>assignments : Symbol(assignments, Decl(sql.ts, 61, 7))
+
+    result['params'] = findParams(norm);
+>result : Symbol(result, Decl(sql.ts, 62, 7))
+>findParams : Symbol(findParams, Decl(sql.ts, 3, 30))
+>norm : Symbol(norm, Decl(sql.ts, 53, 21))
+
+    if (whereIdx != -1) result['where'] = norm.slice(whereIdx + 6).trim();
+>whereIdx : Symbol(whereIdx, Decl(sql.ts, 60, 7))
+>result : Symbol(result, Decl(sql.ts, 62, 7))
+>norm.slice(whereIdx + 6).trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>norm.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>norm : Symbol(norm, Decl(sql.ts, 53, 21))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>whereIdx : Symbol(whereIdx, Decl(sql.ts, 60, 7))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+    return result;
+>result : Symbol(result, Decl(sql.ts, 62, 7))
+
+};
+
+const parseDelete = (norm: string, upper: string) => {
+>parseDelete : Symbol(parseDelete, Decl(sql.ts, 71, 5))
+>norm : Symbol(norm, Decl(sql.ts, 71, 21))
+>upper : Symbol(upper, Decl(sql.ts, 71, 34))
+
+    let afterFrom: string = norm.slice(12).trim();
+>afterFrom : Symbol(afterFrom, Decl(sql.ts, 72, 7))
+>norm.slice(12).trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>norm.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>norm : Symbol(norm, Decl(sql.ts, 71, 21))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+    if (afterFrom.length == 0) return 'Error: DELETE requires table name';
+>afterFrom.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>afterFrom : Symbol(afterFrom, Decl(sql.ts, 72, 7))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+    let whereIdx: number = findKw(upper, 'WHERE');
+>whereIdx : Symbol(whereIdx, Decl(sql.ts, 74, 7))
+>findKw : Symbol(findKw, Decl(sql.ts, 3, 22))
+>upper : Symbol(upper, Decl(sql.ts, 71, 34))
+
+    let table: string = whereIdx == -1 ? afterFrom : afterFrom.slice(0, whereIdx - 12).trim();
+>table : Symbol(table, Decl(sql.ts, 75, 7))
+>whereIdx : Symbol(whereIdx, Decl(sql.ts, 74, 7))
+>afterFrom : Symbol(afterFrom, Decl(sql.ts, 72, 7))
+>afterFrom.slice(0, whereIdx - 12).trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>afterFrom.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>afterFrom : Symbol(afterFrom, Decl(sql.ts, 72, 7))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>whereIdx : Symbol(whereIdx, Decl(sql.ts, 74, 7))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+    let result: Record<string, any> = {};
+>result : Symbol(result, Decl(sql.ts, 76, 7))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+    result['statement'] = 'DELETE';
+>result : Symbol(result, Decl(sql.ts, 76, 7))
+
+    result['table'] = table;
+>result : Symbol(result, Decl(sql.ts, 76, 7))
+>table : Symbol(table, Decl(sql.ts, 75, 7))
+
+    result['params'] = findParams(norm);
+>result : Symbol(result, Decl(sql.ts, 76, 7))
+>findParams : Symbol(findParams, Decl(sql.ts, 3, 30))
+>norm : Symbol(norm, Decl(sql.ts, 71, 21))
+
+    if (whereIdx != -1) result['where'] = norm.slice(whereIdx + 6).trim();
+>whereIdx : Symbol(whereIdx, Decl(sql.ts, 74, 7))
+>result : Symbol(result, Decl(sql.ts, 76, 7))
+>norm.slice(whereIdx + 6).trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>norm.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>norm : Symbol(norm, Decl(sql.ts, 71, 21))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>whereIdx : Symbol(whereIdx, Decl(sql.ts, 74, 7))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+    return result;
+>result : Symbol(result, Decl(sql.ts, 76, 7))
+
+};
+
+const parseCreateTable = (norm: string) => {
+>parseCreateTable : Symbol(parseCreateTable, Decl(sql.ts, 84, 5))
+>norm : Symbol(norm, Decl(sql.ts, 84, 26))
+
+    let parenIdx: number = norm.indexOf('(');
+>parenIdx : Symbol(parenIdx, Decl(sql.ts, 85, 7))
+>norm.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>norm : Symbol(norm, Decl(sql.ts, 84, 26))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+
+    if (parenIdx == -1) return 'Error: CREATE TABLE requires column definitions';
+>parenIdx : Symbol(parenIdx, Decl(sql.ts, 85, 7))
+
+    let table: string = norm.slice(13, parenIdx).trim();
+>table : Symbol(table, Decl(sql.ts, 87, 7))
+>norm.slice(13, parenIdx).trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>norm.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>norm : Symbol(norm, Decl(sql.ts, 84, 26))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>parenIdx : Symbol(parenIdx, Decl(sql.ts, 85, 7))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+    if (table.length == 0) return 'Error: CREATE TABLE requires table name';
+>table.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>table : Symbol(table, Decl(sql.ts, 87, 7))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+    if (!norm.endsWith(')')) return 'Error: CREATE TABLE missing closing parenthesis';
+>norm.endsWith : Symbol(String.endsWith, Decl(lib.es2015.core.d.ts, --, --))
+>norm : Symbol(norm, Decl(sql.ts, 84, 26))
+>endsWith : Symbol(String.endsWith, Decl(lib.es2015.core.d.ts, --, --))
+
+    let result: Record<string, any> = {};
+>result : Symbol(result, Decl(sql.ts, 90, 7))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+    result['statement'] = 'CREATE TABLE';
+>result : Symbol(result, Decl(sql.ts, 90, 7))
+
+    result['table'] = table;
+>result : Symbol(result, Decl(sql.ts, 90, 7))
+>table : Symbol(table, Decl(sql.ts, 87, 7))
+
+    result['definition'] = norm.slice(parenIdx + 1, norm.length - 1).trim();
+>result : Symbol(result, Decl(sql.ts, 90, 7))
+>norm.slice(parenIdx + 1, norm.length - 1).trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>norm.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>norm : Symbol(norm, Decl(sql.ts, 84, 26))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>parenIdx : Symbol(parenIdx, Decl(sql.ts, 85, 7))
+>norm.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>norm : Symbol(norm, Decl(sql.ts, 84, 26))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+    return result;
+>result : Symbol(result, Decl(sql.ts, 90, 7))
+
+};
+
+// Parse a SELECT and validate its columns/WHERE against a schema.
+const parseTypedSelect = (norm: string, upper: string, schema: any) => {
+>parseTypedSelect : Symbol(parseTypedSelect, Decl(sql.ts, 98, 5))
+>norm : Symbol(norm, Decl(sql.ts, 98, 26))
+>upper : Symbol(upper, Decl(sql.ts, 98, 39))
+>schema : Symbol(schema, Decl(sql.ts, 98, 54))
+
+    let fromIdx: number = upper.indexOf(' FROM ');
+>fromIdx : Symbol(fromIdx, Decl(sql.ts, 99, 7))
+>upper.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>upper : Symbol(upper, Decl(sql.ts, 98, 39))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+
+    if (fromIdx == -1) return 'Error: SELECT requires FROM clause';
+>fromIdx : Symbol(fromIdx, Decl(sql.ts, 99, 7))
+
+    let columnsStr: string = norm.slice(7, fromIdx).trim();
+>columnsStr : Symbol(columnsStr, Decl(sql.ts, 101, 7))
+>norm.slice(7, fromIdx).trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>norm.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>norm : Symbol(norm, Decl(sql.ts, 98, 26))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>fromIdx : Symbol(fromIdx, Decl(sql.ts, 99, 7))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+    if (columnsStr.length == 0) return 'Error: SELECT requires column list';
+>columnsStr.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>columnsStr : Symbol(columnsStr, Decl(sql.ts, 101, 7))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+    let afterFrom: string = norm.slice(fromIdx + 6).trim();
+>afterFrom : Symbol(afterFrom, Decl(sql.ts, 103, 7))
+>norm.slice(fromIdx + 6).trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>norm.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>norm : Symbol(norm, Decl(sql.ts, 98, 26))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>fromIdx : Symbol(fromIdx, Decl(sql.ts, 99, 7))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+    if (afterFrom.length == 0) return 'Error: FROM requires table name';
+>afterFrom.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>afterFrom : Symbol(afterFrom, Decl(sql.ts, 103, 7))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+    let [tableName] = extractTable(afterFrom);
+>tableName : Symbol(tableName, Decl(sql.ts, 105, 9))
+>extractTable : Symbol(extractTable, Decl(sql.ts, 3, 42))
+>afterFrom : Symbol(afterFrom, Decl(sql.ts, 103, 7))
+
+    let validColumns = schema[tableName];
+>validColumns : Symbol(validColumns, Decl(sql.ts, 106, 7))
+>schema : Symbol(schema, Decl(sql.ts, 98, 54))
+>tableName : Symbol(tableName, Decl(sql.ts, 105, 9))
+
+    if (validColumns == undefined) return 'Error: table \'' + tableName + '\' not found in schema';
+>validColumns : Symbol(validColumns, Decl(sql.ts, 106, 7))
+>undefined : Symbol(undefined)
+>tableName : Symbol(tableName, Decl(sql.ts, 105, 9))
+
+    let selectedCols = resolveColumns(columnsStr, validColumns, tableName);
+>selectedCols : Symbol(selectedCols, Decl(sql.ts, 108, 7))
+>resolveColumns : Symbol(resolveColumns, Decl(sql.ts, 3, 124))
+>columnsStr : Symbol(columnsStr, Decl(sql.ts, 101, 7))
+>validColumns : Symbol(validColumns, Decl(sql.ts, 106, 7))
+>tableName : Symbol(tableName, Decl(sql.ts, 105, 9))
+
+    if (typeof selectedCols == 'string') return selectedCols;
+>selectedCols : Symbol(selectedCols, Decl(sql.ts, 108, 7))
+>selectedCols : Symbol(selectedCols, Decl(sql.ts, 108, 7))
+
+    let whereErr: string = validateWhereColumns(norm, upper, validColumns, tableName);
+>whereErr : Symbol(whereErr, Decl(sql.ts, 110, 7))
+>validateWhereColumns : Symbol(validateWhereColumns, Decl(sql.ts, 3, 140))
+>norm : Symbol(norm, Decl(sql.ts, 98, 26))
+>upper : Symbol(upper, Decl(sql.ts, 98, 39))
+>validColumns : Symbol(validColumns, Decl(sql.ts, 106, 7))
+>tableName : Symbol(tableName, Decl(sql.ts, 105, 9))
+
+    if (whereErr.length > 0) return whereErr;
+>whereErr.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>whereErr : Symbol(whereErr, Decl(sql.ts, 110, 7))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>whereErr : Symbol(whereErr, Decl(sql.ts, 110, 7))
+
+    let result: Record<string, any> = {};
+>result : Symbol(result, Decl(sql.ts, 112, 7))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+    result['statement'] = 'SELECT';
+>result : Symbol(result, Decl(sql.ts, 112, 7))
+
+    result['table'] = tableName;
+>result : Symbol(result, Decl(sql.ts, 112, 7))
+>tableName : Symbol(tableName, Decl(sql.ts, 105, 9))
+
+    result['columns'] = selectedCols;
+>result : Symbol(result, Decl(sql.ts, 112, 7))
+>selectedCols : Symbol(selectedCols, Decl(sql.ts, 108, 7))
+
+    result['params'] = findParams(norm);
+>result : Symbol(result, Decl(sql.ts, 112, 7))
+>findParams : Symbol(findParams, Decl(sql.ts, 3, 30))
+>norm : Symbol(norm, Decl(sql.ts, 98, 26))
+
+    return result;
+>result : Symbol(result, Decl(sql.ts, 112, 7))
+
+};
+
+// ---- Main entry points ----
+
+export const parseSql = (sql: any) => {
+>parseSql : Symbol(parseSql, Decl(sql.ts, 122, 12))
+>sql : Symbol(sql, Decl(sql.ts, 122, 25))
+
+    if (typeof sql != 'string' || sql.trim().length == 0) return 'Error: empty query';
+>sql : Symbol(sql, Decl(sql.ts, 122, 25))
+>sql.trim().length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>sql.trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>sql : Symbol(sql, Decl(sql.ts, 122, 25))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+    let norm: string = normalizeSql(sql);
+>norm : Symbol(norm, Decl(sql.ts, 124, 7))
+>normalizeSql : Symbol(normalizeSql, Decl(sql.ts, 3, 8))
+>sql : Symbol(sql, Decl(sql.ts, 122, 25))
+
+    let upper: string = norm.toUpperCase();
+>upper : Symbol(upper, Decl(sql.ts, 125, 7))
+>norm.toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>norm : Symbol(norm, Decl(sql.ts, 124, 7))
+>toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+
+    if (upper.startsWith('SELECT ')) return parseSelect(norm, upper);
+>upper.startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>upper : Symbol(upper, Decl(sql.ts, 125, 7))
+>startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>parseSelect : Symbol(parseSelect, Decl(sql.ts, 7, 5))
+>norm : Symbol(norm, Decl(sql.ts, 124, 7))
+>upper : Symbol(upper, Decl(sql.ts, 125, 7))
+
+    if (upper.startsWith('INSERT INTO ')) return parseInsert(norm, upper);
+>upper.startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>upper : Symbol(upper, Decl(sql.ts, 125, 7))
+>startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>parseInsert : Symbol(parseInsert, Decl(sql.ts, 29, 5))
+>norm : Symbol(norm, Decl(sql.ts, 124, 7))
+>upper : Symbol(upper, Decl(sql.ts, 125, 7))
+
+    if (upper.startsWith('UPDATE ')) return parseUpdate(norm, upper);
+>upper.startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>upper : Symbol(upper, Decl(sql.ts, 125, 7))
+>startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>parseUpdate : Symbol(parseUpdate, Decl(sql.ts, 53, 5))
+>norm : Symbol(norm, Decl(sql.ts, 124, 7))
+>upper : Symbol(upper, Decl(sql.ts, 125, 7))
+
+    if (upper.startsWith('DELETE FROM ')) return parseDelete(norm, upper);
+>upper.startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>upper : Symbol(upper, Decl(sql.ts, 125, 7))
+>startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>parseDelete : Symbol(parseDelete, Decl(sql.ts, 71, 5))
+>norm : Symbol(norm, Decl(sql.ts, 124, 7))
+>upper : Symbol(upper, Decl(sql.ts, 125, 7))
+
+    if (upper.startsWith('CREATE TABLE ')) return parseCreateTable(norm);
+>upper.startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>upper : Symbol(upper, Decl(sql.ts, 125, 7))
+>startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>parseCreateTable : Symbol(parseCreateTable, Decl(sql.ts, 84, 5))
+>norm : Symbol(norm, Decl(sql.ts, 124, 7))
+
+    return 'Error: unsupported statement (expected SELECT, INSERT, UPDATE, DELETE, or CREATE TABLE)';
+};
+export type Sql<T> = Intrinsic<typeof parseSql, [T]>;
+>Sql : Symbol(Sql, Decl(sql.ts, 132, 2))
+>T : Symbol(T, Decl(sql.ts, 133, 16))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>parseSql : Symbol(parseSql, Decl(sql.ts, 122, 12))
+>T : Symbol(T, Decl(sql.ts, 133, 16))
+
+export const typedQuery = (schemaSql: any, sql: any) => {
+>typedQuery : Symbol(typedQuery, Decl(sql.ts, 135, 12))
+>schemaSql : Symbol(schemaSql, Decl(sql.ts, 135, 27))
+>sql : Symbol(sql, Decl(sql.ts, 135, 42))
+
+    if (typeof schemaSql != 'string' || typeof sql != 'string') return 'Error: invalid arguments';
+>schemaSql : Symbol(schemaSql, Decl(sql.ts, 135, 27))
+>sql : Symbol(sql, Decl(sql.ts, 135, 42))
+
+    let schema = parseSchema(schemaSql);
+>schema : Symbol(schema, Decl(sql.ts, 137, 7))
+>parseSchema : Symbol(parseSchema, Decl(sql.ts, 3, 111))
+>schemaSql : Symbol(schemaSql, Decl(sql.ts, 135, 27))
+
+    if (typeof schema == 'string') return schema;
+>schema : Symbol(schema, Decl(sql.ts, 137, 7))
+>schema : Symbol(schema, Decl(sql.ts, 137, 7))
+
+    let norm: string = normalizeSql(sql);
+>norm : Symbol(norm, Decl(sql.ts, 139, 7))
+>normalizeSql : Symbol(normalizeSql, Decl(sql.ts, 3, 8))
+>sql : Symbol(sql, Decl(sql.ts, 135, 42))
+
+    let upper: string = norm.toUpperCase();
+>upper : Symbol(upper, Decl(sql.ts, 140, 7))
+>norm.toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>norm : Symbol(norm, Decl(sql.ts, 139, 7))
+>toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+
+    if (!upper.startsWith('SELECT ')) return 'Error: TypedQuery only supports SELECT';
+>upper.startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>upper : Symbol(upper, Decl(sql.ts, 140, 7))
+>startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+
+    return parseTypedSelect(norm, upper, schema);
+>parseTypedSelect : Symbol(parseTypedSelect, Decl(sql.ts, 98, 5))
+>norm : Symbol(norm, Decl(sql.ts, 139, 7))
+>upper : Symbol(upper, Decl(sql.ts, 140, 7))
+>schema : Symbol(schema, Decl(sql.ts, 137, 7))
+
+};
+export type TypedQuery<Schema, Query> = Intrinsic<typeof typedQuery, [Schema, Query]>;
+>TypedQuery : Symbol(TypedQuery, Decl(sql.ts, 143, 2))
+>Schema : Symbol(Schema, Decl(sql.ts, 144, 23))
+>Query : Symbol(Query, Decl(sql.ts, 144, 30))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>typedQuery : Symbol(typedQuery, Decl(sql.ts, 135, 12))
+>Schema : Symbol(Schema, Decl(sql.ts, 144, 23))
+>Query : Symbol(Query, Decl(sql.ts, 144, 30))
+
+
+=== sql_test.ts ===
+import { Sql, TypedQuery } from "./sql";
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+>TypedQuery : Symbol(TypedQuery, Decl(sql_test.ts, 0, 13))
+
+// ==== SELECT: structured breakdown ====
+
+type S01 = Sql<"SELECT * FROM users">;
+>S01 : Symbol(S01, Decl(sql_test.ts, 0, 40))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+type S02 = Sql<"SELECT name, age FROM users">;
+>S02 : Symbol(S02, Decl(sql_test.ts, 4, 38))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+type S03 = Sql<"SELECT name FROM users WHERE id = 1">;
+>S03 : Symbol(S03, Decl(sql_test.ts, 5, 46))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+type S04 = Sql<"SELECT * FROM users ORDER BY name ASC">;
+>S04 : Symbol(S04, Decl(sql_test.ts, 6, 54))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+type S05 = Sql<"SELECT * FROM users WHERE active = 1 LIMIT 10">;
+>S05 : Symbol(S05, Decl(sql_test.ts, 7, 56))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+type S06 = Sql<"SELECT * FROM users WHERE id = $1">;
+>S06 : Symbol(S06, Decl(sql_test.ts, 8, 64))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+type S07 = Sql<"SELECT * FROM users WHERE id = $1 AND status = $2">;
+>S07 : Symbol(S07, Decl(sql_test.ts, 9, 52))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+// ==== INSERT ====
+
+type I01 = Sql<"INSERT INTO users VALUES ($1, $2, $3)">;
+>I01 : Symbol(I01, Decl(sql_test.ts, 10, 68))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+type I02 = Sql<"INSERT INTO users (name, age) VALUES ($1, $2)">;
+>I02 : Symbol(I02, Decl(sql_test.ts, 14, 56))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+// ==== UPDATE ====
+
+type U01 = Sql<"UPDATE users SET name = $1 WHERE id = $2">;
+>U01 : Symbol(U01, Decl(sql_test.ts, 15, 64))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+type U02 = Sql<"UPDATE users SET active = 0">;
+>U02 : Symbol(U02, Decl(sql_test.ts, 19, 59))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+// ==== DELETE ====
+
+type D01 = Sql<"DELETE FROM users WHERE id = $1">;
+>D01 : Symbol(D01, Decl(sql_test.ts, 20, 46))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+type D02 = Sql<"DELETE FROM sessions">;
+>D02 : Symbol(D02, Decl(sql_test.ts, 24, 50))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+// ==== CREATE TABLE ====
+
+type C01 = Sql<"CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT NOT NULL, age INTEGER)">;
+>C01 : Symbol(C01, Decl(sql_test.ts, 25, 39))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+// ==== Errors produce descriptive messages ====
+
+type E01 = Sql<"">;                            // "Error: empty query"
+>E01 : Symbol(E01, Decl(sql_test.ts, 29, 95))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+type E02 = Sql<"SELCT * FROM users">;          // "Error: unsupported statement ..."
+>E02 : Symbol(E02, Decl(sql_test.ts, 33, 19))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+type E03 = Sql<"SELECT FROM users">;           // "Error: SELECT requires column list"
+>E03 : Symbol(E03, Decl(sql_test.ts, 34, 37))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+type E04 = Sql<"SELECT *">;                    // "Error: SELECT requires FROM clause"
+>E04 : Symbol(E04, Decl(sql_test.ts, 35, 36))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+type E05 = Sql<"SELECT * FROM">;               // "Error: FROM requires table name"
+>E05 : Symbol(E05, Decl(sql_test.ts, 36, 27))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+type E06 = Sql<"INSERT INTO users">;           // "Error: INSERT requires VALUES clause"
+>E06 : Symbol(E06, Decl(sql_test.ts, 37, 32))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+type E07 = Sql<"UPDATE users WHERE id = 1">;   // "Error: UPDATE requires SET clause"
+>E07 : Symbol(E07, Decl(sql_test.ts, 38, 36))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+type E08 = Sql<"DROP TABLE users">;            // "Error: unsupported statement ..."
+>E08 : Symbol(E08, Decl(sql_test.ts, 39, 44))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+// ==== Complex queries ====
+
+type CQ1 = Sql<"SELECT * FROM users WHERE id IN (SELECT user_id FROM orders)">;
+>CQ1 : Symbol(CQ1, Decl(sql_test.ts, 40, 35))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+type CQ2 = Sql<"SELECT u.name, o.total FROM users u LEFT JOIN orders o ON u.id = o.user_id">;
+>CQ2 : Symbol(CQ2, Decl(sql_test.ts, 44, 79))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+type CQ3 = Sql<"SELECT * FROM users WHERE age BETWEEN 18 AND 65">;
+>CQ3 : Symbol(CQ3, Decl(sql_test.ts, 45, 93))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+type CQ4 = Sql<"SELECT * FROM users WHERE status IS NOT NULL ORDER BY created_at DESC LIMIT 20">;
+>CQ4 : Symbol(CQ4, Decl(sql_test.ts, 46, 66))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+type CQ5 = Sql<"SELECT name FROM users WHERE email LIKE '%@example.com'">;
+>CQ5 : Symbol(CQ5, Decl(sql_test.ts, 47, 97))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+type CQ6 = Sql<"UPDATE products SET price = price * 1.1, updated_at = $1 WHERE category = $2">;
+>CQ6 : Symbol(CQ6, Decl(sql_test.ts, 48, 74))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+type CQ7 = Sql<"DELETE FROM sessions WHERE expires_at < $1 AND user_id IS NOT NULL">;
+>CQ7 : Symbol(CQ7, Decl(sql_test.ts, 49, 95))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+type CQ8 = Sql<"INSERT INTO order_items (order_id, product_id, qty) VALUES ($1, $2, $3)">;
+>CQ8 : Symbol(CQ8, Decl(sql_test.ts, 50, 85))
+>Sql : Symbol(Sql, Decl(sql_test.ts, 0, 8))
+
+
+// ==== Schema-aware validation using CREATE TABLE statements ====
+
+const db = `
+>db : Symbol(db, Decl(sql_test.ts, 56, 5))
+
+CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, email TEXT, age INTEGER, active BOOLEAN);
+CREATE TABLE posts (id INTEGER PRIMARY KEY, title TEXT, body TEXT, user_id INTEGER, published BOOLEAN);
+CREATE TABLE orders (id INTEGER PRIMARY KEY, user_id INTEGER, total REAL, status TEXT);
+` as const;
+>const : Symbol(const)
+
+// Valid queries: columns exist in the schema
+type TQ1 = TypedQuery<typeof db, "SELECT name, email FROM users">;
+>TQ1 : Symbol(TQ1, Decl(sql_test.ts, 60, 11))
+>TypedQuery : Symbol(TypedQuery, Decl(sql_test.ts, 0, 13))
+>db : Symbol(db, Decl(sql_test.ts, 56, 5))
+
+type TQ2 = TypedQuery<typeof db, "SELECT * FROM users">;
+>TQ2 : Symbol(TQ2, Decl(sql_test.ts, 63, 66))
+>TypedQuery : Symbol(TypedQuery, Decl(sql_test.ts, 0, 13))
+>db : Symbol(db, Decl(sql_test.ts, 56, 5))
+
+type TQ3 = TypedQuery<typeof db, "SELECT title, body FROM posts WHERE published = 1">;
+>TQ3 : Symbol(TQ3, Decl(sql_test.ts, 64, 56))
+>TypedQuery : Symbol(TypedQuery, Decl(sql_test.ts, 0, 13))
+>db : Symbol(db, Decl(sql_test.ts, 56, 5))
+
+type TQ4 = TypedQuery<typeof db, "SELECT id, total FROM orders WHERE status = $1">;
+>TQ4 : Symbol(TQ4, Decl(sql_test.ts, 65, 86))
+>TypedQuery : Symbol(TypedQuery, Decl(sql_test.ts, 0, 13))
+>db : Symbol(db, Decl(sql_test.ts, 56, 5))
+
+type TQ5 = TypedQuery<typeof db, "SELECT COUNT(*) FROM orders">;
+>TQ5 : Symbol(TQ5, Decl(sql_test.ts, 66, 83))
+>TypedQuery : Symbol(TypedQuery, Decl(sql_test.ts, 0, 13))
+>db : Symbol(db, Decl(sql_test.ts, 56, 5))
+
+type TQ6 = TypedQuery<typeof db, "SELECT name FROM users WHERE id = $1 LIMIT 1">;
+>TQ6 : Symbol(TQ6, Decl(sql_test.ts, 67, 64))
+>TypedQuery : Symbol(TypedQuery, Decl(sql_test.ts, 0, 13))
+>db : Symbol(db, Decl(sql_test.ts, 56, 5))
+
+// Invalid queries (should produce errors)
+type TQ10 = TypedQuery<typeof db, "SELECT phone FROM users">;
+>TQ10 : Symbol(TQ10, Decl(sql_test.ts, 68, 81))
+>TypedQuery : Symbol(TypedQuery, Decl(sql_test.ts, 0, 13))
+>db : Symbol(db, Decl(sql_test.ts, 56, 5))
+
+type TQ11 = TypedQuery<typeof db, "SELECT title FROM users">;
+>TQ11 : Symbol(TQ11, Decl(sql_test.ts, 71, 61))
+>TypedQuery : Symbol(TypedQuery, Decl(sql_test.ts, 0, 13))
+>db : Symbol(db, Decl(sql_test.ts, 56, 5))
+
+type TQ12 = TypedQuery<typeof db, "SELECT * FROM sessions">;
+>TQ12 : Symbol(TQ12, Decl(sql_test.ts, 72, 61))
+>TypedQuery : Symbol(TypedQuery, Decl(sql_test.ts, 0, 13))
+>db : Symbol(db, Decl(sql_test.ts, 56, 5))
+
+type TQ13 = TypedQuery<typeof db, "SELECT name FROM users WHERE phone = 1">;
+>TQ13 : Symbol(TQ13, Decl(sql_test.ts, 73, 60))
+>TypedQuery : Symbol(TypedQuery, Decl(sql_test.ts, 0, 13))
+>db : Symbol(db, Decl(sql_test.ts, 56, 5))
+
+type TQ14 = TypedQuery<typeof db, "SELECT SUM(missing) FROM orders">;
+>TQ14 : Symbol(TQ14, Decl(sql_test.ts, 74, 76))
+>TypedQuery : Symbol(TypedQuery, Decl(sql_test.ts, 0, 13))
+>db : Symbol(db, Decl(sql_test.ts, 56, 5))
+

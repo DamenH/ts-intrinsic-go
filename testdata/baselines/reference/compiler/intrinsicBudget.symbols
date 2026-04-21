@@ -1,0 +1,123 @@
+//// [tests/cases/compiler/intrinsic/intrinsicBudget.ts] ////
+
+=== intrinsicBudget.ts ===
+// Verify that budget exhaustion does not degrade the rest of the file.
+
+const infinite = (n: number) => {
+>infinite : Symbol(infinite, Decl(intrinsicBudget.ts, 2, 5))
+>n : Symbol(n, Decl(intrinsicBudget.ts, 2, 18))
+
+    let i: number = 0;
+>i : Symbol(i, Decl(intrinsicBudget.ts, 3, 7))
+
+    while (i < n) { i = i + 1; }
+>i : Symbol(i, Decl(intrinsicBudget.ts, 3, 7))
+>n : Symbol(n, Decl(intrinsicBudget.ts, 2, 18))
+>i : Symbol(i, Decl(intrinsicBudget.ts, 3, 7))
+>i : Symbol(i, Decl(intrinsicBudget.ts, 3, 7))
+
+    return i;
+>i : Symbol(i, Decl(intrinsicBudget.ts, 3, 7))
+
+};
+
+const add = (a: number, b: number) => a + b;
+>add : Symbol(add, Decl(intrinsicBudget.ts, 8, 5))
+>a : Symbol(a, Decl(intrinsicBudget.ts, 8, 13))
+>b : Symbol(b, Decl(intrinsicBudget.ts, 8, 23))
+>a : Symbol(a, Decl(intrinsicBudget.ts, 8, 13))
+>b : Symbol(b, Decl(intrinsicBudget.ts, 8, 23))
+
+const toUpper = (s: string) => s.toUpperCase();
+>toUpper : Symbol(toUpper, Decl(intrinsicBudget.ts, 9, 5))
+>s : Symbol(s, Decl(intrinsicBudget.ts, 9, 17))
+>s.toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(intrinsicBudget.ts, 9, 17))
+>toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+
+const validate = (n: any) => {
+>validate : Symbol(validate, Decl(intrinsicBudget.ts, 10, 5))
+>n : Symbol(n, Decl(intrinsicBudget.ts, 10, 18))
+
+    if (typeof n != 'number') return void { error: "Expected number, got " + typeof n };
+>n : Symbol(n, Decl(intrinsicBudget.ts, 10, 18))
+>error : Symbol(error, Decl(intrinsicBudget.ts, 11, 43))
+>n : Symbol(n, Decl(intrinsicBudget.ts, 10, 18))
+
+    if (n < 0) return void { error: n + " must be non-negative" };
+>n : Symbol(n, Decl(intrinsicBudget.ts, 10, 18))
+>error : Symbol(error, Decl(intrinsicBudget.ts, 12, 28))
+>n : Symbol(n, Decl(intrinsicBudget.ts, 10, 18))
+
+    return n;
+>n : Symbol(n, Decl(intrinsicBudget.ts, 10, 18))
+
+};
+
+// Budget exceeded
+type Blown = Intrinsic<typeof infinite, [100000]>;
+>Blown : Symbol(Blown, Decl(intrinsicBudget.ts, 14, 2))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>infinite : Symbol(infinite, Decl(intrinsicBudget.ts, 2, 5))
+
+// These should all still resolve correctly after the budget failure above
+type A1 = Intrinsic<typeof add, [10, 20]>;           // 30
+>A1 : Symbol(A1, Decl(intrinsicBudget.ts, 17, 50))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>add : Symbol(add, Decl(intrinsicBudget.ts, 8, 5))
+
+type A2 = Intrinsic<typeof add, [999, 1]>;           // 1000
+>A2 : Symbol(A2, Decl(intrinsicBudget.ts, 20, 42))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>add : Symbol(add, Decl(intrinsicBudget.ts, 8, 5))
+
+type U1 = Intrinsic<typeof toUpper, ["hello"]>;      // "HELLO"
+>U1 : Symbol(U1, Decl(intrinsicBudget.ts, 21, 42))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>toUpper : Symbol(toUpper, Decl(intrinsicBudget.ts, 9, 5))
+
+type V1 = Intrinsic<typeof validate, [42]>;           // 42
+>V1 : Symbol(V1, Decl(intrinsicBudget.ts, 22, 47))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>validate : Symbol(validate, Decl(intrinsicBudget.ts, 10, 5))
+
+type V2 = Intrinsic<typeof validate, [-1]>;           // error: -1 must be non-negative
+>V2 : Symbol(V2, Decl(intrinsicBudget.ts, 23, 43))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>validate : Symbol(validate, Decl(intrinsicBudget.ts, 10, 5))
+
+type V3 = Intrinsic<typeof validate, ["x"]>;          // error: Expected number, got string
+>V3 : Symbol(V3, Decl(intrinsicBudget.ts, 24, 43))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>validate : Symbol(validate, Decl(intrinsicBudget.ts, 10, 5))
+
+// Regular TypeScript inference should also be unaffected
+const x: number = 42;
+>x : Symbol(x, Decl(intrinsicBudget.ts, 28, 5))
+
+const y: string = "hello";
+>y : Symbol(y, Decl(intrinsicBudget.ts, 29, 5))
+
+const z = [1, 2, 3].map(n => n * 2);
+>z : Symbol(z, Decl(intrinsicBudget.ts, 30, 5))
+>[1, 2, 3].map : Symbol(Array.map, Decl(lib.es5.d.ts, --, --))
+>map : Symbol(Array.map, Decl(lib.es5.d.ts, --, --))
+>n : Symbol(n, Decl(intrinsicBudget.ts, 30, 24))
+>n : Symbol(n, Decl(intrinsicBudget.ts, 30, 24))
+
+type Arr = typeof z;                                  // number[]
+>Arr : Symbol(Arr, Decl(intrinsicBudget.ts, 30, 36))
+>z : Symbol(z, Decl(intrinsicBudget.ts, 30, 5))
+
+// A second budget failure should not cascade
+type Blown2 = Intrinsic<typeof infinite, [999999]>;
+>Blown2 : Symbol(Blown2, Decl(intrinsicBudget.ts, 31, 20))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>infinite : Symbol(infinite, Decl(intrinsicBudget.ts, 2, 5))
+
+// Still works after second failure
+type A3 = Intrinsic<typeof add, [1, 2]>;              // 3
+>A3 : Symbol(A3, Decl(intrinsicBudget.ts, 34, 51))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>add : Symbol(add, Decl(intrinsicBudget.ts, 8, 5))
+

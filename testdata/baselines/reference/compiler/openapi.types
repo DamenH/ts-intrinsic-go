@@ -1,0 +1,1366 @@
+//// [tests/cases/compiler/intrinsic/openapi.ts] ////
+
+=== openapi.ts ===
+// Resolve a $ref pointer like "#/components/schemas/Widget"
+export const resolve = (spec: any, node: any) => {
+>resolve : (spec: any, node: any) => any
+>(spec: any, node: any) => {    let cur: any = node;    while (cur != undefined && cur['$ref'] != undefined) {        let ref: string = cur['$ref'];        let parts = ref.slice(2).split('/');        let target: any = spec;        for (let p of parts) {            if (target == undefined) return undefined;            target = target[p];        }        cur = target;    }    return cur;} : (spec: any, node: any) => any
+>spec : any
+>node : any
+
+    let cur: any = node;
+>cur : any
+>node : any
+
+    while (cur != undefined && cur['$ref'] != undefined) {
+>cur != undefined && cur['$ref'] != undefined : boolean
+>cur != undefined : boolean
+>cur : any
+>undefined : undefined
+>cur['$ref'] != undefined : boolean
+>cur['$ref'] : any
+>cur : any
+>'$ref' : "$ref"
+>undefined : undefined
+
+        let ref: string = cur['$ref'];
+>ref : string
+>cur['$ref'] : any
+>cur : any
+>'$ref' : "$ref"
+
+        let parts = ref.slice(2).split('/');
+>parts : string[]
+>ref.slice(2).split('/') : string[]
+>ref.slice(2).split : { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }
+>ref.slice(2) : string
+>ref.slice : (start?: number, end?: number) => string
+>ref : string
+>slice : (start?: number, end?: number) => string
+>2 : 2
+>split : { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }
+>'/' : "/"
+
+        let target: any = spec;
+>target : any
+>spec : any
+
+        for (let p of parts) {
+>p : string
+>parts : string[]
+
+            if (target == undefined) return undefined;
+>target == undefined : boolean
+>target : any
+>undefined : undefined
+>undefined : undefined
+
+            target = target[p];
+>target = target[p] : any
+>target : any
+>target[p] : any
+>target : any
+>p : string
+        }
+        cur = target;
+>cur = target : any
+>cur : any
+>target : any
+    }
+    return cur;
+>cur : any
+
+};
+
+// Convert a primitive/enum schema to a shape descriptor.
+export const leafShape = (spec: any, rawSchema: any) => {
+>leafShape : (spec: any, rawSchema: any) => "any" | "boolean" | "number" | "string" | Record<string, any>
+>(spec: any, rawSchema: any) => {    let schema = resolve(spec, rawSchema);    if (schema == undefined) return "any";    let t = schema['type'];    if (t == 'string') {        let en = schema['enum'];        if (en != undefined) {            let result: Record<string, any> = {};            result['_enum'] = en;            return result;        }        return "string";    }    if (t == 'integer' || t == 'number') return "number";    if (t == 'boolean') return "boolean";    return "any";} : (spec: any, rawSchema: any) => "any" | "boolean" | "number" | "string" | Record<string, any>
+>spec : any
+>rawSchema : any
+
+    let schema = resolve(spec, rawSchema);
+>schema : any
+>resolve(spec, rawSchema) : any
+>resolve : (spec: any, node: any) => any
+>spec : any
+>rawSchema : any
+
+    if (schema == undefined) return "any";
+>schema == undefined : boolean
+>schema : any
+>undefined : undefined
+>"any" : "any"
+
+    let t = schema['type'];
+>t : any
+>schema['type'] : any
+>schema : any
+>'type' : "type"
+
+    if (t == 'string') {
+>t == 'string' : boolean
+>t : any
+>'string' : "string"
+
+        let en = schema['enum'];
+>en : any
+>schema['enum'] : any
+>schema : any
+>'enum' : "enum"
+
+        if (en != undefined) {
+>en != undefined : boolean
+>en : any
+>undefined : undefined
+
+            let result: Record<string, any> = {};
+>result : Record<string, any>
+>{} : {}
+
+            result['_enum'] = en;
+>result['_enum'] = en : any
+>result['_enum'] : any
+>result : Record<string, any>
+>'_enum' : "_enum"
+>en : any
+
+            return result;
+>result : Record<string, any>
+        }
+        return "string";
+>"string" : "string"
+    }
+    if (t == 'integer' || t == 'number') return "number";
+>t == 'integer' || t == 'number' : boolean
+>t == 'integer' : boolean
+>t : any
+>'integer' : "integer"
+>t == 'number' : boolean
+>t : any
+>'number' : "number"
+>"number" : "number"
+
+    if (t == 'boolean') return "boolean";
+>t == 'boolean' : boolean
+>t : any
+>'boolean' : "boolean"
+>"boolean" : "boolean"
+
+    return "any";
+>"any" : "any"
+
+};
+
+// Convert an object schema to a property-shape map.
+export const objectShape = (spec: any, rawSchema: any, forInput: any) => {
+>objectShape : (spec: any, rawSchema: any, forInput: any) => "any" | "boolean" | "number" | "string" | Record<string, any>
+>(spec: any, rawSchema: any, forInput: any) => {    let schema = resolve(spec, rawSchema);    if (schema == undefined) return "any";    if (schema['type'] != 'object') return leafShape(spec, rawSchema);    let props = schema['properties'];    if (props == undefined) return {};    let result: Record<string, any> = {};    for (let k of Object.keys(props)) {        let ps = resolve(spec, props[k]);        if (forInput == true && ps != undefined && ps['readOnly'] == true) { }        else {            result[k] = leafShape(spec, props[k]);        }    }    return result;} : (spec: any, rawSchema: any, forInput: any) => "any" | "boolean" | "number" | "string" | Record<string, any>
+>spec : any
+>rawSchema : any
+>forInput : any
+
+    let schema = resolve(spec, rawSchema);
+>schema : any
+>resolve(spec, rawSchema) : any
+>resolve : (spec: any, node: any) => any
+>spec : any
+>rawSchema : any
+
+    if (schema == undefined) return "any";
+>schema == undefined : boolean
+>schema : any
+>undefined : undefined
+>"any" : "any"
+
+    if (schema['type'] != 'object') return leafShape(spec, rawSchema);
+>schema['type'] != 'object' : boolean
+>schema['type'] : any
+>schema : any
+>'type' : "type"
+>'object' : "object"
+>leafShape(spec, rawSchema) : "any" | "boolean" | "number" | "string" | Record<string, any>
+>leafShape : (spec: any, rawSchema: any) => "any" | "boolean" | "number" | "string" | Record<string, any>
+>spec : any
+>rawSchema : any
+
+    let props = schema['properties'];
+>props : any
+>schema['properties'] : any
+>schema : any
+>'properties' : "properties"
+
+    if (props == undefined) return {};
+>props == undefined : boolean
+>props : any
+>undefined : undefined
+>{} : {}
+
+    let result: Record<string, any> = {};
+>result : Record<string, any>
+>{} : {}
+
+    for (let k of Object.keys(props)) {
+>k : string
+>Object.keys(props) : string[]
+>Object.keys : { (o: object): string[]; (o: {}): string[]; }
+>Object : ObjectConstructor
+>keys : { (o: object): string[]; (o: {}): string[]; }
+>props : any
+
+        let ps = resolve(spec, props[k]);
+>ps : any
+>resolve(spec, props[k]) : any
+>resolve : (spec: any, node: any) => any
+>spec : any
+>props[k] : any
+>props : any
+>k : string
+
+        if (forInput == true && ps != undefined && ps['readOnly'] == true) { }
+>forInput == true && ps != undefined && ps['readOnly'] == true : boolean
+>forInput == true && ps != undefined : boolean
+>forInput == true : boolean
+>forInput : any
+>true : true
+>ps != undefined : boolean
+>ps : any
+>undefined : undefined
+>ps['readOnly'] == true : boolean
+>ps['readOnly'] : any
+>ps : any
+>'readOnly' : "readOnly"
+>true : true
+
+        else {
+            result[k] = leafShape(spec, props[k]);
+>result[k] = leafShape(spec, props[k]) : "any" | "boolean" | "number" | "string" | Record<string, any>
+>result[k] : any
+>result : Record<string, any>
+>k : string
+>leafShape(spec, props[k]) : "any" | "boolean" | "number" | "string" | Record<string, any>
+>leafShape : (spec: any, rawSchema: any) => "any" | "boolean" | "number" | "string" | Record<string, any>
+>spec : any
+>props[k] : any
+>props : any
+>k : string
+        }
+    }
+    return result;
+>result : Record<string, any>
+
+};
+
+// Convert any schema to a shape. Dispatches to leafShape/objectShape, handles arrays.
+export const schemaToShape = (spec: any, rawSchema: any, forInput: any) => {
+>schemaToShape : (spec: any, rawSchema: any, forInput: any) => "any" | "boolean" | "number" | "string" | Record<string, any>
+>(spec: any, rawSchema: any, forInput: any) => {    let schema = resolve(spec, rawSchema);    if (schema == undefined) return "any";    let t = schema['type'];    if (t == 'array') {        let r: Record<string, any> = {};        r['_array'] = objectShape(spec, schema['items'], false);        return r;    }    if (t == 'object') return objectShape(spec, rawSchema, forInput);    return leafShape(spec, rawSchema);} : (spec: any, rawSchema: any, forInput: any) => "any" | "boolean" | "number" | "string" | Record<string, any>
+>spec : any
+>rawSchema : any
+>forInput : any
+
+    let schema = resolve(spec, rawSchema);
+>schema : any
+>resolve(spec, rawSchema) : any
+>resolve : (spec: any, node: any) => any
+>spec : any
+>rawSchema : any
+
+    if (schema == undefined) return "any";
+>schema == undefined : boolean
+>schema : any
+>undefined : undefined
+>"any" : "any"
+
+    let t = schema['type'];
+>t : any
+>schema['type'] : any
+>schema : any
+>'type' : "type"
+
+    if (t == 'array') {
+>t == 'array' : boolean
+>t : any
+>'array' : "array"
+
+        let r: Record<string, any> = {};
+>r : Record<string, any>
+>{} : {}
+
+        r['_array'] = objectShape(spec, schema['items'], false);
+>r['_array'] = objectShape(spec, schema['items'], false) : "any" | "boolean" | "number" | "string" | Record<string, any>
+>r['_array'] : any
+>r : Record<string, any>
+>'_array' : "_array"
+>objectShape(spec, schema['items'], false) : "any" | "boolean" | "number" | "string" | Record<string, any>
+>objectShape : (spec: any, rawSchema: any, forInput: any) => "any" | "boolean" | "number" | "string" | Record<string, any>
+>spec : any
+>schema['items'] : any
+>schema : any
+>'items' : "items"
+>false : false
+
+        return r;
+>r : Record<string, any>
+    }
+    if (t == 'object') return objectShape(spec, rawSchema, forInput);
+>t == 'object' : boolean
+>t : any
+>'object' : "object"
+>objectShape(spec, rawSchema, forInput) : "any" | "boolean" | "number" | "string" | Record<string, any>
+>objectShape : (spec: any, rawSchema: any, forInput: any) => "any" | "boolean" | "number" | "string" | Record<string, any>
+>spec : any
+>rawSchema : any
+>forInput : any
+
+    return leafShape(spec, rawSchema);
+>leafShape(spec, rawSchema) : "any" | "boolean" | "number" | "string" | Record<string, any>
+>leafShape : (spec: any, rawSchema: any) => "any" | "boolean" | "number" | "string" | Record<string, any>
+>spec : any
+>rawSchema : any
+
+};
+
+// Build paths descriptor: { "/path": { get: { params?, body?, data?, error? }, ... }, ... }
+export const pathsType = (spec: any) => {
+>pathsType : (spec: any) => Record<string, any> | undefined
+>(spec: any) => {    if (typeof spec != 'object') return void { error: "Expected an OpenAPI spec" };    let specPaths = spec['paths'];    if (specPaths == undefined) return void { error: "No paths defined" };    let result: Record<string, any> = {};    for (let path of Object.keys(specPaths)) {        let pathItem = specPaths[path];        let methods: Record<string, any> = {};        for (let m of ['get', 'post', 'put', 'patch', 'delete']) {            let op = pathItem[m];            if (op == undefined) { }            else {                let entry: Record<string, any> = {};                // Path parameters                let params = op['parameters'];                if (params != undefined) {                    let pathP: Record<string, any> = {};                    let hasP = false;                    for (let param of params) {                        if (param['in'] == 'path') {                            pathP[param['name']] = leafShape(spec, param['schema']);                            hasP = true;                        }                    }                    if (hasP) {                        let p: Record<string, any> = {};                        p['path'] = pathP;                        entry['params'] = p;                    }                }                // Request body                let rb = op['requestBody'];                if (rb != undefined) {                    let content = rb['content'];                    if (content != undefined) {                        let cts = Object.keys(content);                        if (cts.length > 0) {                            let bodySchema = resolve(spec, content[cts[0]]['schema']);                            if (bodySchema != undefined) {                                entry['body'] = objectShape(spec, content[cts[0]]['schema'], true);                                if (bodySchema['required'] == undefined) entry['bodyPartial'] = true;                            }                        }                    }                }                // Success response                let responses = op['responses'];                if (responses != undefined) {                    for (let status of Object.keys(responses)) {                        if (status == '200' || status == '201') {                            let resp = responses[status];                            let rc = resp['content'];                            if (rc != undefined) {                                let rcts = Object.keys(rc);                                if (rcts.length > 0) {                                    entry['data'] = schemaToShape(spec, rc[rcts[0]]['schema'], false);                                }                            }                        }                    }                    // Error response (from "default")                    let errResp = responses['default'];                    if (errResp != undefined) {                        let erc = errResp['content'];                        if (erc != undefined) {                            let ercts = Object.keys(erc);                            if (ercts.length > 0) {                                entry['error'] = schemaToShape(spec, erc[ercts[0]]['schema'], false);                            }                        }                    }                }                methods[m] = entry;            }        }        result[path] = methods;    }    return result;} : (spec: any) => Record<string, any> | undefined
+>spec : any
+
+    if (typeof spec != 'object') return void { error: "Expected an OpenAPI spec" };
+>typeof spec != 'object' : boolean
+>typeof spec : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>spec : any
+>'object' : "object"
+>void { error: "Expected an OpenAPI spec" } : undefined
+>{ error: "Expected an OpenAPI spec" } : { error: string; }
+>error : string
+>"Expected an OpenAPI spec" : "Expected an OpenAPI spec"
+
+    let specPaths = spec['paths'];
+>specPaths : any
+>spec['paths'] : any
+>spec : any
+>'paths' : "paths"
+
+    if (specPaths == undefined) return void { error: "No paths defined" };
+>specPaths == undefined : boolean
+>specPaths : any
+>undefined : undefined
+>void { error: "No paths defined" } : undefined
+>{ error: "No paths defined" } : { error: string; }
+>error : string
+>"No paths defined" : "No paths defined"
+
+    let result: Record<string, any> = {};
+>result : Record<string, any>
+>{} : {}
+
+    for (let path of Object.keys(specPaths)) {
+>path : string
+>Object.keys(specPaths) : string[]
+>Object.keys : { (o: object): string[]; (o: {}): string[]; }
+>Object : ObjectConstructor
+>keys : { (o: object): string[]; (o: {}): string[]; }
+>specPaths : any
+
+        let pathItem = specPaths[path];
+>pathItem : any
+>specPaths[path] : any
+>specPaths : any
+>path : string
+
+        let methods: Record<string, any> = {};
+>methods : Record<string, any>
+>{} : {}
+
+        for (let m of ['get', 'post', 'put', 'patch', 'delete']) {
+>m : string
+>['get', 'post', 'put', 'patch', 'delete'] : string[]
+>'get' : "get"
+>'post' : "post"
+>'put' : "put"
+>'patch' : "patch"
+>'delete' : "delete"
+
+            let op = pathItem[m];
+>op : any
+>pathItem[m] : any
+>pathItem : any
+>m : string
+
+            if (op == undefined) { }
+>op == undefined : boolean
+>op : any
+>undefined : undefined
+
+            else {
+                let entry: Record<string, any> = {};
+>entry : Record<string, any>
+>{} : {}
+
+                // Path parameters
+                let params = op['parameters'];
+>params : any
+>op['parameters'] : any
+>op : any
+>'parameters' : "parameters"
+
+                if (params != undefined) {
+>params != undefined : boolean
+>params : any
+>undefined : undefined
+
+                    let pathP: Record<string, any> = {};
+>pathP : Record<string, any>
+>{} : {}
+
+                    let hasP = false;
+>hasP : boolean
+>false : false
+
+                    for (let param of params) {
+>param : any
+>params : any
+
+                        if (param['in'] == 'path') {
+>param['in'] == 'path' : boolean
+>param['in'] : any
+>param : any
+>'in' : "in"
+>'path' : "path"
+
+                            pathP[param['name']] = leafShape(spec, param['schema']);
+>pathP[param['name']] = leafShape(spec, param['schema']) : "any" | "boolean" | "number" | "string" | Record<string, any>
+>pathP[param['name']] : any
+>pathP : Record<string, any>
+>param['name'] : any
+>param : any
+>'name' : "name"
+>leafShape(spec, param['schema']) : "any" | "boolean" | "number" | "string" | Record<string, any>
+>leafShape : (spec: any, rawSchema: any) => "any" | "boolean" | "number" | "string" | Record<string, any>
+>spec : any
+>param['schema'] : any
+>param : any
+>'schema' : "schema"
+
+                            hasP = true;
+>hasP = true : true
+>hasP : boolean
+>true : true
+                        }
+                    }
+                    if (hasP) {
+>hasP : boolean
+
+                        let p: Record<string, any> = {};
+>p : Record<string, any>
+>{} : {}
+
+                        p['path'] = pathP;
+>p['path'] = pathP : Record<string, any>
+>p['path'] : any
+>p : Record<string, any>
+>'path' : "path"
+>pathP : Record<string, any>
+
+                        entry['params'] = p;
+>entry['params'] = p : Record<string, any>
+>entry['params'] : any
+>entry : Record<string, any>
+>'params' : "params"
+>p : Record<string, any>
+                    }
+                }
+                // Request body
+                let rb = op['requestBody'];
+>rb : any
+>op['requestBody'] : any
+>op : any
+>'requestBody' : "requestBody"
+
+                if (rb != undefined) {
+>rb != undefined : boolean
+>rb : any
+>undefined : undefined
+
+                    let content = rb['content'];
+>content : any
+>rb['content'] : any
+>rb : any
+>'content' : "content"
+
+                    if (content != undefined) {
+>content != undefined : boolean
+>content : any
+>undefined : undefined
+
+                        let cts = Object.keys(content);
+>cts : string[]
+>Object.keys(content) : string[]
+>Object.keys : { (o: object): string[]; (o: {}): string[]; }
+>Object : ObjectConstructor
+>keys : { (o: object): string[]; (o: {}): string[]; }
+>content : any
+
+                        if (cts.length > 0) {
+>cts.length > 0 : boolean
+>cts.length : number
+>cts : string[]
+>length : number
+>0 : 0
+
+                            let bodySchema = resolve(spec, content[cts[0]]['schema']);
+>bodySchema : any
+>resolve(spec, content[cts[0]]['schema']) : any
+>resolve : (spec: any, node: any) => any
+>spec : any
+>content[cts[0]]['schema'] : any
+>content[cts[0]] : any
+>content : any
+>cts[0] : string
+>cts : string[]
+>0 : 0
+>'schema' : "schema"
+
+                            if (bodySchema != undefined) {
+>bodySchema != undefined : boolean
+>bodySchema : any
+>undefined : undefined
+
+                                entry['body'] = objectShape(spec, content[cts[0]]['schema'], true);
+>entry['body'] = objectShape(spec, content[cts[0]]['schema'], true) : "any" | "boolean" | "number" | "string" | Record<string, any>
+>entry['body'] : any
+>entry : Record<string, any>
+>'body' : "body"
+>objectShape(spec, content[cts[0]]['schema'], true) : "any" | "boolean" | "number" | "string" | Record<string, any>
+>objectShape : (spec: any, rawSchema: any, forInput: any) => "any" | "boolean" | "number" | "string" | Record<string, any>
+>spec : any
+>content[cts[0]]['schema'] : any
+>content[cts[0]] : any
+>content : any
+>cts[0] : string
+>cts : string[]
+>0 : 0
+>'schema' : "schema"
+>true : true
+
+                                if (bodySchema['required'] == undefined) entry['bodyPartial'] = true;
+>bodySchema['required'] == undefined : boolean
+>bodySchema['required'] : any
+>bodySchema : any
+>'required' : "required"
+>undefined : undefined
+>entry['bodyPartial'] = true : true
+>entry['bodyPartial'] : any
+>entry : Record<string, any>
+>'bodyPartial' : "bodyPartial"
+>true : true
+                            }
+                        }
+                    }
+                }
+                // Success response
+                let responses = op['responses'];
+>responses : any
+>op['responses'] : any
+>op : any
+>'responses' : "responses"
+
+                if (responses != undefined) {
+>responses != undefined : boolean
+>responses : any
+>undefined : undefined
+
+                    for (let status of Object.keys(responses)) {
+>status : string
+>Object.keys(responses) : string[]
+>Object.keys : { (o: object): string[]; (o: {}): string[]; }
+>Object : ObjectConstructor
+>keys : { (o: object): string[]; (o: {}): string[]; }
+>responses : any
+
+                        if (status == '200' || status == '201') {
+>status == '200' || status == '201' : boolean
+>status == '200' : boolean
+>status : string
+>'200' : "200"
+>status == '201' : boolean
+>status : string
+>'201' : "201"
+
+                            let resp = responses[status];
+>resp : any
+>responses[status] : any
+>responses : any
+>status : "200" | "201"
+
+                            let rc = resp['content'];
+>rc : any
+>resp['content'] : any
+>resp : any
+>'content' : "content"
+
+                            if (rc != undefined) {
+>rc != undefined : boolean
+>rc : any
+>undefined : undefined
+
+                                let rcts = Object.keys(rc);
+>rcts : string[]
+>Object.keys(rc) : string[]
+>Object.keys : { (o: object): string[]; (o: {}): string[]; }
+>Object : ObjectConstructor
+>keys : { (o: object): string[]; (o: {}): string[]; }
+>rc : any
+
+                                if (rcts.length > 0) {
+>rcts.length > 0 : boolean
+>rcts.length : number
+>rcts : string[]
+>length : number
+>0 : 0
+
+                                    entry['data'] = schemaToShape(spec, rc[rcts[0]]['schema'], false);
+>entry['data'] = schemaToShape(spec, rc[rcts[0]]['schema'], false) : "any" | "boolean" | "number" | "string" | Record<string, any>
+>entry['data'] : any
+>entry : Record<string, any>
+>'data' : "data"
+>schemaToShape(spec, rc[rcts[0]]['schema'], false) : "any" | "boolean" | "number" | "string" | Record<string, any>
+>schemaToShape : (spec: any, rawSchema: any, forInput: any) => "any" | "boolean" | "number" | "string" | Record<string, any>
+>spec : any
+>rc[rcts[0]]['schema'] : any
+>rc[rcts[0]] : any
+>rc : any
+>rcts[0] : string
+>rcts : string[]
+>0 : 0
+>'schema' : "schema"
+>false : false
+                                }
+                            }
+                        }
+                    }
+                    // Error response (from "default")
+                    let errResp = responses['default'];
+>errResp : any
+>responses['default'] : any
+>responses : any
+>'default' : "default"
+
+                    if (errResp != undefined) {
+>errResp != undefined : boolean
+>errResp : any
+>undefined : undefined
+
+                        let erc = errResp['content'];
+>erc : any
+>errResp['content'] : any
+>errResp : any
+>'content' : "content"
+
+                        if (erc != undefined) {
+>erc != undefined : boolean
+>erc : any
+>undefined : undefined
+
+                            let ercts = Object.keys(erc);
+>ercts : string[]
+>Object.keys(erc) : string[]
+>Object.keys : { (o: object): string[]; (o: {}): string[]; }
+>Object : ObjectConstructor
+>keys : { (o: object): string[]; (o: {}): string[]; }
+>erc : any
+
+                            if (ercts.length > 0) {
+>ercts.length > 0 : boolean
+>ercts.length : number
+>ercts : string[]
+>length : number
+>0 : 0
+
+                                entry['error'] = schemaToShape(spec, erc[ercts[0]]['schema'], false);
+>entry['error'] = schemaToShape(spec, erc[ercts[0]]['schema'], false) : "any" | "boolean" | "number" | "string" | Record<string, any>
+>entry['error'] : any
+>entry : Record<string, any>
+>'error' : "error"
+>schemaToShape(spec, erc[ercts[0]]['schema'], false) : "any" | "boolean" | "number" | "string" | Record<string, any>
+>schemaToShape : (spec: any, rawSchema: any, forInput: any) => "any" | "boolean" | "number" | "string" | Record<string, any>
+>spec : any
+>erc[ercts[0]]['schema'] : any
+>erc[ercts[0]] : any
+>erc : any
+>ercts[0] : string
+>ercts : string[]
+>0 : 0
+>'schema' : "schema"
+>false : false
+                            }
+                        }
+                    }
+                }
+                methods[m] = entry;
+>methods[m] = entry : Record<string, any>
+>methods[m] : any
+>methods : Record<string, any>
+>m : string
+>entry : Record<string, any>
+            }
+        }
+        result[path] = methods;
+>result[path] = methods : Record<string, any>
+>result[path] : any
+>result : Record<string, any>
+>path : string
+>methods : Record<string, any>
+    }
+    return result;
+>result : Record<string, any>
+
+};
+
+export type Paths<Spec> = Intrinsic<typeof pathsType, [Spec]>;
+>Paths : intrinsic
+>pathsType : (spec: any) => Record<string, any> | undefined
+
+// Convert intrinsic shape descriptors to TypeScript types.
+export type Widen<T> =
+>Widen : Widen<T>
+
+    T extends "string" ? string :
+    T extends "number" ? number :
+    T extends "boolean" ? boolean :
+    T extends { _enum: infer E } ? E extends readonly (infer U)[] ? U : never :
+>_enum : E
+
+    T extends { _array: infer I } ? Widen<I>[] :
+>_array : I
+
+    T extends object ? { [K in keyof T]: Widen<T[K]> } :
+    T;
+
+=== openapi_userland.ts ===
+import { Paths, Widen } from "./openapi";
+>Paths : any
+>Widen : any
+
+const spec = {
+>spec : { readonly openapi: "3.0.0"; readonly info: { readonly title: "Widget Service"; readonly version: "0.0.0"; }; readonly paths: { readonly "/widgets": { readonly get: { readonly operationId: "Widgets_list"; readonly description: "List widgets"; readonly parameters: readonly []; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly type: "array"; readonly items: { readonly "$ref": "#/components/schemas/Widget"; }; }; }; }; }; readonly "default": { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly "$ref": "#/components/schemas/Error"; }; }; }; }; }; }; readonly post: { readonly operationId: "Widgets_create"; readonly description: "Create a widget"; readonly parameters: readonly []; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly "$ref": "#/components/schemas/Widget"; }; }; }; }; readonly "default": { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly "$ref": "#/components/schemas/Error"; }; }; }; }; }; readonly requestBody: { readonly required: true; readonly content: { readonly "application/json": { readonly schema: { readonly "$ref": "#/components/schemas/Widget"; }; }; }; }; }; }; readonly "/widgets/{id}": { readonly get: { readonly operationId: "Widgets_read"; readonly description: "Read a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly "$ref": "#/components/schemas/Widget"; }; }; }; }; readonly "default": { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly "$ref": "#/components/schemas/Error"; }; }; }; }; }; }; readonly patch: { readonly operationId: "Widgets_update"; readonly description: "Update a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly "$ref": "#/components/schemas/Widget"; }; }; }; }; readonly "default": { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly "$ref": "#/components/schemas/Error"; }; }; }; }; }; readonly requestBody: { readonly required: true; readonly content: { readonly "application/merge-patch+json": { readonly schema: { readonly "$ref": "#/components/schemas/WidgetMergePatchUpdate"; }; }; }; }; }; readonly delete: { readonly operationId: "Widgets_delete"; readonly description: "Delete a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "204": { readonly description: "No content"; }; readonly "default": { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly "$ref": "#/components/schemas/Error"; }; }; }; }; }; }; }; readonly "/widgets/{id}/analyze": { readonly post: { readonly operationId: "Widgets_analyze"; readonly description: "Analyze a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "text/plain": { readonly schema: { readonly type: "string"; }; }; }; }; readonly "default": { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly "$ref": "#/components/schemas/Error"; }; }; }; }; }; }; }; }; readonly components: { readonly schemas: { readonly Widget: { readonly type: "object"; readonly required: readonly ["id", "weight", "color"]; readonly properties: { readonly id: { readonly type: "string"; readonly readOnly: true; }; readonly weight: { readonly type: "integer"; readonly format: "int32"; }; readonly color: { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }; }; }; readonly WidgetMergePatchUpdate: { readonly type: "object"; readonly properties: { readonly weight: { readonly type: "integer"; readonly format: "int32"; }; readonly color: { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }; }; }; readonly Error: { readonly type: "object"; readonly required: readonly ["code", "message"]; readonly properties: { readonly code: { readonly type: "integer"; readonly format: "int32"; }; readonly message: { readonly type: "string"; }; }; }; }; }; }
+>{    openapi: "3.0.0",    info: { title: "Widget Service", version: "0.0.0" },    paths: {        "/widgets": {            get: {                operationId: "Widgets_list",                description: "List widgets",                parameters: [],                responses: {                    "200": {                        description: "The request has succeeded.",                        content: { "application/json": { schema: { type: "array", items: { "$ref": "#/components/schemas/Widget" } } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                }            },            post: {                operationId: "Widgets_create",                description: "Create a widget",                parameters: [],                responses: {                    "200": {                        description: "The request has succeeded.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                },                requestBody: {                    required: true,                    content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }                }            }        },        "/widgets/{id}": {            get: {                operationId: "Widgets_read",                description: "Read a widget",                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],                responses: {                    "200": {                        description: "The request has succeeded.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                }            },            patch: {                operationId: "Widgets_update",                description: "Update a widget",                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],                responses: {                    "200": {                        description: "The request has succeeded.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                },                requestBody: {                    required: true,                    content: { "application/merge-patch+json": { schema: { "$ref": "#/components/schemas/WidgetMergePatchUpdate" } } }                }            },            delete: {                operationId: "Widgets_delete",                description: "Delete a widget",                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],                responses: {                    "204": { description: "No content" },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                }            }        },        "/widgets/{id}/analyze": {            post: {                operationId: "Widgets_analyze",                description: "Analyze a widget",                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],                responses: {                    "200": {                        description: "The request has succeeded.",                        content: { "text/plain": { schema: { type: "string" } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                }            }        }    },    components: {        schemas: {            Widget: {                type: "object",                required: ["id", "weight", "color"],                properties: {                    id: { type: "string", readOnly: true },                    weight: { type: "integer", format: "int32" },                    color: { type: "string", enum: ["red", "blue"] }                }            },            WidgetMergePatchUpdate: {                type: "object",                properties: {                    weight: { type: "integer", format: "int32" },                    color: { type: "string", enum: ["red", "blue"] }                }            },            Error: {                type: "object",                required: ["code", "message"],                properties: {                    code: { type: "integer", format: "int32" },                    message: { type: "string" }                }            }        }    }} as const : { readonly openapi: "3.0.0"; readonly info: { readonly title: "Widget Service"; readonly version: "0.0.0"; }; readonly paths: { readonly "/widgets": { readonly get: { readonly operationId: "Widgets_list"; readonly description: "List widgets"; readonly parameters: readonly []; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly type: "array"; readonly items: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }; readonly post: { readonly operationId: "Widgets_create"; readonly description: "Create a widget"; readonly parameters: readonly []; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; readonly requestBody: { readonly required: true; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; }; }; readonly "/widgets/{id}": { readonly get: { readonly operationId: "Widgets_read"; readonly description: "Read a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }; readonly patch: { readonly operationId: "Widgets_update"; readonly description: "Update a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; readonly requestBody: { readonly required: true; readonly content: { readonly "application/merge-patch+json": { readonly schema: { readonly $ref: "#/components/schemas/WidgetMergePatchUpdate"; }; }; }; }; }; readonly delete: { readonly operationId: "Widgets_delete"; readonly description: "Delete a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "204": { readonly description: "No content"; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }; }; readonly "/widgets/{id}/analyze": { readonly post: { readonly operationId: "Widgets_analyze"; readonly description: "Analyze a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "text/plain": { readonly schema: { readonly type: "string"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }; }; }; readonly components: { readonly schemas: { readonly Widget: { readonly type: "object"; readonly required: readonly ["id", "weight", "color"]; readonly properties: { readonly id: { readonly type: "string"; readonly readOnly: true; }; readonly weight: { readonly type: "integer"; readonly format: "int32"; }; readonly color: { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }; }; }; readonly WidgetMergePatchUpdate: { readonly type: "object"; readonly properties: { readonly weight: { readonly type: "integer"; readonly format: "int32"; }; readonly color: { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }; }; }; readonly Error: { readonly type: "object"; readonly required: readonly ["code", "message"]; readonly properties: { readonly code: { readonly type: "integer"; readonly format: "int32"; }; readonly message: { readonly type: "string"; }; }; }; }; }; }
+>{    openapi: "3.0.0",    info: { title: "Widget Service", version: "0.0.0" },    paths: {        "/widgets": {            get: {                operationId: "Widgets_list",                description: "List widgets",                parameters: [],                responses: {                    "200": {                        description: "The request has succeeded.",                        content: { "application/json": { schema: { type: "array", items: { "$ref": "#/components/schemas/Widget" } } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                }            },            post: {                operationId: "Widgets_create",                description: "Create a widget",                parameters: [],                responses: {                    "200": {                        description: "The request has succeeded.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                },                requestBody: {                    required: true,                    content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }                }            }        },        "/widgets/{id}": {            get: {                operationId: "Widgets_read",                description: "Read a widget",                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],                responses: {                    "200": {                        description: "The request has succeeded.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                }            },            patch: {                operationId: "Widgets_update",                description: "Update a widget",                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],                responses: {                    "200": {                        description: "The request has succeeded.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                },                requestBody: {                    required: true,                    content: { "application/merge-patch+json": { schema: { "$ref": "#/components/schemas/WidgetMergePatchUpdate" } } }                }            },            delete: {                operationId: "Widgets_delete",                description: "Delete a widget",                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],                responses: {                    "204": { description: "No content" },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                }            }        },        "/widgets/{id}/analyze": {            post: {                operationId: "Widgets_analyze",                description: "Analyze a widget",                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],                responses: {                    "200": {                        description: "The request has succeeded.",                        content: { "text/plain": { schema: { type: "string" } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                }            }        }    },    components: {        schemas: {            Widget: {                type: "object",                required: ["id", "weight", "color"],                properties: {                    id: { type: "string", readOnly: true },                    weight: { type: "integer", format: "int32" },                    color: { type: "string", enum: ["red", "blue"] }                }            },            WidgetMergePatchUpdate: {                type: "object",                properties: {                    weight: { type: "integer", format: "int32" },                    color: { type: "string", enum: ["red", "blue"] }                }            },            Error: {                type: "object",                required: ["code", "message"],                properties: {                    code: { type: "integer", format: "int32" },                    message: { type: "string" }                }            }        }    }} : { readonly openapi: "3.0.0"; readonly info: { readonly title: "Widget Service"; readonly version: "0.0.0"; }; readonly paths: { readonly "/widgets": { readonly get: { readonly operationId: "Widgets_list"; readonly description: "List widgets"; readonly parameters: readonly []; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly type: "array"; readonly items: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }; readonly post: { readonly operationId: "Widgets_create"; readonly description: "Create a widget"; readonly parameters: readonly []; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; readonly requestBody: { readonly required: true; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; }; }; readonly "/widgets/{id}": { readonly get: { readonly operationId: "Widgets_read"; readonly description: "Read a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }; readonly patch: { readonly operationId: "Widgets_update"; readonly description: "Update a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; readonly requestBody: { readonly required: true; readonly content: { readonly "application/merge-patch+json": { readonly schema: { readonly $ref: "#/components/schemas/WidgetMergePatchUpdate"; }; }; }; }; }; readonly delete: { readonly operationId: "Widgets_delete"; readonly description: "Delete a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "204": { readonly description: "No content"; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }; }; readonly "/widgets/{id}/analyze": { readonly post: { readonly operationId: "Widgets_analyze"; readonly description: "Analyze a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "text/plain": { readonly schema: { readonly type: "string"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }; }; }; readonly components: { readonly schemas: { readonly Widget: { readonly type: "object"; readonly required: readonly ["id", "weight", "color"]; readonly properties: { readonly id: { readonly type: "string"; readonly readOnly: true; }; readonly weight: { readonly type: "integer"; readonly format: "int32"; }; readonly color: { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }; }; }; readonly WidgetMergePatchUpdate: { readonly type: "object"; readonly properties: { readonly weight: { readonly type: "integer"; readonly format: "int32"; }; readonly color: { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }; }; }; readonly Error: { readonly type: "object"; readonly required: readonly ["code", "message"]; readonly properties: { readonly code: { readonly type: "integer"; readonly format: "int32"; }; readonly message: { readonly type: "string"; }; }; }; }; }; }
+
+    openapi: "3.0.0",
+>openapi : "3.0.0"
+>"3.0.0" : "3.0.0"
+
+    info: { title: "Widget Service", version: "0.0.0" },
+>info : { readonly title: "Widget Service"; readonly version: "0.0.0"; }
+>{ title: "Widget Service", version: "0.0.0" } : { readonly title: "Widget Service"; readonly version: "0.0.0"; }
+>title : "Widget Service"
+>"Widget Service" : "Widget Service"
+>version : "0.0.0"
+>"0.0.0" : "0.0.0"
+
+    paths: {
+>paths : { readonly "/widgets": { readonly get: { readonly operationId: "Widgets_list"; readonly description: "List widgets"; readonly parameters: readonly []; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly type: "array"; readonly items: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }; readonly post: { readonly operationId: "Widgets_create"; readonly description: "Create a widget"; readonly parameters: readonly []; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; readonly requestBody: { readonly required: true; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; }; }; readonly "/widgets/{id}": { readonly get: { readonly operationId: "Widgets_read"; readonly description: "Read a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }; readonly patch: { readonly operationId: "Widgets_update"; readonly description: "Update a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; readonly requestBody: { readonly required: true; readonly content: { readonly "application/merge-patch+json": { readonly schema: { readonly $ref: "#/components/schemas/WidgetMergePatchUpdate"; }; }; }; }; }; readonly delete: { readonly operationId: "Widgets_delete"; readonly description: "Delete a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "204": { readonly description: "No content"; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }; }; readonly "/widgets/{id}/analyze": { readonly post: { readonly operationId: "Widgets_analyze"; readonly description: "Analyze a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "text/plain": { readonly schema: { readonly type: "string"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }; }; }
+>{        "/widgets": {            get: {                operationId: "Widgets_list",                description: "List widgets",                parameters: [],                responses: {                    "200": {                        description: "The request has succeeded.",                        content: { "application/json": { schema: { type: "array", items: { "$ref": "#/components/schemas/Widget" } } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                }            },            post: {                operationId: "Widgets_create",                description: "Create a widget",                parameters: [],                responses: {                    "200": {                        description: "The request has succeeded.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                },                requestBody: {                    required: true,                    content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }                }            }        },        "/widgets/{id}": {            get: {                operationId: "Widgets_read",                description: "Read a widget",                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],                responses: {                    "200": {                        description: "The request has succeeded.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                }            },            patch: {                operationId: "Widgets_update",                description: "Update a widget",                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],                responses: {                    "200": {                        description: "The request has succeeded.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                },                requestBody: {                    required: true,                    content: { "application/merge-patch+json": { schema: { "$ref": "#/components/schemas/WidgetMergePatchUpdate" } } }                }            },            delete: {                operationId: "Widgets_delete",                description: "Delete a widget",                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],                responses: {                    "204": { description: "No content" },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                }            }        },        "/widgets/{id}/analyze": {            post: {                operationId: "Widgets_analyze",                description: "Analyze a widget",                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],                responses: {                    "200": {                        description: "The request has succeeded.",                        content: { "text/plain": { schema: { type: "string" } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                }            }        }    } : { readonly "/widgets": { readonly get: { readonly operationId: "Widgets_list"; readonly description: "List widgets"; readonly parameters: readonly []; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly type: "array"; readonly items: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }; readonly post: { readonly operationId: "Widgets_create"; readonly description: "Create a widget"; readonly parameters: readonly []; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; readonly requestBody: { readonly required: true; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; }; }; readonly "/widgets/{id}": { readonly get: { readonly operationId: "Widgets_read"; readonly description: "Read a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }; readonly patch: { readonly operationId: "Widgets_update"; readonly description: "Update a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; readonly requestBody: { readonly required: true; readonly content: { readonly "application/merge-patch+json": { readonly schema: { readonly $ref: "#/components/schemas/WidgetMergePatchUpdate"; }; }; }; }; }; readonly delete: { readonly operationId: "Widgets_delete"; readonly description: "Delete a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "204": { readonly description: "No content"; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }; }; readonly "/widgets/{id}/analyze": { readonly post: { readonly operationId: "Widgets_analyze"; readonly description: "Analyze a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "text/plain": { readonly schema: { readonly type: "string"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }; }; }
+
+        "/widgets": {
+>"/widgets" : { readonly get: { readonly operationId: "Widgets_list"; readonly description: "List widgets"; readonly parameters: readonly []; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly type: "array"; readonly items: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }; readonly post: { readonly operationId: "Widgets_create"; readonly description: "Create a widget"; readonly parameters: readonly []; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; readonly requestBody: { readonly required: true; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; }; }
+>{            get: {                operationId: "Widgets_list",                description: "List widgets",                parameters: [],                responses: {                    "200": {                        description: "The request has succeeded.",                        content: { "application/json": { schema: { type: "array", items: { "$ref": "#/components/schemas/Widget" } } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                }            },            post: {                operationId: "Widgets_create",                description: "Create a widget",                parameters: [],                responses: {                    "200": {                        description: "The request has succeeded.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                },                requestBody: {                    required: true,                    content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }                }            }        } : { readonly get: { readonly operationId: "Widgets_list"; readonly description: "List widgets"; readonly parameters: readonly []; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly type: "array"; readonly items: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }; readonly post: { readonly operationId: "Widgets_create"; readonly description: "Create a widget"; readonly parameters: readonly []; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; readonly requestBody: { readonly required: true; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; }; }
+
+            get: {
+>get : { readonly operationId: "Widgets_list"; readonly description: "List widgets"; readonly parameters: readonly []; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly type: "array"; readonly items: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }
+>{                operationId: "Widgets_list",                description: "List widgets",                parameters: [],                responses: {                    "200": {                        description: "The request has succeeded.",                        content: { "application/json": { schema: { type: "array", items: { "$ref": "#/components/schemas/Widget" } } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                }            } : { readonly operationId: "Widgets_list"; readonly description: "List widgets"; readonly parameters: readonly []; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly type: "array"; readonly items: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }
+
+                operationId: "Widgets_list",
+>operationId : "Widgets_list"
+>"Widgets_list" : "Widgets_list"
+
+                description: "List widgets",
+>description : "List widgets"
+>"List widgets" : "List widgets"
+
+                parameters: [],
+>parameters : readonly []
+>[] : readonly []
+
+                responses: {
+>responses : { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly type: "array"; readonly items: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }
+>{                    "200": {                        description: "The request has succeeded.",                        content: { "application/json": { schema: { type: "array", items: { "$ref": "#/components/schemas/Widget" } } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                } : { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly type: "array"; readonly items: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }
+
+                    "200": {
+>"200" : { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly type: "array"; readonly items: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; }
+>{                        description: "The request has succeeded.",                        content: { "application/json": { schema: { type: "array", items: { "$ref": "#/components/schemas/Widget" } } } }                    } : { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly type: "array"; readonly items: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; }
+
+                        description: "The request has succeeded.",
+>description : "The request has succeeded."
+>"The request has succeeded." : "The request has succeeded."
+
+                        content: { "application/json": { schema: { type: "array", items: { "$ref": "#/components/schemas/Widget" } } } }
+>content : { readonly "application/json": { readonly schema: { readonly type: "array"; readonly items: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }
+>{ "application/json": { schema: { type: "array", items: { "$ref": "#/components/schemas/Widget" } } } } : { readonly "application/json": { readonly schema: { readonly type: "array"; readonly items: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }
+>"application/json" : { readonly schema: { readonly type: "array"; readonly items: { readonly $ref: "#/components/schemas/Widget"; }; }; }
+>{ schema: { type: "array", items: { "$ref": "#/components/schemas/Widget" } } } : { readonly schema: { readonly type: "array"; readonly items: { readonly $ref: "#/components/schemas/Widget"; }; }; }
+>schema : { readonly type: "array"; readonly items: { readonly $ref: "#/components/schemas/Widget"; }; }
+>{ type: "array", items: { "$ref": "#/components/schemas/Widget" } } : { readonly type: "array"; readonly items: { readonly $ref: "#/components/schemas/Widget"; }; }
+>type : "array"
+>"array" : "array"
+>items : { readonly $ref: "#/components/schemas/Widget"; }
+>{ "$ref": "#/components/schemas/Widget" } : { readonly $ref: "#/components/schemas/Widget"; }
+>"$ref" : "#/components/schemas/Widget"
+>"#/components/schemas/Widget" : "#/components/schemas/Widget"
+
+                    },
+                    "default": {
+>"default" : { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }
+>{                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    } : { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }
+
+                        description: "An unexpected error response.",
+>description : "An unexpected error response."
+>"An unexpected error response." : "An unexpected error response."
+
+                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }
+>content : { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }
+>{ "application/json": { schema: { "$ref": "#/components/schemas/Error" } } } : { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }
+>"application/json" : { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }
+>{ schema: { "$ref": "#/components/schemas/Error" } } : { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }
+>schema : { readonly $ref: "#/components/schemas/Error"; }
+>{ "$ref": "#/components/schemas/Error" } : { readonly $ref: "#/components/schemas/Error"; }
+>"$ref" : "#/components/schemas/Error"
+>"#/components/schemas/Error" : "#/components/schemas/Error"
+                    }
+                }
+            },
+            post: {
+>post : { readonly operationId: "Widgets_create"; readonly description: "Create a widget"; readonly parameters: readonly []; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; readonly requestBody: { readonly required: true; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; }
+>{                operationId: "Widgets_create",                description: "Create a widget",                parameters: [],                responses: {                    "200": {                        description: "The request has succeeded.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                },                requestBody: {                    required: true,                    content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }                }            } : { readonly operationId: "Widgets_create"; readonly description: "Create a widget"; readonly parameters: readonly []; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; readonly requestBody: { readonly required: true; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; }
+
+                operationId: "Widgets_create",
+>operationId : "Widgets_create"
+>"Widgets_create" : "Widgets_create"
+
+                description: "Create a widget",
+>description : "Create a widget"
+>"Create a widget" : "Create a widget"
+
+                parameters: [],
+>parameters : readonly []
+>[] : readonly []
+
+                responses: {
+>responses : { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }
+>{                    "200": {                        description: "The request has succeeded.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                } : { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }
+
+                    "200": {
+>"200" : { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }
+>{                        description: "The request has succeeded.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }                    } : { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }
+
+                        description: "The request has succeeded.",
+>description : "The request has succeeded."
+>"The request has succeeded." : "The request has succeeded."
+
+                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }
+>content : { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }
+>{ "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } } : { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }
+>"application/json" : { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }
+>{ schema: { "$ref": "#/components/schemas/Widget" } } : { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }
+>schema : { readonly $ref: "#/components/schemas/Widget"; }
+>{ "$ref": "#/components/schemas/Widget" } : { readonly $ref: "#/components/schemas/Widget"; }
+>"$ref" : "#/components/schemas/Widget"
+>"#/components/schemas/Widget" : "#/components/schemas/Widget"
+
+                    },
+                    "default": {
+>"default" : { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }
+>{                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    } : { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }
+
+                        description: "An unexpected error response.",
+>description : "An unexpected error response."
+>"An unexpected error response." : "An unexpected error response."
+
+                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }
+>content : { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }
+>{ "application/json": { schema: { "$ref": "#/components/schemas/Error" } } } : { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }
+>"application/json" : { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }
+>{ schema: { "$ref": "#/components/schemas/Error" } } : { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }
+>schema : { readonly $ref: "#/components/schemas/Error"; }
+>{ "$ref": "#/components/schemas/Error" } : { readonly $ref: "#/components/schemas/Error"; }
+>"$ref" : "#/components/schemas/Error"
+>"#/components/schemas/Error" : "#/components/schemas/Error"
+                    }
+                },
+                requestBody: {
+>requestBody : { readonly required: true; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }
+>{                    required: true,                    content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }                } : { readonly required: true; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }
+
+                    required: true,
+>required : true
+>true : true
+
+                    content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }
+>content : { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }
+>{ "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } } : { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }
+>"application/json" : { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }
+>{ schema: { "$ref": "#/components/schemas/Widget" } } : { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }
+>schema : { readonly $ref: "#/components/schemas/Widget"; }
+>{ "$ref": "#/components/schemas/Widget" } : { readonly $ref: "#/components/schemas/Widget"; }
+>"$ref" : "#/components/schemas/Widget"
+>"#/components/schemas/Widget" : "#/components/schemas/Widget"
+                }
+            }
+        },
+        "/widgets/{id}": {
+>"/widgets/{id}" : { readonly get: { readonly operationId: "Widgets_read"; readonly description: "Read a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }; readonly patch: { readonly operationId: "Widgets_update"; readonly description: "Update a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; readonly requestBody: { readonly required: true; readonly content: { readonly "application/merge-patch+json": { readonly schema: { readonly $ref: "#/components/schemas/WidgetMergePatchUpdate"; }; }; }; }; }; readonly delete: { readonly operationId: "Widgets_delete"; readonly description: "Delete a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "204": { readonly description: "No content"; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }; }
+>{            get: {                operationId: "Widgets_read",                description: "Read a widget",                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],                responses: {                    "200": {                        description: "The request has succeeded.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                }            },            patch: {                operationId: "Widgets_update",                description: "Update a widget",                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],                responses: {                    "200": {                        description: "The request has succeeded.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                },                requestBody: {                    required: true,                    content: { "application/merge-patch+json": { schema: { "$ref": "#/components/schemas/WidgetMergePatchUpdate" } } }                }            },            delete: {                operationId: "Widgets_delete",                description: "Delete a widget",                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],                responses: {                    "204": { description: "No content" },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                }            }        } : { readonly get: { readonly operationId: "Widgets_read"; readonly description: "Read a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }; readonly patch: { readonly operationId: "Widgets_update"; readonly description: "Update a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; readonly requestBody: { readonly required: true; readonly content: { readonly "application/merge-patch+json": { readonly schema: { readonly $ref: "#/components/schemas/WidgetMergePatchUpdate"; }; }; }; }; }; readonly delete: { readonly operationId: "Widgets_delete"; readonly description: "Delete a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "204": { readonly description: "No content"; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }; }
+
+            get: {
+>get : { readonly operationId: "Widgets_read"; readonly description: "Read a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }
+>{                operationId: "Widgets_read",                description: "Read a widget",                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],                responses: {                    "200": {                        description: "The request has succeeded.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                }            } : { readonly operationId: "Widgets_read"; readonly description: "Read a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }
+
+                operationId: "Widgets_read",
+>operationId : "Widgets_read"
+>"Widgets_read" : "Widgets_read"
+
+                description: "Read a widget",
+>description : "Read a widget"
+>"Read a widget" : "Read a widget"
+
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],
+>parameters : readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]
+>[{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }] : readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]
+>{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } } : { readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }
+>name : "id"
+>"id" : "id"
+>in : "path"
+>"path" : "path"
+>required : true
+>true : true
+>schema : { readonly type: "string"; readonly readOnly: true; }
+>{ type: "string", readOnly: true } : { readonly type: "string"; readonly readOnly: true; }
+>type : "string"
+>"string" : "string"
+>readOnly : true
+>true : true
+
+                responses: {
+>responses : { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }
+>{                    "200": {                        description: "The request has succeeded.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                } : { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }
+
+                    "200": {
+>"200" : { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }
+>{                        description: "The request has succeeded.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }                    } : { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }
+
+                        description: "The request has succeeded.",
+>description : "The request has succeeded."
+>"The request has succeeded." : "The request has succeeded."
+
+                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }
+>content : { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }
+>{ "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } } : { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }
+>"application/json" : { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }
+>{ schema: { "$ref": "#/components/schemas/Widget" } } : { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }
+>schema : { readonly $ref: "#/components/schemas/Widget"; }
+>{ "$ref": "#/components/schemas/Widget" } : { readonly $ref: "#/components/schemas/Widget"; }
+>"$ref" : "#/components/schemas/Widget"
+>"#/components/schemas/Widget" : "#/components/schemas/Widget"
+
+                    },
+                    "default": {
+>"default" : { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }
+>{                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    } : { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }
+
+                        description: "An unexpected error response.",
+>description : "An unexpected error response."
+>"An unexpected error response." : "An unexpected error response."
+
+                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }
+>content : { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }
+>{ "application/json": { schema: { "$ref": "#/components/schemas/Error" } } } : { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }
+>"application/json" : { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }
+>{ schema: { "$ref": "#/components/schemas/Error" } } : { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }
+>schema : { readonly $ref: "#/components/schemas/Error"; }
+>{ "$ref": "#/components/schemas/Error" } : { readonly $ref: "#/components/schemas/Error"; }
+>"$ref" : "#/components/schemas/Error"
+>"#/components/schemas/Error" : "#/components/schemas/Error"
+                    }
+                }
+            },
+            patch: {
+>patch : { readonly operationId: "Widgets_update"; readonly description: "Update a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; readonly requestBody: { readonly required: true; readonly content: { readonly "application/merge-patch+json": { readonly schema: { readonly $ref: "#/components/schemas/WidgetMergePatchUpdate"; }; }; }; }; }
+>{                operationId: "Widgets_update",                description: "Update a widget",                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],                responses: {                    "200": {                        description: "The request has succeeded.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                },                requestBody: {                    required: true,                    content: { "application/merge-patch+json": { schema: { "$ref": "#/components/schemas/WidgetMergePatchUpdate" } } }                }            } : { readonly operationId: "Widgets_update"; readonly description: "Update a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; readonly requestBody: { readonly required: true; readonly content: { readonly "application/merge-patch+json": { readonly schema: { readonly $ref: "#/components/schemas/WidgetMergePatchUpdate"; }; }; }; }; }
+
+                operationId: "Widgets_update",
+>operationId : "Widgets_update"
+>"Widgets_update" : "Widgets_update"
+
+                description: "Update a widget",
+>description : "Update a widget"
+>"Update a widget" : "Update a widget"
+
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],
+>parameters : readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]
+>[{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }] : readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]
+>{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } } : { readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }
+>name : "id"
+>"id" : "id"
+>in : "path"
+>"path" : "path"
+>required : true
+>true : true
+>schema : { readonly type: "string"; readonly readOnly: true; }
+>{ type: "string", readOnly: true } : { readonly type: "string"; readonly readOnly: true; }
+>type : "string"
+>"string" : "string"
+>readOnly : true
+>true : true
+
+                responses: {
+>responses : { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }
+>{                    "200": {                        description: "The request has succeeded.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                } : { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }
+
+                    "200": {
+>"200" : { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }
+>{                        description: "The request has succeeded.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }                    } : { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }; }
+
+                        description: "The request has succeeded.",
+>description : "The request has succeeded."
+>"The request has succeeded." : "The request has succeeded."
+
+                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }
+>content : { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }
+>{ "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } } : { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }; }
+>"application/json" : { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }
+>{ schema: { "$ref": "#/components/schemas/Widget" } } : { readonly schema: { readonly $ref: "#/components/schemas/Widget"; }; }
+>schema : { readonly $ref: "#/components/schemas/Widget"; }
+>{ "$ref": "#/components/schemas/Widget" } : { readonly $ref: "#/components/schemas/Widget"; }
+>"$ref" : "#/components/schemas/Widget"
+>"#/components/schemas/Widget" : "#/components/schemas/Widget"
+
+                    },
+                    "default": {
+>"default" : { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }
+>{                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    } : { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }
+
+                        description: "An unexpected error response.",
+>description : "An unexpected error response."
+>"An unexpected error response." : "An unexpected error response."
+
+                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }
+>content : { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }
+>{ "application/json": { schema: { "$ref": "#/components/schemas/Error" } } } : { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }
+>"application/json" : { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }
+>{ schema: { "$ref": "#/components/schemas/Error" } } : { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }
+>schema : { readonly $ref: "#/components/schemas/Error"; }
+>{ "$ref": "#/components/schemas/Error" } : { readonly $ref: "#/components/schemas/Error"; }
+>"$ref" : "#/components/schemas/Error"
+>"#/components/schemas/Error" : "#/components/schemas/Error"
+                    }
+                },
+                requestBody: {
+>requestBody : { readonly required: true; readonly content: { readonly "application/merge-patch+json": { readonly schema: { readonly $ref: "#/components/schemas/WidgetMergePatchUpdate"; }; }; }; }
+>{                    required: true,                    content: { "application/merge-patch+json": { schema: { "$ref": "#/components/schemas/WidgetMergePatchUpdate" } } }                } : { readonly required: true; readonly content: { readonly "application/merge-patch+json": { readonly schema: { readonly $ref: "#/components/schemas/WidgetMergePatchUpdate"; }; }; }; }
+
+                    required: true,
+>required : true
+>true : true
+
+                    content: { "application/merge-patch+json": { schema: { "$ref": "#/components/schemas/WidgetMergePatchUpdate" } } }
+>content : { readonly "application/merge-patch+json": { readonly schema: { readonly $ref: "#/components/schemas/WidgetMergePatchUpdate"; }; }; }
+>{ "application/merge-patch+json": { schema: { "$ref": "#/components/schemas/WidgetMergePatchUpdate" } } } : { readonly "application/merge-patch+json": { readonly schema: { readonly $ref: "#/components/schemas/WidgetMergePatchUpdate"; }; }; }
+>"application/merge-patch+json" : { readonly schema: { readonly $ref: "#/components/schemas/WidgetMergePatchUpdate"; }; }
+>{ schema: { "$ref": "#/components/schemas/WidgetMergePatchUpdate" } } : { readonly schema: { readonly $ref: "#/components/schemas/WidgetMergePatchUpdate"; }; }
+>schema : { readonly $ref: "#/components/schemas/WidgetMergePatchUpdate"; }
+>{ "$ref": "#/components/schemas/WidgetMergePatchUpdate" } : { readonly $ref: "#/components/schemas/WidgetMergePatchUpdate"; }
+>"$ref" : "#/components/schemas/WidgetMergePatchUpdate"
+>"#/components/schemas/WidgetMergePatchUpdate" : "#/components/schemas/WidgetMergePatchUpdate"
+                }
+            },
+            delete: {
+>delete : { readonly operationId: "Widgets_delete"; readonly description: "Delete a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "204": { readonly description: "No content"; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }
+>{                operationId: "Widgets_delete",                description: "Delete a widget",                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],                responses: {                    "204": { description: "No content" },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                }            } : { readonly operationId: "Widgets_delete"; readonly description: "Delete a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "204": { readonly description: "No content"; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }
+
+                operationId: "Widgets_delete",
+>operationId : "Widgets_delete"
+>"Widgets_delete" : "Widgets_delete"
+
+                description: "Delete a widget",
+>description : "Delete a widget"
+>"Delete a widget" : "Delete a widget"
+
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],
+>parameters : readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]
+>[{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }] : readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]
+>{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } } : { readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }
+>name : "id"
+>"id" : "id"
+>in : "path"
+>"path" : "path"
+>required : true
+>true : true
+>schema : { readonly type: "string"; readonly readOnly: true; }
+>{ type: "string", readOnly: true } : { readonly type: "string"; readonly readOnly: true; }
+>type : "string"
+>"string" : "string"
+>readOnly : true
+>true : true
+
+                responses: {
+>responses : { readonly "204": { readonly description: "No content"; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }
+>{                    "204": { description: "No content" },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                } : { readonly "204": { readonly description: "No content"; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }
+
+                    "204": { description: "No content" },
+>"204" : { readonly description: "No content"; }
+>{ description: "No content" } : { readonly description: "No content"; }
+>description : "No content"
+>"No content" : "No content"
+
+                    "default": {
+>"default" : { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }
+>{                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    } : { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }
+
+                        description: "An unexpected error response.",
+>description : "An unexpected error response."
+>"An unexpected error response." : "An unexpected error response."
+
+                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }
+>content : { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }
+>{ "application/json": { schema: { "$ref": "#/components/schemas/Error" } } } : { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }
+>"application/json" : { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }
+>{ schema: { "$ref": "#/components/schemas/Error" } } : { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }
+>schema : { readonly $ref: "#/components/schemas/Error"; }
+>{ "$ref": "#/components/schemas/Error" } : { readonly $ref: "#/components/schemas/Error"; }
+>"$ref" : "#/components/schemas/Error"
+>"#/components/schemas/Error" : "#/components/schemas/Error"
+                    }
+                }
+            }
+        },
+        "/widgets/{id}/analyze": {
+>"/widgets/{id}/analyze" : { readonly post: { readonly operationId: "Widgets_analyze"; readonly description: "Analyze a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "text/plain": { readonly schema: { readonly type: "string"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }; }
+>{            post: {                operationId: "Widgets_analyze",                description: "Analyze a widget",                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],                responses: {                    "200": {                        description: "The request has succeeded.",                        content: { "text/plain": { schema: { type: "string" } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                }            }        } : { readonly post: { readonly operationId: "Widgets_analyze"; readonly description: "Analyze a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "text/plain": { readonly schema: { readonly type: "string"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }; }
+
+            post: {
+>post : { readonly operationId: "Widgets_analyze"; readonly description: "Analyze a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "text/plain": { readonly schema: { readonly type: "string"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }
+>{                operationId: "Widgets_analyze",                description: "Analyze a widget",                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],                responses: {                    "200": {                        description: "The request has succeeded.",                        content: { "text/plain": { schema: { type: "string" } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                }            } : { readonly operationId: "Widgets_analyze"; readonly description: "Analyze a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "text/plain": { readonly schema: { readonly type: "string"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }; }
+
+                operationId: "Widgets_analyze",
+>operationId : "Widgets_analyze"
+>"Widgets_analyze" : "Widgets_analyze"
+
+                description: "Analyze a widget",
+>description : "Analyze a widget"
+>"Analyze a widget" : "Analyze a widget"
+
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],
+>parameters : readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]
+>[{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }] : readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]
+>{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } } : { readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }
+>name : "id"
+>"id" : "id"
+>in : "path"
+>"path" : "path"
+>required : true
+>true : true
+>schema : { readonly type: "string"; readonly readOnly: true; }
+>{ type: "string", readOnly: true } : { readonly type: "string"; readonly readOnly: true; }
+>type : "string"
+>"string" : "string"
+>readOnly : true
+>true : true
+
+                responses: {
+>responses : { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "text/plain": { readonly schema: { readonly type: "string"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }
+>{                    "200": {                        description: "The request has succeeded.",                        content: { "text/plain": { schema: { type: "string" } } }                    },                    "default": {                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    }                } : { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "text/plain": { readonly schema: { readonly type: "string"; }; }; }; }; readonly default: { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }; }
+
+                    "200": {
+>"200" : { readonly description: "The request has succeeded."; readonly content: { readonly "text/plain": { readonly schema: { readonly type: "string"; }; }; }; }
+>{                        description: "The request has succeeded.",                        content: { "text/plain": { schema: { type: "string" } } }                    } : { readonly description: "The request has succeeded."; readonly content: { readonly "text/plain": { readonly schema: { readonly type: "string"; }; }; }; }
+
+                        description: "The request has succeeded.",
+>description : "The request has succeeded."
+>"The request has succeeded." : "The request has succeeded."
+
+                        content: { "text/plain": { schema: { type: "string" } } }
+>content : { readonly "text/plain": { readonly schema: { readonly type: "string"; }; }; }
+>{ "text/plain": { schema: { type: "string" } } } : { readonly "text/plain": { readonly schema: { readonly type: "string"; }; }; }
+>"text/plain" : { readonly schema: { readonly type: "string"; }; }
+>{ schema: { type: "string" } } : { readonly schema: { readonly type: "string"; }; }
+>schema : { readonly type: "string"; }
+>{ type: "string" } : { readonly type: "string"; }
+>type : "string"
+>"string" : "string"
+
+                    },
+                    "default": {
+>"default" : { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }
+>{                        description: "An unexpected error response.",                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }                    } : { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }; }
+
+                        description: "An unexpected error response.",
+>description : "An unexpected error response."
+>"An unexpected error response." : "An unexpected error response."
+
+                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }
+>content : { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }
+>{ "application/json": { schema: { "$ref": "#/components/schemas/Error" } } } : { readonly "application/json": { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }; }
+>"application/json" : { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }
+>{ schema: { "$ref": "#/components/schemas/Error" } } : { readonly schema: { readonly $ref: "#/components/schemas/Error"; }; }
+>schema : { readonly $ref: "#/components/schemas/Error"; }
+>{ "$ref": "#/components/schemas/Error" } : { readonly $ref: "#/components/schemas/Error"; }
+>"$ref" : "#/components/schemas/Error"
+>"#/components/schemas/Error" : "#/components/schemas/Error"
+                    }
+                }
+            }
+        }
+    },
+    components: {
+>components : { readonly schemas: { readonly Widget: { readonly type: "object"; readonly required: readonly ["id", "weight", "color"]; readonly properties: { readonly id: { readonly type: "string"; readonly readOnly: true; }; readonly weight: { readonly type: "integer"; readonly format: "int32"; }; readonly color: { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }; }; }; readonly WidgetMergePatchUpdate: { readonly type: "object"; readonly properties: { readonly weight: { readonly type: "integer"; readonly format: "int32"; }; readonly color: { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }; }; }; readonly Error: { readonly type: "object"; readonly required: readonly ["code", "message"]; readonly properties: { readonly code: { readonly type: "integer"; readonly format: "int32"; }; readonly message: { readonly type: "string"; }; }; }; }; }
+>{        schemas: {            Widget: {                type: "object",                required: ["id", "weight", "color"],                properties: {                    id: { type: "string", readOnly: true },                    weight: { type: "integer", format: "int32" },                    color: { type: "string", enum: ["red", "blue"] }                }            },            WidgetMergePatchUpdate: {                type: "object",                properties: {                    weight: { type: "integer", format: "int32" },                    color: { type: "string", enum: ["red", "blue"] }                }            },            Error: {                type: "object",                required: ["code", "message"],                properties: {                    code: { type: "integer", format: "int32" },                    message: { type: "string" }                }            }        }    } : { readonly schemas: { readonly Widget: { readonly type: "object"; readonly required: readonly ["id", "weight", "color"]; readonly properties: { readonly id: { readonly type: "string"; readonly readOnly: true; }; readonly weight: { readonly type: "integer"; readonly format: "int32"; }; readonly color: { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }; }; }; readonly WidgetMergePatchUpdate: { readonly type: "object"; readonly properties: { readonly weight: { readonly type: "integer"; readonly format: "int32"; }; readonly color: { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }; }; }; readonly Error: { readonly type: "object"; readonly required: readonly ["code", "message"]; readonly properties: { readonly code: { readonly type: "integer"; readonly format: "int32"; }; readonly message: { readonly type: "string"; }; }; }; }; }
+
+        schemas: {
+>schemas : { readonly Widget: { readonly type: "object"; readonly required: readonly ["id", "weight", "color"]; readonly properties: { readonly id: { readonly type: "string"; readonly readOnly: true; }; readonly weight: { readonly type: "integer"; readonly format: "int32"; }; readonly color: { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }; }; }; readonly WidgetMergePatchUpdate: { readonly type: "object"; readonly properties: { readonly weight: { readonly type: "integer"; readonly format: "int32"; }; readonly color: { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }; }; }; readonly Error: { readonly type: "object"; readonly required: readonly ["code", "message"]; readonly properties: { readonly code: { readonly type: "integer"; readonly format: "int32"; }; readonly message: { readonly type: "string"; }; }; }; }
+>{            Widget: {                type: "object",                required: ["id", "weight", "color"],                properties: {                    id: { type: "string", readOnly: true },                    weight: { type: "integer", format: "int32" },                    color: { type: "string", enum: ["red", "blue"] }                }            },            WidgetMergePatchUpdate: {                type: "object",                properties: {                    weight: { type: "integer", format: "int32" },                    color: { type: "string", enum: ["red", "blue"] }                }            },            Error: {                type: "object",                required: ["code", "message"],                properties: {                    code: { type: "integer", format: "int32" },                    message: { type: "string" }                }            }        } : { readonly Widget: { readonly type: "object"; readonly required: readonly ["id", "weight", "color"]; readonly properties: { readonly id: { readonly type: "string"; readonly readOnly: true; }; readonly weight: { readonly type: "integer"; readonly format: "int32"; }; readonly color: { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }; }; }; readonly WidgetMergePatchUpdate: { readonly type: "object"; readonly properties: { readonly weight: { readonly type: "integer"; readonly format: "int32"; }; readonly color: { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }; }; }; readonly Error: { readonly type: "object"; readonly required: readonly ["code", "message"]; readonly properties: { readonly code: { readonly type: "integer"; readonly format: "int32"; }; readonly message: { readonly type: "string"; }; }; }; }
+
+            Widget: {
+>Widget : { readonly type: "object"; readonly required: readonly ["id", "weight", "color"]; readonly properties: { readonly id: { readonly type: "string"; readonly readOnly: true; }; readonly weight: { readonly type: "integer"; readonly format: "int32"; }; readonly color: { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }; }; }
+>{                type: "object",                required: ["id", "weight", "color"],                properties: {                    id: { type: "string", readOnly: true },                    weight: { type: "integer", format: "int32" },                    color: { type: "string", enum: ["red", "blue"] }                }            } : { readonly type: "object"; readonly required: readonly ["id", "weight", "color"]; readonly properties: { readonly id: { readonly type: "string"; readonly readOnly: true; }; readonly weight: { readonly type: "integer"; readonly format: "int32"; }; readonly color: { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }; }; }
+
+                type: "object",
+>type : "object"
+>"object" : "object"
+
+                required: ["id", "weight", "color"],
+>required : readonly ["id", "weight", "color"]
+>["id", "weight", "color"] : readonly ["id", "weight", "color"]
+>"id" : "id"
+>"weight" : "weight"
+>"color" : "color"
+
+                properties: {
+>properties : { readonly id: { readonly type: "string"; readonly readOnly: true; }; readonly weight: { readonly type: "integer"; readonly format: "int32"; }; readonly color: { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }; }
+>{                    id: { type: "string", readOnly: true },                    weight: { type: "integer", format: "int32" },                    color: { type: "string", enum: ["red", "blue"] }                } : { readonly id: { readonly type: "string"; readonly readOnly: true; }; readonly weight: { readonly type: "integer"; readonly format: "int32"; }; readonly color: { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }; }
+
+                    id: { type: "string", readOnly: true },
+>id : { readonly type: "string"; readonly readOnly: true; }
+>{ type: "string", readOnly: true } : { readonly type: "string"; readonly readOnly: true; }
+>type : "string"
+>"string" : "string"
+>readOnly : true
+>true : true
+
+                    weight: { type: "integer", format: "int32" },
+>weight : { readonly type: "integer"; readonly format: "int32"; }
+>{ type: "integer", format: "int32" } : { readonly type: "integer"; readonly format: "int32"; }
+>type : "integer"
+>"integer" : "integer"
+>format : "int32"
+>"int32" : "int32"
+
+                    color: { type: "string", enum: ["red", "blue"] }
+>color : { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }
+>{ type: "string", enum: ["red", "blue"] } : { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }
+>type : "string"
+>"string" : "string"
+>enum : readonly ["red", "blue"]
+>["red", "blue"] : readonly ["red", "blue"]
+>"red" : "red"
+>"blue" : "blue"
+                }
+            },
+            WidgetMergePatchUpdate: {
+>WidgetMergePatchUpdate : { readonly type: "object"; readonly properties: { readonly weight: { readonly type: "integer"; readonly format: "int32"; }; readonly color: { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }; }; }
+>{                type: "object",                properties: {                    weight: { type: "integer", format: "int32" },                    color: { type: "string", enum: ["red", "blue"] }                }            } : { readonly type: "object"; readonly properties: { readonly weight: { readonly type: "integer"; readonly format: "int32"; }; readonly color: { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }; }; }
+
+                type: "object",
+>type : "object"
+>"object" : "object"
+
+                properties: {
+>properties : { readonly weight: { readonly type: "integer"; readonly format: "int32"; }; readonly color: { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }; }
+>{                    weight: { type: "integer", format: "int32" },                    color: { type: "string", enum: ["red", "blue"] }                } : { readonly weight: { readonly type: "integer"; readonly format: "int32"; }; readonly color: { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }; }
+
+                    weight: { type: "integer", format: "int32" },
+>weight : { readonly type: "integer"; readonly format: "int32"; }
+>{ type: "integer", format: "int32" } : { readonly type: "integer"; readonly format: "int32"; }
+>type : "integer"
+>"integer" : "integer"
+>format : "int32"
+>"int32" : "int32"
+
+                    color: { type: "string", enum: ["red", "blue"] }
+>color : { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }
+>{ type: "string", enum: ["red", "blue"] } : { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }
+>type : "string"
+>"string" : "string"
+>enum : readonly ["red", "blue"]
+>["red", "blue"] : readonly ["red", "blue"]
+>"red" : "red"
+>"blue" : "blue"
+                }
+            },
+            Error: {
+>Error : { readonly type: "object"; readonly required: readonly ["code", "message"]; readonly properties: { readonly code: { readonly type: "integer"; readonly format: "int32"; }; readonly message: { readonly type: "string"; }; }; }
+>{                type: "object",                required: ["code", "message"],                properties: {                    code: { type: "integer", format: "int32" },                    message: { type: "string" }                }            } : { readonly type: "object"; readonly required: readonly ["code", "message"]; readonly properties: { readonly code: { readonly type: "integer"; readonly format: "int32"; }; readonly message: { readonly type: "string"; }; }; }
+
+                type: "object",
+>type : "object"
+>"object" : "object"
+
+                required: ["code", "message"],
+>required : readonly ["code", "message"]
+>["code", "message"] : readonly ["code", "message"]
+>"code" : "code"
+>"message" : "message"
+
+                properties: {
+>properties : { readonly code: { readonly type: "integer"; readonly format: "int32"; }; readonly message: { readonly type: "string"; }; }
+>{                    code: { type: "integer", format: "int32" },                    message: { type: "string" }                } : { readonly code: { readonly type: "integer"; readonly format: "int32"; }; readonly message: { readonly type: "string"; }; }
+
+                    code: { type: "integer", format: "int32" },
+>code : { readonly type: "integer"; readonly format: "int32"; }
+>{ type: "integer", format: "int32" } : { readonly type: "integer"; readonly format: "int32"; }
+>type : "integer"
+>"integer" : "integer"
+>format : "int32"
+>"int32" : "int32"
+
+                    message: { type: "string" }
+>message : { readonly type: "string"; }
+>{ type: "string" } : { readonly type: "string"; }
+>type : "string"
+>"string" : "string"
+                }
+            }
+        }
+    }
+} as const;
+
+type SpecPaths = Paths<typeof spec>;
+>SpecPaths : { "/widgets": { get: { data: { _array: { id: "string"; weight: "number"; color: { _enum: ["red", "blue"]; }; }; }; error: { code: "number"; message: "string"; }; }; post: { body: { weight: "number"; color: { _enum: ["red", "blue"]; }; }; data: { id: "string"; weight: "number"; color: { _enum: ["red", "blue"]; }; }; error: { code: "number"; message: "string"; }; }; }; "/widgets/{id}": { get: { params: { path: { id: "string"; }; }; data: { id: "string"; weight: "number"; color: { _enum: ["red", "blue"]; }; }; error: { code: "number"; message: "string"; }; }; patch: { params: { path: { id: "string"; }; }; body: { weight: "number"; color: { _enum: ["red", "blue"]; }; }; bodyPartial: true; data: { id: "string"; weight: "number"; color: { _enum: ["red", "blue"]; }; }; error: { code: "number"; message: "string"; }; }; delete: { params: { path: { id: "string"; }; }; error: { code: "number"; message: "string"; }; }; }; "/widgets/{id}/analyze": { post: { params: { path: { id: "string"; }; }; data: "string"; error: { code: "number"; message: "string"; }; }; }; }
+>spec : { readonly openapi: "3.0.0"; readonly info: { readonly title: "Widget Service"; readonly version: "0.0.0"; }; readonly paths: { readonly "/widgets": { readonly get: { readonly operationId: "Widgets_list"; readonly description: "List widgets"; readonly parameters: readonly []; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly type: "array"; readonly items: { readonly "$ref": "#/components/schemas/Widget"; }; }; }; }; }; readonly "default": { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly "$ref": "#/components/schemas/Error"; }; }; }; }; }; }; readonly post: { readonly operationId: "Widgets_create"; readonly description: "Create a widget"; readonly parameters: readonly []; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly "$ref": "#/components/schemas/Widget"; }; }; }; }; readonly "default": { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly "$ref": "#/components/schemas/Error"; }; }; }; }; }; readonly requestBody: { readonly required: true; readonly content: { readonly "application/json": { readonly schema: { readonly "$ref": "#/components/schemas/Widget"; }; }; }; }; }; }; readonly "/widgets/{id}": { readonly get: { readonly operationId: "Widgets_read"; readonly description: "Read a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly "$ref": "#/components/schemas/Widget"; }; }; }; }; readonly "default": { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly "$ref": "#/components/schemas/Error"; }; }; }; }; }; }; readonly patch: { readonly operationId: "Widgets_update"; readonly description: "Update a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "application/json": { readonly schema: { readonly "$ref": "#/components/schemas/Widget"; }; }; }; }; readonly "default": { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly "$ref": "#/components/schemas/Error"; }; }; }; }; }; readonly requestBody: { readonly required: true; readonly content: { readonly "application/merge-patch+json": { readonly schema: { readonly "$ref": "#/components/schemas/WidgetMergePatchUpdate"; }; }; }; }; }; readonly delete: { readonly operationId: "Widgets_delete"; readonly description: "Delete a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "204": { readonly description: "No content"; }; readonly "default": { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly "$ref": "#/components/schemas/Error"; }; }; }; }; }; }; }; readonly "/widgets/{id}/analyze": { readonly post: { readonly operationId: "Widgets_analyze"; readonly description: "Analyze a widget"; readonly parameters: readonly [{ readonly name: "id"; readonly in: "path"; readonly required: true; readonly schema: { readonly type: "string"; readonly readOnly: true; }; }]; readonly responses: { readonly "200": { readonly description: "The request has succeeded."; readonly content: { readonly "text/plain": { readonly schema: { readonly type: "string"; }; }; }; }; readonly "default": { readonly description: "An unexpected error response."; readonly content: { readonly "application/json": { readonly schema: { readonly "$ref": "#/components/schemas/Error"; }; }; }; }; }; }; }; }; readonly components: { readonly schemas: { readonly Widget: { readonly type: "object"; readonly required: readonly ["id", "weight", "color"]; readonly properties: { readonly id: { readonly type: "string"; readonly readOnly: true; }; readonly weight: { readonly type: "integer"; readonly format: "int32"; }; readonly color: { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }; }; }; readonly WidgetMergePatchUpdate: { readonly type: "object"; readonly properties: { readonly weight: { readonly type: "integer"; readonly format: "int32"; }; readonly color: { readonly type: "string"; readonly enum: readonly ["red", "blue"]; }; }; }; readonly Error: { readonly type: "object"; readonly required: readonly ["code", "message"]; readonly properties: { readonly code: { readonly type: "integer"; readonly format: "int32"; }; readonly message: { readonly type: "string"; }; }; }; }; }; }
+
+type WidgetsList = Widen<SpecPaths["/widgets"]["get"]["data"]>;
+>WidgetsList : { color: "blue" | "red"; id: string; weight: number; }[]
+
+type WidgetsCreateBody = Widen<SpecPaths["/widgets"]["post"]["body"]>;
+>WidgetsCreateBody : { color: "blue" | "red"; weight: number; }
+
+type WidgetsCreateData = Widen<SpecPaths["/widgets"]["post"]["data"]>;
+>WidgetsCreateData : { color: "blue" | "red"; id: string; weight: number; }
+
+type WidgetsCreateError = Widen<SpecPaths["/widgets"]["post"]["error"]>;
+>WidgetsCreateError : { code: number; message: string; }
+
+type WidgetReadParams = Widen<SpecPaths["/widgets/{id}"]["get"]["params"]>;
+>WidgetReadParams : { path: { id: string; }; }
+
+type WidgetReadData = Widen<SpecPaths["/widgets/{id}"]["get"]["data"]>;
+>WidgetReadData : { color: "blue" | "red"; id: string; weight: number; }
+
+type WidgetUpdateBody = Widen<SpecPaths["/widgets/{id}"]["patch"]["body"]>;
+>WidgetUpdateBody : { color: "blue" | "red"; weight: number; }
+
+type WidgetAnalyzeData = Widen<SpecPaths["/widgets/{id}/analyze"]["post"]["data"]>;
+>WidgetAnalyzeData : string
+

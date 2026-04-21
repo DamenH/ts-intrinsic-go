@@ -1,0 +1,375 @@
+//// [tests/cases/compiler/intrinsic/intrinsicImports.ts] ////
+
+=== helpers.ts ===
+export const double = (n: number) => n * 2;
+>double : (n: number) => number
+>(n: number) => n * 2 : (n: number) => number
+>n : number
+>n * 2 : number
+>n : number
+>2 : 2
+
+export const add1 = (n: number) => n + 1;
+>add1 : (n: number) => number
+>(n: number) => n + 1 : (n: number) => number
+>n : number
+>n + 1 : number
+>n : number
+>1 : 1
+
+export const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+>capitalize : (s: string) => string
+>(s: string) => s.charAt(0).toUpperCase() + s.slice(1) : (s: string) => string
+>s : string
+>s.charAt(0).toUpperCase() + s.slice(1) : string
+>s.charAt(0).toUpperCase() : string
+>s.charAt(0).toUpperCase : () => string
+>s.charAt(0) : string
+>s.charAt : (pos: number) => string
+>s : string
+>charAt : (pos: number) => string
+>0 : 0
+>toUpperCase : () => string
+>s.slice(1) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>1 : 1
+
+export const normalize = (s: string) => s.trim().toLowerCase();
+>normalize : (s: string) => string
+>(s: string) => s.trim().toLowerCase() : (s: string) => string
+>s : string
+>s.trim().toLowerCase() : string
+>s.trim().toLowerCase : () => string
+>s.trim() : string
+>s.trim : () => string
+>s : string
+>trim : () => string
+>toLowerCase : () => string
+
+=== validators.ts ===
+import { capitalize, normalize } from './helpers';
+>capitalize : (s: string) => string
+>normalize : (s: string) => string
+
+const _toCamelCase = (s: string) => {
+>_toCamelCase : (s: string) => string
+>(s: string) => {    let [first, ...rest] = s.split('_');    return first + rest.map((p: string) => capitalize(p)).join('');} : (s: string) => string
+>s : string
+
+    let [first, ...rest] = s.split('_');
+>first : string
+>rest : string[]
+>s.split('_') : string[]
+>s.split : { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }
+>s : string
+>split : { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }
+>'_' : "_"
+
+    return first + rest.map((p: string) => capitalize(p)).join('');
+>first + rest.map((p: string) => capitalize(p)).join('') : string
+>first : string
+>rest.map((p: string) => capitalize(p)).join('') : string
+>rest.map((p: string) => capitalize(p)).join : (separator?: string) => string
+>rest.map((p: string) => capitalize(p)) : string[]
+>rest.map : <U>(callbackfn: (value: string, index: number, array: string[]) => U, thisArg?: any) => U[]
+>rest : string[]
+>map : <U>(callbackfn: (value: string, index: number, array: string[]) => U, thisArg?: any) => U[]
+>(p: string) => capitalize(p) : (p: string) => string
+>p : string
+>capitalize(p) : string
+>capitalize : (s: string) => string
+>p : string
+>join : (separator?: string) => string
+>'' : ""
+
+};
+
+const _clean = (s: string) => normalize(s) + "!";
+>_clean : (s: string) => string
+>(s: string) => normalize(s) + "!" : (s: string) => string
+>s : string
+>normalize(s) + "!" : string
+>normalize(s) : string
+>normalize : (s: string) => string
+>s : string
+>"!" : "!"
+
+const _positive = (n: any) => {
+>_positive : (n: any) => number | undefined
+>(n: any) => {    if (typeof n != 'number' || n <= 0) return void "never";    return n;} : (n: any) => number | undefined
+>n : any
+
+    if (typeof n != 'number' || n <= 0) return void "never";
+>typeof n != 'number' || n <= 0 : boolean
+>typeof n != 'number' : boolean
+>typeof n : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>n : any
+>'number' : "number"
+>n <= 0 : boolean
+>n : number
+>0 : 0
+>void "never" : undefined
+>"never" : "never"
+
+    return n;
+>n : number
+
+};
+
+const _email = (s: any) => {
+>_email : (s: any) => string | undefined
+>(s: any) => {    if (typeof s != 'string') return void "never";    let at: number = s.indexOf('@');    if (at < 1) return void "never";    let domain: string = s.slice(at + 1);    if (domain.length < 3 || !domain.includes('.')) return void "never";    return s;} : (s: any) => string | undefined
+>s : any
+
+    if (typeof s != 'string') return void "never";
+>typeof s != 'string' : boolean
+>typeof s : "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined"
+>s : any
+>'string' : "string"
+>void "never" : undefined
+>"never" : "never"
+
+    let at: number = s.indexOf('@');
+>at : number
+>s.indexOf('@') : number
+>s.indexOf : (searchString: string, position?: number) => number
+>s : string
+>indexOf : (searchString: string, position?: number) => number
+>'@' : "@"
+
+    if (at < 1) return void "never";
+>at < 1 : boolean
+>at : number
+>1 : 1
+>void "never" : undefined
+>"never" : "never"
+
+    let domain: string = s.slice(at + 1);
+>domain : string
+>s.slice(at + 1) : string
+>s.slice : (start?: number, end?: number) => string
+>s : string
+>slice : (start?: number, end?: number) => string
+>at + 1 : number
+>at : number
+>1 : 1
+
+    if (domain.length < 3 || !domain.includes('.')) return void "never";
+>domain.length < 3 || !domain.includes('.') : boolean
+>domain.length < 3 : boolean
+>domain.length : number
+>domain : string
+>length : number
+>3 : 3
+>!domain.includes('.') : boolean
+>domain.includes('.') : boolean
+>domain.includes : (searchString: string, position?: number) => boolean
+>domain : string
+>includes : (searchString: string, position?: number) => boolean
+>'.' : "."
+>void "never" : undefined
+>"never" : "never"
+
+    return s;
+>s : string
+
+};
+
+export type ToCamelCase<T> = Intrinsic<typeof _toCamelCase, [T]>;
+>ToCamelCase : intrinsic
+>_toCamelCase : (s: string) => string
+
+export type Clean<T> = Intrinsic<typeof _clean, [T]>;
+>Clean : intrinsic
+>_clean : (s: string) => string
+
+export type Positive<T> = Intrinsic<typeof _positive, [T]>;
+>Positive : intrinsic
+>_positive : (n: any) => number | undefined
+
+export type Email<T> = Intrinsic<typeof _email, [T]>;
+>Email : intrinsic
+>_email : (s: any) => string | undefined
+
+=== chain.ts ===
+import { capitalize } from './helpers';
+>capitalize : (s: string) => string
+
+const _titleCase = (s: string) => s.split(" ").map((w: string) => capitalize(w)).join(" ");
+>_titleCase : (s: string) => string
+>(s: string) => s.split(" ").map((w: string) => capitalize(w)).join(" ") : (s: string) => string
+>s : string
+>s.split(" ").map((w: string) => capitalize(w)).join(" ") : string
+>s.split(" ").map((w: string) => capitalize(w)).join : (separator?: string) => string
+>s.split(" ").map((w: string) => capitalize(w)) : string[]
+>s.split(" ").map : <U>(callbackfn: (value: string, index: number, array: string[]) => U, thisArg?: any) => U[]
+>s.split(" ") : string[]
+>s.split : { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }
+>s : string
+>split : { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }
+>" " : " "
+>map : <U>(callbackfn: (value: string, index: number, array: string[]) => U, thisArg?: any) => U[]
+>(w: string) => capitalize(w) : (w: string) => string
+>w : string
+>capitalize(w) : string
+>capitalize : (s: string) => string
+>w : string
+>join : (separator?: string) => string
+>" " : " "
+
+export type TitleCase<T> = Intrinsic<typeof _titleCase, [T]>;
+>TitleCase : intrinsic
+>_titleCase : (s: string) => string
+
+=== local_with_import.ts ===
+import { double, add1 } from './helpers';
+>double : (n: number) => number
+>add1 : (n: number) => number
+
+const triple = (n: number) => n * 3;
+>triple : (n: number) => number
+>(n: number) => n * 3 : (n: number) => number
+>n : number
+>n * 3 : number
+>n : number
+>3 : 3
+
+const _compute = (n: number) => double(n) + triple(n) + add1(0);
+>_compute : (n: number) => number
+>(n: number) => double(n) + triple(n) + add1(0) : (n: number) => number
+>n : number
+>double(n) + triple(n) + add1(0) : number
+>double(n) + triple(n) : number
+>double(n) : number
+>double : (n: number) => number
+>n : number
+>triple(n) : number
+>triple : (n: number) => number
+>n : number
+>add1(0) : number
+>add1 : (n: number) => number
+>0 : 0
+
+export type Compute<T> = Intrinsic<typeof _compute, [T]>;
+>Compute : intrinsic
+>_compute : (n: number) => number
+
+=== re_export.ts ===
+export { double, capitalize } from './helpers';
+>double : (n: number) => number
+>capitalize : (s: string) => string
+
+=== uses_re_export.ts ===
+import { double, capitalize } from './re_export';
+>double : (n: number) => number
+>capitalize : (s: string) => string
+
+const _doubleAndCap = (s: string) => capitalize(s) + double(1);
+>_doubleAndCap : (s: string) => string
+>(s: string) => capitalize(s) + double(1) : (s: string) => string
+>s : string
+>capitalize(s) + double(1) : string
+>capitalize(s) : string
+>capitalize : (s: string) => string
+>s : string
+>double(1) : number
+>double : (n: number) => number
+>1 : 1
+
+export type DoubleAndCap<T> = Intrinsic<typeof _doubleAndCap, [T]>;
+>DoubleAndCap : intrinsic
+>_doubleAndCap : (s: string) => string
+
+=== consumer.ts ===
+import type { ToCamelCase, Clean, Positive, Email } from './validators';
+>ToCamelCase : intrinsic
+>Clean : intrinsic
+>Positive : intrinsic
+>Email : intrinsic
+
+import type { TitleCase } from './chain';
+>TitleCase : intrinsic
+
+import type { Compute } from './local_with_import';
+>Compute : intrinsic
+
+import type { DoubleAndCap } from './uses_re_export';
+>DoubleAndCap : intrinsic
+
+type C1 = ToCamelCase<"user_first_name">;    // "userFirstName"
+>C1 : "userFirstName"
+
+type C2 = ToCamelCase<"get_all_items">;       // "getAllItems"
+>C2 : "getAllItems"
+
+type C3 = Clean<"  HELLO  ">;                // "hello!"
+>C3 : "hello!"
+
+type C4 = Clean<"  World  ">;                // "world!"
+>C4 : "world!"
+
+type C5 = Positive<5>;                       // 5
+>C5 : 5
+
+type C6 = Positive<-1>;                      // never
+>C6 : never
+>-1 : -1
+>1 : 1
+
+type C7 = Positive<0>;                       // never
+>C7 : never
+
+type C8 = Email<"user@example.com">;          // "user@example.com"
+>C8 : "user@example.com"
+
+type C9 = Email<"bad">;                       // never
+>C9 : never
+
+type C10 = TitleCase<"hello world foo">;      // "Hello World Foo"
+>C10 : "Hello World Foo"
+
+type C11 = Compute<3>;                        // 6 + 9 + 1 = 16
+>C11 : 16
+
+type C12 = DoubleAndCap<"hello">;             // "Hello2"
+>C12 : "Hello2"
+
+=== non_const_export.ts ===
+export let mutableHelper = (n: number) => n + 1;
+>mutableHelper : (n: number) => number
+>(n: number) => n + 1 : (n: number) => number
+>n : number
+>n + 1 : number
+>n : number
+>1 : 1
+
+=== error_cases.ts ===
+import { mutableHelper } from './non_const_export';
+>mutableHelper : (n: number) => number
+
+const _usesMutable = (x: number) => mutableHelper(x);
+>_usesMutable : (x: number) => number
+>(x: number) => mutableHelper(x) : (x: number) => number
+>x : number
+>mutableHelper(x) : number
+>mutableHelper : (n: number) => number
+>x : number
+
+type E1 = Intrinsic<typeof _usesMutable, [5]>;
+>E1 : any
+>_usesMutable : (x: number) => number
+
+const _usesGhost = (x: number) => ghostFn(x);
+>_usesGhost : (x: number) => any
+>(x: number) => ghostFn(x) : (x: number) => any
+>x : number
+>ghostFn(x) : any
+>ghostFn : any
+>x : number
+
+type E2 = Intrinsic<typeof _usesGhost, [5]>;
+>E2 : any
+>_usesGhost : (x: number) => any
+

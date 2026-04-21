@@ -1,0 +1,2226 @@
+//// [tests/cases/compiler/intrinsic/zod.ts] ////
+
+=== zod.ts ===
+// Zod-like validators as plain functions.
+// Each works at both compile time (via Intrinsic<typeof fn, [T]>) and runtime.
+
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+>capitalize : Symbol(capitalize, Decl(zod.ts, 3, 5))
+>s : Symbol(s, Decl(zod.ts, 3, 20))
+>s.charAt(0).toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>s.charAt : Symbol(String.charAt, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 3, 20))
+>charAt : Symbol(String.charAt, Decl(lib.es5.d.ts, --, --))
+>toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 3, 20))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+
+function range(startOrEnd: number, end?: number): number[] {
+>range : Symbol(range, Decl(zod.ts, 3, 73))
+>startOrEnd : Symbol(startOrEnd, Decl(zod.ts, 4, 15))
+>end : Symbol(end, Decl(zod.ts, 4, 34))
+
+    const s = end === undefined ? 0 : startOrEnd;
+>s : Symbol(s, Decl(zod.ts, 5, 9))
+>end : Symbol(end, Decl(zod.ts, 4, 34))
+>undefined : Symbol(undefined)
+>startOrEnd : Symbol(startOrEnd, Decl(zod.ts, 4, 15))
+
+    const e = end === undefined ? startOrEnd : end;
+>e : Symbol(e, Decl(zod.ts, 6, 9))
+>end : Symbol(end, Decl(zod.ts, 4, 34))
+>undefined : Symbol(undefined)
+>startOrEnd : Symbol(startOrEnd, Decl(zod.ts, 4, 15))
+>end : Symbol(end, Decl(zod.ts, 4, 34))
+
+    return Array.from({ length: Math.max(e - s, 0) }, (_, i) => s + i);
+>Array.from : Symbol(ArrayConstructor.from, Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.iterable.d.ts, --, --), Decl(lib.es2015.iterable.d.ts, --, --))
+>Array : Symbol(Array, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.iterable.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --) ... and 4 more)
+>from : Symbol(ArrayConstructor.from, Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.iterable.d.ts, --, --), Decl(lib.es2015.iterable.d.ts, --, --))
+>length : Symbol(length, Decl(zod.ts, 7, 23))
+>Math.max : Symbol(Math.max, Decl(lib.es5.d.ts, --, --))
+>Math : Symbol(Math, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --), Decl(lib.es2025.float16.d.ts, --, --))
+>max : Symbol(Math.max, Decl(lib.es5.d.ts, --, --))
+>e : Symbol(e, Decl(zod.ts, 6, 9))
+>s : Symbol(s, Decl(zod.ts, 5, 9))
+>_ : Symbol(_, Decl(zod.ts, 7, 55))
+>i : Symbol(i, Decl(zod.ts, 7, 57))
+>s : Symbol(s, Decl(zod.ts, 5, 9))
+>i : Symbol(i, Decl(zod.ts, 7, 57))
+}
+
+// ---- Primitives ----
+
+const _string = (x: any) => {
+>_string : Symbol(_string, Decl(zod.ts, 12, 5))
+>x : Symbol(x, Decl(zod.ts, 12, 17))
+
+    if (typeof x != 'string') return void { error: "Expected string, got " + typeof x };
+>x : Symbol(x, Decl(zod.ts, 12, 17))
+>error : Symbol(error, Decl(zod.ts, 13, 43))
+>x : Symbol(x, Decl(zod.ts, 12, 17))
+
+    return x;
+>x : Symbol(x, Decl(zod.ts, 12, 17))
+
+};
+const _number = (x: any) => {
+>_number : Symbol(_number, Decl(zod.ts, 16, 5))
+>x : Symbol(x, Decl(zod.ts, 16, 17))
+
+    if (typeof x != 'number') return void { error: "Expected number, got " + typeof x };
+>x : Symbol(x, Decl(zod.ts, 16, 17))
+>error : Symbol(error, Decl(zod.ts, 17, 43))
+>x : Symbol(x, Decl(zod.ts, 16, 17))
+
+    return x;
+>x : Symbol(x, Decl(zod.ts, 16, 17))
+
+};
+const _boolean = (x: any) => {
+>_boolean : Symbol(_boolean, Decl(zod.ts, 20, 5))
+>x : Symbol(x, Decl(zod.ts, 20, 18))
+
+    if (typeof x != 'boolean') return void { error: "Expected boolean, got " + typeof x };
+>x : Symbol(x, Decl(zod.ts, 20, 18))
+>error : Symbol(error, Decl(zod.ts, 21, 44))
+>x : Symbol(x, Decl(zod.ts, 20, 18))
+
+    return x;
+>x : Symbol(x, Decl(zod.ts, 20, 18))
+
+};
+
+// ---- String validators ----
+
+const _email = (s: any) => {
+>_email : Symbol(_email, Decl(zod.ts, 27, 5))
+>s : Symbol(s, Decl(zod.ts, 27, 16))
+
+    if (typeof s != 'string') return void { error: "Expected string for email, got " + typeof s };
+>s : Symbol(s, Decl(zod.ts, 27, 16))
+>error : Symbol(error, Decl(zod.ts, 28, 43))
+>s : Symbol(s, Decl(zod.ts, 27, 16))
+
+    let at: number = s.indexOf('@');
+>at : Symbol(at, Decl(zod.ts, 29, 7))
+>s.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 27, 16))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+
+    if (at < 1) return void { error: "Invalid email '" + s + "': missing @ sign" };
+>at : Symbol(at, Decl(zod.ts, 29, 7))
+>error : Symbol(error, Decl(zod.ts, 30, 29))
+>s : Symbol(s, Decl(zod.ts, 27, 16))
+
+    let domain: string = s.slice(at + 1);
+>domain : Symbol(domain, Decl(zod.ts, 31, 7))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 27, 16))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>at : Symbol(at, Decl(zod.ts, 29, 7))
+
+    if (domain.length < 3 || !domain.includes('.')) return void { error: "Invalid email '" + s + "': invalid domain" };
+>domain.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>domain : Symbol(domain, Decl(zod.ts, 31, 7))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>domain.includes : Symbol(String.includes, Decl(lib.es2015.core.d.ts, --, --))
+>domain : Symbol(domain, Decl(zod.ts, 31, 7))
+>includes : Symbol(String.includes, Decl(lib.es2015.core.d.ts, --, --))
+>error : Symbol(error, Decl(zod.ts, 32, 65))
+>s : Symbol(s, Decl(zod.ts, 27, 16))
+
+    let dot: number = domain.indexOf('.');
+>dot : Symbol(dot, Decl(zod.ts, 33, 7))
+>domain.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>domain : Symbol(domain, Decl(zod.ts, 31, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+
+    if (dot < 1 || dot == domain.length - 1) return void { error: "Invalid email '" + s + "': invalid domain" };
+>dot : Symbol(dot, Decl(zod.ts, 33, 7))
+>dot : Symbol(dot, Decl(zod.ts, 33, 7))
+>domain.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>domain : Symbol(domain, Decl(zod.ts, 31, 7))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>error : Symbol(error, Decl(zod.ts, 34, 58))
+>s : Symbol(s, Decl(zod.ts, 27, 16))
+
+    return s;
+>s : Symbol(s, Decl(zod.ts, 27, 16))
+
+};
+
+const _url = (s: any) => {
+>_url : Symbol(_url, Decl(zod.ts, 38, 5))
+>s : Symbol(s, Decl(zod.ts, 38, 14))
+
+    if (typeof s != 'string') return void { error: "Expected string for URL, got " + typeof s };
+>s : Symbol(s, Decl(zod.ts, 38, 14))
+>error : Symbol(error, Decl(zod.ts, 39, 43))
+>s : Symbol(s, Decl(zod.ts, 38, 14))
+
+    if (!s.startsWith('http://') && !s.startsWith('https://')) return void { error: "URL must start with http:// or https://, got '" + s + "'" };
+>s.startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 38, 14))
+>startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>s.startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 38, 14))
+>startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>error : Symbol(error, Decl(zod.ts, 40, 76))
+>s : Symbol(s, Decl(zod.ts, 38, 14))
+
+    if (s.length < 10) return void { error: "URL too short: '" + s + "'" };
+>s.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 38, 14))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>error : Symbol(error, Decl(zod.ts, 41, 36))
+>s : Symbol(s, Decl(zod.ts, 38, 14))
+
+    return s;
+>s : Symbol(s, Decl(zod.ts, 38, 14))
+
+};
+
+const _uuid = (s: any) => {
+>_uuid : Symbol(_uuid, Decl(zod.ts, 45, 5))
+>s : Symbol(s, Decl(zod.ts, 45, 15))
+
+    if (typeof s != 'string') return void { error: "Expected string for UUID, got " + typeof s };
+>s : Symbol(s, Decl(zod.ts, 45, 15))
+>error : Symbol(error, Decl(zod.ts, 46, 43))
+>s : Symbol(s, Decl(zod.ts, 45, 15))
+
+    if (s.length != 36) return void { error: "UUID must be 36 characters, got " + s.length };
+>s.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 45, 15))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>error : Symbol(error, Decl(zod.ts, 47, 37))
+>s.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 45, 15))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+    let hex: string = 'abcdef0123456789';
+>hex : Symbol(hex, Decl(zod.ts, 48, 7))
+
+    let dashes = [8, 13, 18, 23];
+>dashes : Symbol(dashes, Decl(zod.ts, 49, 7))
+
+    let i = 0;
+>i : Symbol(i, Decl(zod.ts, 50, 7))
+
+    while (i < 36) {
+>i : Symbol(i, Decl(zod.ts, 50, 7))
+
+        if (dashes.includes(i)) {
+>dashes.includes : Symbol(Array.includes, Decl(lib.es2016.array.include.d.ts, --, --))
+>dashes : Symbol(dashes, Decl(zod.ts, 49, 7))
+>includes : Symbol(Array.includes, Decl(lib.es2016.array.include.d.ts, --, --))
+>i : Symbol(i, Decl(zod.ts, 50, 7))
+
+            if (s.slice(i, i + 1) != '-') return void { error: "UUID has invalid format: '" + s + "'" };
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 45, 15))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>i : Symbol(i, Decl(zod.ts, 50, 7))
+>i : Symbol(i, Decl(zod.ts, 50, 7))
+>error : Symbol(error, Decl(zod.ts, 53, 55))
+>s : Symbol(s, Decl(zod.ts, 45, 15))
+
+        } else {
+            if (!hex.includes(s.slice(i, i + 1).toLowerCase())) return void { error: "UUID has invalid format: '" + s + "'" };
+>hex.includes : Symbol(String.includes, Decl(lib.es2015.core.d.ts, --, --))
+>hex : Symbol(hex, Decl(zod.ts, 48, 7))
+>includes : Symbol(String.includes, Decl(lib.es2015.core.d.ts, --, --))
+>s.slice(i, i + 1).toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 45, 15))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>i : Symbol(i, Decl(zod.ts, 50, 7))
+>i : Symbol(i, Decl(zod.ts, 50, 7))
+>toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+>error : Symbol(error, Decl(zod.ts, 55, 77))
+>s : Symbol(s, Decl(zod.ts, 45, 15))
+        }
+        i = i + 1;
+>i : Symbol(i, Decl(zod.ts, 50, 7))
+>i : Symbol(i, Decl(zod.ts, 50, 7))
+    }
+    return s;
+>s : Symbol(s, Decl(zod.ts, 45, 15))
+
+};
+
+const _nonEmpty = (s: any) => {
+>_nonEmpty : Symbol(_nonEmpty, Decl(zod.ts, 62, 5))
+>s : Symbol(s, Decl(zod.ts, 62, 19))
+
+    if (typeof s != 'string') return void { error: "Expected string, got " + typeof s };
+>s : Symbol(s, Decl(zod.ts, 62, 19))
+>error : Symbol(error, Decl(zod.ts, 63, 43))
+>s : Symbol(s, Decl(zod.ts, 62, 19))
+
+    if (s.length == 0) return void { error: "String must not be empty" };
+>s.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 62, 19))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>error : Symbol(error, Decl(zod.ts, 64, 36))
+
+    return s;
+>s : Symbol(s, Decl(zod.ts, 62, 19))
+
+};
+
+const _trimmed = (s: any) => {
+>_trimmed : Symbol(_trimmed, Decl(zod.ts, 68, 5))
+>s : Symbol(s, Decl(zod.ts, 68, 18))
+
+    if (typeof s != 'string') return void "never";
+>s : Symbol(s, Decl(zod.ts, 68, 18))
+
+    return s.trim();
+>s.trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 68, 18))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+
+};
+
+// ---- Number validators ----
+
+const _int = (n: any) => {
+>_int : Symbol(_int, Decl(zod.ts, 75, 5))
+>n : Symbol(n, Decl(zod.ts, 75, 14))
+
+    if (typeof n != 'number') return void { error: "Expected number, got " + typeof n };
+>n : Symbol(n, Decl(zod.ts, 75, 14))
+>error : Symbol(error, Decl(zod.ts, 76, 43))
+>n : Symbol(n, Decl(zod.ts, 75, 14))
+
+    if (Math.floor(n) != n) return void { error: n + " is not an integer" };
+>Math.floor : Symbol(Math.floor, Decl(lib.es5.d.ts, --, --))
+>Math : Symbol(Math, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --), Decl(lib.es2025.float16.d.ts, --, --))
+>floor : Symbol(Math.floor, Decl(lib.es5.d.ts, --, --))
+>n : Symbol(n, Decl(zod.ts, 75, 14))
+>n : Symbol(n, Decl(zod.ts, 75, 14))
+>error : Symbol(error, Decl(zod.ts, 77, 41))
+>n : Symbol(n, Decl(zod.ts, 75, 14))
+
+    return n;
+>n : Symbol(n, Decl(zod.ts, 75, 14))
+
+};
+
+const _positive = (n: any) => {
+>_positive : Symbol(_positive, Decl(zod.ts, 81, 5))
+>n : Symbol(n, Decl(zod.ts, 81, 19))
+
+    if (typeof n != 'number') return void { error: "Expected number, got " + typeof n };
+>n : Symbol(n, Decl(zod.ts, 81, 19))
+>error : Symbol(error, Decl(zod.ts, 82, 43))
+>n : Symbol(n, Decl(zod.ts, 81, 19))
+
+    if (n <= 0) return void { error: "Expected positive number, got " + n };
+>n : Symbol(n, Decl(zod.ts, 81, 19))
+>error : Symbol(error, Decl(zod.ts, 83, 29))
+>n : Symbol(n, Decl(zod.ts, 81, 19))
+
+    return n;
+>n : Symbol(n, Decl(zod.ts, 81, 19))
+
+};
+
+const _nonnegative = (n: any) => {
+>_nonnegative : Symbol(_nonnegative, Decl(zod.ts, 87, 5))
+>n : Symbol(n, Decl(zod.ts, 87, 22))
+
+    if (typeof n != 'number') return void { error: "Expected number, got " + typeof n };
+>n : Symbol(n, Decl(zod.ts, 87, 22))
+>error : Symbol(error, Decl(zod.ts, 88, 43))
+>n : Symbol(n, Decl(zod.ts, 87, 22))
+
+    if (n < 0) return void { error: "Expected non-negative number, got " + n };
+>n : Symbol(n, Decl(zod.ts, 87, 22))
+>error : Symbol(error, Decl(zod.ts, 89, 28))
+>n : Symbol(n, Decl(zod.ts, 87, 22))
+
+    return n;
+>n : Symbol(n, Decl(zod.ts, 87, 22))
+
+};
+
+const _port = (n: any) => {
+>_port : Symbol(_port, Decl(zod.ts, 93, 5))
+>n : Symbol(n, Decl(zod.ts, 93, 15))
+
+    if (typeof n != 'number') return void { error: "Port must be a number, got " + typeof n };
+>n : Symbol(n, Decl(zod.ts, 93, 15))
+>error : Symbol(error, Decl(zod.ts, 94, 43))
+>n : Symbol(n, Decl(zod.ts, 93, 15))
+
+    if (n < 1 || n > 65535) return void { error: "Port " + n + " out of range (1-65535)" };
+>n : Symbol(n, Decl(zod.ts, 93, 15))
+>n : Symbol(n, Decl(zod.ts, 93, 15))
+>error : Symbol(error, Decl(zod.ts, 95, 41))
+>n : Symbol(n, Decl(zod.ts, 93, 15))
+
+    if (Math.floor(n) != n) return void { error: "Port must be an integer, got " + n };
+>Math.floor : Symbol(Math.floor, Decl(lib.es5.d.ts, --, --))
+>Math : Symbol(Math, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --), Decl(lib.es2025.float16.d.ts, --, --))
+>floor : Symbol(Math.floor, Decl(lib.es5.d.ts, --, --))
+>n : Symbol(n, Decl(zod.ts, 93, 15))
+>n : Symbol(n, Decl(zod.ts, 93, 15))
+>error : Symbol(error, Decl(zod.ts, 96, 41))
+>n : Symbol(n, Decl(zod.ts, 93, 15))
+
+    return n;
+>n : Symbol(n, Decl(zod.ts, 93, 15))
+
+};
+
+// ---- Coercions ----
+
+const _coerceNumber = (s: any) => {
+>_coerceNumber : Symbol(_coerceNumber, Decl(zod.ts, 102, 5))
+>s : Symbol(s, Decl(zod.ts, 102, 23))
+
+    if (typeof s == 'number') return s;
+>s : Symbol(s, Decl(zod.ts, 102, 23))
+>s : Symbol(s, Decl(zod.ts, 102, 23))
+
+    if (typeof s != 'string' || s.length == 0) return void "never";
+>s : Symbol(s, Decl(zod.ts, 102, 23))
+>s.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 102, 23))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+    let digits: string = '0123456789';
+>digits : Symbol(digits, Decl(zod.ts, 105, 7))
+
+    let start: number = 0;
+>start : Symbol(start, Decl(zod.ts, 106, 7))
+
+    let neg: boolean = false;
+>neg : Symbol(neg, Decl(zod.ts, 107, 7))
+
+    if (s.slice(0, 1) == '-') { neg = true; start = 1; }
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 102, 23))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>neg : Symbol(neg, Decl(zod.ts, 107, 7))
+>start : Symbol(start, Decl(zod.ts, 106, 7))
+
+    if (start == s.length) return void "never";
+>start : Symbol(start, Decl(zod.ts, 106, 7))
+>s.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 102, 23))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+    let result: number = 0;
+>result : Symbol(result, Decl(zod.ts, 110, 7))
+
+    let i = start;
+>i : Symbol(i, Decl(zod.ts, 111, 7))
+>start : Symbol(start, Decl(zod.ts, 106, 7))
+
+    while (i < s.length) {
+>i : Symbol(i, Decl(zod.ts, 111, 7))
+>s.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 102, 23))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+        let d: number = digits.indexOf(s.slice(i, i + 1));
+>d : Symbol(d, Decl(zod.ts, 113, 11))
+>digits.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>digits : Symbol(digits, Decl(zod.ts, 105, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 102, 23))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>i : Symbol(i, Decl(zod.ts, 111, 7))
+>i : Symbol(i, Decl(zod.ts, 111, 7))
+
+        if (d == -1) return void "never";
+>d : Symbol(d, Decl(zod.ts, 113, 11))
+
+        result = result * 10 + d;
+>result : Symbol(result, Decl(zod.ts, 110, 7))
+>result : Symbol(result, Decl(zod.ts, 110, 7))
+>d : Symbol(d, Decl(zod.ts, 113, 11))
+
+        i = i + 1;
+>i : Symbol(i, Decl(zod.ts, 111, 7))
+>i : Symbol(i, Decl(zod.ts, 111, 7))
+    }
+    return neg ? -result : result;
+>neg : Symbol(neg, Decl(zod.ts, 107, 7))
+>result : Symbol(result, Decl(zod.ts, 110, 7))
+>result : Symbol(result, Decl(zod.ts, 110, 7))
+
+};
+
+const _coerceBoolean = (x: any) => {
+>_coerceBoolean : Symbol(_coerceBoolean, Decl(zod.ts, 121, 5))
+>x : Symbol(x, Decl(zod.ts, 121, 24))
+
+    if (typeof x == 'boolean') return x;
+>x : Symbol(x, Decl(zod.ts, 121, 24))
+>x : Symbol(x, Decl(zod.ts, 121, 24))
+
+    if (x == 'true' || x == '1') return true;
+>x : Symbol(x, Decl(zod.ts, 121, 24))
+>x : Symbol(x, Decl(zod.ts, 121, 24))
+
+    if (x == 'false' || x == '0') return false;
+>x : Symbol(x, Decl(zod.ts, 121, 24))
+>x : Symbol(x, Decl(zod.ts, 121, 24))
+
+    return void "never";
+};
+
+// ---- Transforms ----
+
+const _toLowerCase = (s: any) => {
+>_toLowerCase : Symbol(_toLowerCase, Decl(zod.ts, 130, 5))
+>s : Symbol(s, Decl(zod.ts, 130, 22))
+
+    if (typeof s != 'string') return void "never";
+>s : Symbol(s, Decl(zod.ts, 130, 22))
+
+    return s.toLowerCase();
+>s.toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 130, 22))
+>toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+
+};
+
+const _toUpperCase = (s: any) => {
+>_toUpperCase : Symbol(_toUpperCase, Decl(zod.ts, 135, 5))
+>s : Symbol(s, Decl(zod.ts, 135, 22))
+
+    if (typeof s != 'string') return void "never";
+>s : Symbol(s, Decl(zod.ts, 135, 22))
+
+    return s.toUpperCase();
+>s.toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 135, 22))
+>toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+
+};
+
+const _toSlug = (s: string) => {
+>_toSlug : Symbol(_toSlug, Decl(zod.ts, 140, 5))
+>s : Symbol(s, Decl(zod.ts, 140, 17))
+
+    return s.toLowerCase().split(' ').join('-');
+>s.toLowerCase().split(' ').join : Symbol(Array.join, Decl(lib.es5.d.ts, --, --))
+>s.toLowerCase().split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+>s.toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 140, 17))
+>toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+>split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+>join : Symbol(Array.join, Decl(lib.es5.d.ts, --, --))
+
+};
+
+const _toCamelCase = (s: string) => {
+>_toCamelCase : Symbol(_toCamelCase, Decl(zod.ts, 144, 5))
+>s : Symbol(s, Decl(zod.ts, 144, 22))
+
+    let [first, ...rest] = s.split('_');
+>first : Symbol(first, Decl(zod.ts, 145, 9))
+>rest : Symbol(rest, Decl(zod.ts, 145, 15))
+>s.split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 144, 22))
+>split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+
+    return first + rest.map((p: string) => capitalize(p)).join('');
+>first : Symbol(first, Decl(zod.ts, 145, 9))
+>rest.map((p: string) => capitalize(p)).join : Symbol(Array.join, Decl(lib.es5.d.ts, --, --))
+>rest.map : Symbol(Array.map, Decl(lib.es5.d.ts, --, --))
+>rest : Symbol(rest, Decl(zod.ts, 145, 15))
+>map : Symbol(Array.map, Decl(lib.es5.d.ts, --, --))
+>p : Symbol(p, Decl(zod.ts, 146, 29))
+>capitalize : Symbol(capitalize, Decl(zod.ts, 3, 5))
+>p : Symbol(p, Decl(zod.ts, 146, 29))
+>join : Symbol(Array.join, Decl(lib.es5.d.ts, --, --))
+
+};
+
+// ---- Object validators ----
+
+const _serverConfig = (cfg: any) => {
+>_serverConfig : Symbol(_serverConfig, Decl(zod.ts, 151, 5))
+>cfg : Symbol(cfg, Decl(zod.ts, 151, 23))
+
+    if (typeof cfg != 'object') return void { error: "ServerConfig: expected an object" };
+>cfg : Symbol(cfg, Decl(zod.ts, 151, 23))
+>error : Symbol(error, Decl(zod.ts, 152, 45))
+
+    if (typeof cfg['host'] != 'string' || cfg['host'].length == 0) return void { error: "ServerConfig.host: must be a non-empty string" };
+>cfg : Symbol(cfg, Decl(zod.ts, 151, 23))
+>cfg['host'].length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>cfg : Symbol(cfg, Decl(zod.ts, 151, 23))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>error : Symbol(error, Decl(zod.ts, 153, 80))
+
+    if (typeof cfg['port'] != 'number') return void { error: "ServerConfig.port: must be a number" };
+>cfg : Symbol(cfg, Decl(zod.ts, 151, 23))
+>error : Symbol(error, Decl(zod.ts, 154, 53))
+
+    if (cfg['port'] < 1 || cfg['port'] > 65535) return void { error: "ServerConfig.port: " + cfg['port'] + " out of range (1-65535)" };
+>cfg : Symbol(cfg, Decl(zod.ts, 151, 23))
+>cfg : Symbol(cfg, Decl(zod.ts, 151, 23))
+>error : Symbol(error, Decl(zod.ts, 155, 61))
+>cfg : Symbol(cfg, Decl(zod.ts, 151, 23))
+
+    if (cfg['protocol'] != 'http' && cfg['protocol'] != 'https') return void { error: "ServerConfig.protocol: must be 'http' or 'https', got '" + cfg['protocol'] + "'" };
+>cfg : Symbol(cfg, Decl(zod.ts, 151, 23))
+>cfg : Symbol(cfg, Decl(zod.ts, 151, 23))
+>error : Symbol(error, Decl(zod.ts, 156, 78))
+>cfg : Symbol(cfg, Decl(zod.ts, 151, 23))
+
+    return cfg;
+>cfg : Symbol(cfg, Decl(zod.ts, 151, 23))
+
+};
+
+const _user = (u: any) => {
+>_user : Symbol(_user, Decl(zod.ts, 160, 5))
+>u : Symbol(u, Decl(zod.ts, 160, 15))
+
+    if (typeof u != 'object') return void { error: "User: expected an object" };
+>u : Symbol(u, Decl(zod.ts, 160, 15))
+>error : Symbol(error, Decl(zod.ts, 161, 43))
+
+    if (typeof u['name'] != 'string' || u['name'].length == 0) return void { error: "User.name: must be a non-empty string" };
+>u : Symbol(u, Decl(zod.ts, 160, 15))
+>u['name'].length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>u : Symbol(u, Decl(zod.ts, 160, 15))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>error : Symbol(error, Decl(zod.ts, 162, 76))
+
+    if (typeof u['email'] != 'string') return void { error: "User.email: must be a string" };
+>u : Symbol(u, Decl(zod.ts, 160, 15))
+>error : Symbol(error, Decl(zod.ts, 163, 52))
+
+    let at: number = u['email'].indexOf('@');
+>at : Symbol(at, Decl(zod.ts, 164, 7))
+>u['email'].indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>u : Symbol(u, Decl(zod.ts, 160, 15))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+
+    if (at < 1 || !u['email'].slice(at + 1).includes('.')) return void { error: "User.email: '" + u['email'] + "' is not a valid email" };
+>at : Symbol(at, Decl(zod.ts, 164, 7))
+>u['email'].slice(at + 1).includes : Symbol(String.includes, Decl(lib.es2015.core.d.ts, --, --))
+>u['email'].slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>u : Symbol(u, Decl(zod.ts, 160, 15))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>at : Symbol(at, Decl(zod.ts, 164, 7))
+>includes : Symbol(String.includes, Decl(lib.es2015.core.d.ts, --, --))
+>error : Symbol(error, Decl(zod.ts, 165, 72))
+>u : Symbol(u, Decl(zod.ts, 160, 15))
+
+    if (typeof u['age'] != 'number') return void { error: "User.age: must be a number" };
+>u : Symbol(u, Decl(zod.ts, 160, 15))
+>error : Symbol(error, Decl(zod.ts, 166, 50))
+
+    if (u['age'] < 0 || u['age'] > 150) return void { error: "User.age: " + u['age'] + " out of range (0-150)" };
+>u : Symbol(u, Decl(zod.ts, 160, 15))
+>u : Symbol(u, Decl(zod.ts, 160, 15))
+>error : Symbol(error, Decl(zod.ts, 167, 53))
+>u : Symbol(u, Decl(zod.ts, 160, 15))
+
+    if (Math.floor(u['age']) != u['age']) return void { error: "User.age: must be an integer, got " + u['age'] };
+>Math.floor : Symbol(Math.floor, Decl(lib.es5.d.ts, --, --))
+>Math : Symbol(Math, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --), Decl(lib.es2025.float16.d.ts, --, --))
+>floor : Symbol(Math.floor, Decl(lib.es5.d.ts, --, --))
+>u : Symbol(u, Decl(zod.ts, 160, 15))
+>u : Symbol(u, Decl(zod.ts, 160, 15))
+>error : Symbol(error, Decl(zod.ts, 168, 55))
+>u : Symbol(u, Decl(zod.ts, 160, 15))
+
+    return u;
+>u : Symbol(u, Decl(zod.ts, 160, 15))
+
+};
+
+const _dbConfig = (cfg: any) => {
+>_dbConfig : Symbol(_dbConfig, Decl(zod.ts, 172, 5))
+>cfg : Symbol(cfg, Decl(zod.ts, 172, 19))
+
+    if (typeof cfg != 'object') return void { error: "DbConfig: expected an object" };
+>cfg : Symbol(cfg, Decl(zod.ts, 172, 19))
+>error : Symbol(error, Decl(zod.ts, 173, 45))
+
+    let driver = cfg['driver'];
+>driver : Symbol(driver, Decl(zod.ts, 174, 7))
+>cfg : Symbol(cfg, Decl(zod.ts, 172, 19))
+
+    if (driver != 'postgres' && driver != 'mysql' && driver != 'sqlite') return void { error: "DbConfig.driver: must be 'postgres', 'mysql', or 'sqlite', got '" + driver + "'" };
+>driver : Symbol(driver, Decl(zod.ts, 174, 7))
+>driver : Symbol(driver, Decl(zod.ts, 174, 7))
+>driver : Symbol(driver, Decl(zod.ts, 174, 7))
+>error : Symbol(error, Decl(zod.ts, 175, 86))
+>driver : Symbol(driver, Decl(zod.ts, 174, 7))
+
+    if (typeof cfg['host'] != 'string' || cfg['host'].length == 0) return void { error: "DbConfig.host: must be a non-empty string" };
+>cfg : Symbol(cfg, Decl(zod.ts, 172, 19))
+>cfg['host'].length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>cfg : Symbol(cfg, Decl(zod.ts, 172, 19))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>error : Symbol(error, Decl(zod.ts, 176, 80))
+
+    if (typeof cfg['port'] != 'number') return void { error: "DbConfig.port: must be a number" };
+>cfg : Symbol(cfg, Decl(zod.ts, 172, 19))
+>error : Symbol(error, Decl(zod.ts, 177, 53))
+
+    if (cfg['port'] < 1 || cfg['port'] > 65535) return void { error: "DbConfig.port: " + cfg['port'] + " out of range (1-65535)" };
+>cfg : Symbol(cfg, Decl(zod.ts, 172, 19))
+>cfg : Symbol(cfg, Decl(zod.ts, 172, 19))
+>error : Symbol(error, Decl(zod.ts, 178, 61))
+>cfg : Symbol(cfg, Decl(zod.ts, 172, 19))
+
+    if (typeof cfg['database'] != 'string' || cfg['database'].length == 0) return void { error: "DbConfig.database: must be a non-empty string" };
+>cfg : Symbol(cfg, Decl(zod.ts, 172, 19))
+>cfg['database'].length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>cfg : Symbol(cfg, Decl(zod.ts, 172, 19))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>error : Symbol(error, Decl(zod.ts, 179, 88))
+
+    return cfg;
+>cfg : Symbol(cfg, Decl(zod.ts, 172, 19))
+
+};
+
+const _envConfig = (env: any) => {
+>_envConfig : Symbol(_envConfig, Decl(zod.ts, 183, 5))
+>env : Symbol(env, Decl(zod.ts, 183, 20))
+
+    if (typeof env != 'object') return void { error: "EnvConfig: expected an object" };
+>env : Symbol(env, Decl(zod.ts, 183, 20))
+>error : Symbol(error, Decl(zod.ts, 184, 45))
+
+    let nodeEnv = env['NODE_ENV'];
+>nodeEnv : Symbol(nodeEnv, Decl(zod.ts, 185, 7))
+>env : Symbol(env, Decl(zod.ts, 183, 20))
+
+    if (nodeEnv != 'development' && nodeEnv != 'production' && nodeEnv != 'test') return void { error: "EnvConfig.NODE_ENV: must be 'development', 'production', or 'test', got '" + nodeEnv + "'" };
+>nodeEnv : Symbol(nodeEnv, Decl(zod.ts, 185, 7))
+>nodeEnv : Symbol(nodeEnv, Decl(zod.ts, 185, 7))
+>nodeEnv : Symbol(nodeEnv, Decl(zod.ts, 185, 7))
+>error : Symbol(error, Decl(zod.ts, 186, 95))
+>nodeEnv : Symbol(nodeEnv, Decl(zod.ts, 185, 7))
+
+    if (typeof env['PORT'] != 'number') return void { error: "EnvConfig.PORT: must be a number" };
+>env : Symbol(env, Decl(zod.ts, 183, 20))
+>error : Symbol(error, Decl(zod.ts, 187, 53))
+
+    if (typeof env['DATABASE_URL'] != 'string' || env['DATABASE_URL'].length == 0) return void { error: "EnvConfig.DATABASE_URL: must be a non-empty string" };
+>env : Symbol(env, Decl(zod.ts, 183, 20))
+>env['DATABASE_URL'].length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>env : Symbol(env, Decl(zod.ts, 183, 20))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>error : Symbol(error, Decl(zod.ts, 188, 96))
+
+    if (typeof env['DEBUG'] != 'boolean') return void { error: "EnvConfig.DEBUG: must be a boolean" };
+>env : Symbol(env, Decl(zod.ts, 183, 20))
+>error : Symbol(error, Decl(zod.ts, 189, 55))
+
+    return env;
+>env : Symbol(env, Decl(zod.ts, 183, 20))
+
+};
+
+// ---- Object transforms ----
+
+const _camelCaseKeys = (obj: any) => {
+>_camelCaseKeys : Symbol(_camelCaseKeys, Decl(zod.ts, 195, 5))
+>obj : Symbol(obj, Decl(zod.ts, 195, 24))
+
+    let result: Record<string, any> = {};
+>result : Symbol(result, Decl(zod.ts, 196, 7))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+    for (let k of Object.keys(obj)) {
+>k : Symbol(k, Decl(zod.ts, 197, 12))
+>Object.keys : Symbol(ObjectConstructor.keys, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --))
+>Object : Symbol(Object, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --))
+>keys : Symbol(ObjectConstructor.keys, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --))
+>obj : Symbol(obj, Decl(zod.ts, 195, 24))
+
+        let [first, ...rest] = k.split('_');
+>first : Symbol(first, Decl(zod.ts, 198, 13))
+>rest : Symbol(rest, Decl(zod.ts, 198, 19))
+>k.split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+>k : Symbol(k, Decl(zod.ts, 197, 12))
+>split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+
+        let newKey: string = first + rest.map((p: string) => capitalize(p)).join('');
+>newKey : Symbol(newKey, Decl(zod.ts, 199, 11))
+>first : Symbol(first, Decl(zod.ts, 198, 13))
+>rest.map((p: string) => capitalize(p)).join : Symbol(Array.join, Decl(lib.es5.d.ts, --, --))
+>rest.map : Symbol(Array.map, Decl(lib.es5.d.ts, --, --))
+>rest : Symbol(rest, Decl(zod.ts, 198, 19))
+>map : Symbol(Array.map, Decl(lib.es5.d.ts, --, --))
+>p : Symbol(p, Decl(zod.ts, 199, 47))
+>capitalize : Symbol(capitalize, Decl(zod.ts, 3, 5))
+>p : Symbol(p, Decl(zod.ts, 199, 47))
+>join : Symbol(Array.join, Decl(lib.es5.d.ts, --, --))
+
+        result[newKey] = obj[k];
+>result : Symbol(result, Decl(zod.ts, 196, 7))
+>newKey : Symbol(newKey, Decl(zod.ts, 199, 11))
+>obj : Symbol(obj, Decl(zod.ts, 195, 24))
+>k : Symbol(k, Decl(zod.ts, 197, 12))
+    }
+    return result;
+>result : Symbol(result, Decl(zod.ts, 196, 7))
+
+};
+
+const _buildUrl = (cfg: any) => {
+>_buildUrl : Symbol(_buildUrl, Decl(zod.ts, 205, 5))
+>cfg : Symbol(cfg, Decl(zod.ts, 205, 19))
+
+    if (typeof cfg != 'object') return void "never";
+>cfg : Symbol(cfg, Decl(zod.ts, 205, 19))
+
+    let url: string = cfg['protocol'] + '://' + cfg['host'];
+>url : Symbol(url, Decl(zod.ts, 207, 7))
+>cfg : Symbol(cfg, Decl(zod.ts, 205, 19))
+>cfg : Symbol(cfg, Decl(zod.ts, 205, 19))
+
+    if (typeof cfg['port'] == 'number') url = url + ':' + cfg['port'];
+>cfg : Symbol(cfg, Decl(zod.ts, 205, 19))
+>url : Symbol(url, Decl(zod.ts, 207, 7))
+>url : Symbol(url, Decl(zod.ts, 207, 7))
+>cfg : Symbol(cfg, Decl(zod.ts, 205, 19))
+
+    if (typeof cfg['path'] == 'string') url = url + cfg['path'];
+>cfg : Symbol(cfg, Decl(zod.ts, 205, 19))
+>url : Symbol(url, Decl(zod.ts, 207, 7))
+>url : Symbol(url, Decl(zod.ts, 207, 7))
+>cfg : Symbol(cfg, Decl(zod.ts, 205, 19))
+
+    return url;
+>url : Symbol(url, Decl(zod.ts, 207, 7))
+
+};
+
+const _parseDate = (s: any) => {
+>_parseDate : Symbol(_parseDate, Decl(zod.ts, 213, 5))
+>s : Symbol(s, Decl(zod.ts, 213, 20))
+
+    if (typeof s != 'string' || s.length != 10) return void "never";
+>s : Symbol(s, Decl(zod.ts, 213, 20))
+>s.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 213, 20))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+    if (s.slice(4, 5) != '-' || s.slice(7, 8) != '-') return void "never";
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 213, 20))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 213, 20))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+
+    let digits: string = '0123456789';
+>digits : Symbol(digits, Decl(zod.ts, 216, 7))
+
+    for (let p of [0, 1, 2, 3, 5, 6, 8, 9]) {
+>p : Symbol(p, Decl(zod.ts, 217, 12))
+
+        if (!digits.includes(s.slice(p, p + 1))) return void "never";
+>digits.includes : Symbol(String.includes, Decl(lib.es2015.core.d.ts, --, --))
+>digits : Symbol(digits, Decl(zod.ts, 216, 7))
+>includes : Symbol(String.includes, Decl(lib.es2015.core.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 213, 20))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>p : Symbol(p, Decl(zod.ts, 217, 12))
+>p : Symbol(p, Decl(zod.ts, 217, 12))
+    }
+    let year: number = digits.indexOf(s.slice(0, 1)) * 1000 + digits.indexOf(s.slice(1, 2)) * 100 + digits.indexOf(s.slice(2, 3)) * 10 + digits.indexOf(s.slice(3, 4));
+>year : Symbol(year, Decl(zod.ts, 220, 7))
+>digits.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>digits : Symbol(digits, Decl(zod.ts, 216, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 213, 20))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>digits.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>digits : Symbol(digits, Decl(zod.ts, 216, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 213, 20))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>digits.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>digits : Symbol(digits, Decl(zod.ts, 216, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 213, 20))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>digits.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>digits : Symbol(digits, Decl(zod.ts, 216, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 213, 20))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+
+    let month: number = digits.indexOf(s.slice(5, 6)) * 10 + digits.indexOf(s.slice(6, 7));
+>month : Symbol(month, Decl(zod.ts, 221, 7))
+>digits.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>digits : Symbol(digits, Decl(zod.ts, 216, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 213, 20))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>digits.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>digits : Symbol(digits, Decl(zod.ts, 216, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 213, 20))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+
+    let day: number = digits.indexOf(s.slice(8, 9)) * 10 + digits.indexOf(s.slice(9, 10));
+>day : Symbol(day, Decl(zod.ts, 222, 7))
+>digits.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>digits : Symbol(digits, Decl(zod.ts, 216, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 213, 20))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>digits.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>digits : Symbol(digits, Decl(zod.ts, 216, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 213, 20))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+
+    if (month < 1 || month > 12 || day < 1 || day > 31) return void "never";
+>month : Symbol(month, Decl(zod.ts, 221, 7))
+>month : Symbol(month, Decl(zod.ts, 221, 7))
+>day : Symbol(day, Decl(zod.ts, 222, 7))
+>day : Symbol(day, Decl(zod.ts, 222, 7))
+
+    let result: Record<string, any> = {};
+>result : Symbol(result, Decl(zod.ts, 224, 7))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+    result['year'] = year;
+>result : Symbol(result, Decl(zod.ts, 224, 7))
+>year : Symbol(year, Decl(zod.ts, 220, 7))
+
+    result['month'] = month;
+>result : Symbol(result, Decl(zod.ts, 224, 7))
+>month : Symbol(month, Decl(zod.ts, 221, 7))
+
+    result['day'] = day;
+>result : Symbol(result, Decl(zod.ts, 224, 7))
+>day : Symbol(day, Decl(zod.ts, 222, 7))
+
+    return result;
+>result : Symbol(result, Decl(zod.ts, 224, 7))
+
+};
+
+// ---- Parsers ----
+
+const _parseRoute = (path: any) => {
+>_parseRoute : Symbol(_parseRoute, Decl(zod.ts, 233, 5))
+>path : Symbol(path, Decl(zod.ts, 233, 21))
+
+    if (typeof path != 'string' || !path.startsWith('/api/')) return void "never";
+>path : Symbol(path, Decl(zod.ts, 233, 21))
+>path.startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+>path : Symbol(path, Decl(zod.ts, 233, 21))
+>startsWith : Symbol(String.startsWith, Decl(lib.es2015.core.d.ts, --, --))
+
+    let parts: string[] = path.slice(5).split('/');
+>parts : Symbol(parts, Decl(zod.ts, 235, 7))
+>path.slice(5).split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+>path.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>path : Symbol(path, Decl(zod.ts, 233, 21))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+
+    if (parts.length < 2) return void "never";
+>parts.length : Symbol(Array.length, Decl(lib.es5.d.ts, --, --))
+>parts : Symbol(parts, Decl(zod.ts, 235, 7))
+>length : Symbol(Array.length, Decl(lib.es5.d.ts, --, --))
+
+    let result: Record<string, any> = {};
+>result : Symbol(result, Decl(zod.ts, 237, 7))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+    result['version'] = parts[0];
+>result : Symbol(result, Decl(zod.ts, 237, 7))
+>parts : Symbol(parts, Decl(zod.ts, 235, 7))
+
+    result['resource'] = parts[1];
+>result : Symbol(result, Decl(zod.ts, 237, 7))
+>parts : Symbol(parts, Decl(zod.ts, 235, 7))
+
+    if (parts.length > 2) result['id'] = parts[2];
+>parts.length : Symbol(Array.length, Decl(lib.es5.d.ts, --, --))
+>parts : Symbol(parts, Decl(zod.ts, 235, 7))
+>length : Symbol(Array.length, Decl(lib.es5.d.ts, --, --))
+>result : Symbol(result, Decl(zod.ts, 237, 7))
+>parts : Symbol(parts, Decl(zod.ts, 235, 7))
+
+    return result;
+>result : Symbol(result, Decl(zod.ts, 237, 7))
+
+};
+
+const _hexToRgb = (s: any) => {
+>_hexToRgb : Symbol(_hexToRgb, Decl(zod.ts, 244, 5))
+>s : Symbol(s, Decl(zod.ts, 244, 19))
+
+    if (typeof s != 'string' || s.length != 7 || s.slice(0, 1) != '#') return void "never";
+>s : Symbol(s, Decl(zod.ts, 244, 19))
+>s.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 244, 19))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 244, 19))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+
+    let hex: string = '0123456789abcdef';
+>hex : Symbol(hex, Decl(zod.ts, 246, 7))
+
+    let result: Record<string, any> = {};
+>result : Symbol(result, Decl(zod.ts, 247, 7))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+    let r1: number = hex.indexOf(s.slice(1, 2).toLowerCase());
+>r1 : Symbol(r1, Decl(zod.ts, 248, 7))
+>hex.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>hex : Symbol(hex, Decl(zod.ts, 246, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s.slice(1, 2).toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 244, 19))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+
+    let r2: number = hex.indexOf(s.slice(2, 3).toLowerCase());
+>r2 : Symbol(r2, Decl(zod.ts, 249, 7))
+>hex.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>hex : Symbol(hex, Decl(zod.ts, 246, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s.slice(2, 3).toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 244, 19))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+
+    let g1: number = hex.indexOf(s.slice(3, 4).toLowerCase());
+>g1 : Symbol(g1, Decl(zod.ts, 250, 7))
+>hex.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>hex : Symbol(hex, Decl(zod.ts, 246, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s.slice(3, 4).toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 244, 19))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+
+    let g2: number = hex.indexOf(s.slice(4, 5).toLowerCase());
+>g2 : Symbol(g2, Decl(zod.ts, 251, 7))
+>hex.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>hex : Symbol(hex, Decl(zod.ts, 246, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s.slice(4, 5).toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 244, 19))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+
+    let b1: number = hex.indexOf(s.slice(5, 6).toLowerCase());
+>b1 : Symbol(b1, Decl(zod.ts, 252, 7))
+>hex.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>hex : Symbol(hex, Decl(zod.ts, 246, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s.slice(5, 6).toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 244, 19))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+
+    let b2: number = hex.indexOf(s.slice(6, 7).toLowerCase());
+>b2 : Symbol(b2, Decl(zod.ts, 253, 7))
+>hex.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>hex : Symbol(hex, Decl(zod.ts, 246, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s.slice(6, 7).toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 244, 19))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+
+    if (r1 == -1 || r2 == -1 || g1 == -1 || g2 == -1 || b1 == -1 || b2 == -1) return void "never";
+>r1 : Symbol(r1, Decl(zod.ts, 248, 7))
+>r2 : Symbol(r2, Decl(zod.ts, 249, 7))
+>g1 : Symbol(g1, Decl(zod.ts, 250, 7))
+>g2 : Symbol(g2, Decl(zod.ts, 251, 7))
+>b1 : Symbol(b1, Decl(zod.ts, 252, 7))
+>b2 : Symbol(b2, Decl(zod.ts, 253, 7))
+
+    result['r'] = r1 * 16 + r2;
+>result : Symbol(result, Decl(zod.ts, 247, 7))
+>r1 : Symbol(r1, Decl(zod.ts, 248, 7))
+>r2 : Symbol(r2, Decl(zod.ts, 249, 7))
+
+    result['g'] = g1 * 16 + g2;
+>result : Symbol(result, Decl(zod.ts, 247, 7))
+>g1 : Symbol(g1, Decl(zod.ts, 250, 7))
+>g2 : Symbol(g2, Decl(zod.ts, 251, 7))
+
+    result['b'] = b1 * 16 + b2;
+>result : Symbol(result, Decl(zod.ts, 247, 7))
+>b1 : Symbol(b1, Decl(zod.ts, 252, 7))
+>b2 : Symbol(b2, Decl(zod.ts, 253, 7))
+
+    return result;
+>result : Symbol(result, Decl(zod.ts, 247, 7))
+
+};
+
+const _parseSemver = (s: any) => {
+>_parseSemver : Symbol(_parseSemver, Decl(zod.ts, 261, 5))
+>s : Symbol(s, Decl(zod.ts, 261, 22))
+
+    if (typeof s != 'string') return void "never";
+>s : Symbol(s, Decl(zod.ts, 261, 22))
+
+    let parts: string[] = s.split('.');
+>parts : Symbol(parts, Decl(zod.ts, 263, 7))
+>s.split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 261, 22))
+>split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+
+    if (parts.length != 3) return void "never";
+>parts.length : Symbol(Array.length, Decl(lib.es5.d.ts, --, --))
+>parts : Symbol(parts, Decl(zod.ts, 263, 7))
+>length : Symbol(Array.length, Decl(lib.es5.d.ts, --, --))
+
+    let digits: string = '0123456789';
+>digits : Symbol(digits, Decl(zod.ts, 265, 7))
+
+    let nums: number[] = [];
+>nums : Symbol(nums, Decl(zod.ts, 266, 7))
+
+    for (let part of parts) {
+>part : Symbol(part, Decl(zod.ts, 267, 12))
+>parts : Symbol(parts, Decl(zod.ts, 263, 7))
+
+        if (part.length == 0) return void "never";
+>part.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>part : Symbol(part, Decl(zod.ts, 267, 12))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+        let n: number = 0;
+>n : Symbol(n, Decl(zod.ts, 269, 11))
+
+        let i = 0;
+>i : Symbol(i, Decl(zod.ts, 270, 11))
+
+        while (i < part.length) {
+>i : Symbol(i, Decl(zod.ts, 270, 11))
+>part.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>part : Symbol(part, Decl(zod.ts, 267, 12))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+
+            let d: number = digits.indexOf(part.slice(i, i + 1));
+>d : Symbol(d, Decl(zod.ts, 272, 15))
+>digits.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>digits : Symbol(digits, Decl(zod.ts, 265, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>part.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>part : Symbol(part, Decl(zod.ts, 267, 12))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>i : Symbol(i, Decl(zod.ts, 270, 11))
+>i : Symbol(i, Decl(zod.ts, 270, 11))
+
+            if (d == -1) return void "never";
+>d : Symbol(d, Decl(zod.ts, 272, 15))
+
+            n = n * 10 + d;
+>n : Symbol(n, Decl(zod.ts, 269, 11))
+>n : Symbol(n, Decl(zod.ts, 269, 11))
+>d : Symbol(d, Decl(zod.ts, 272, 15))
+
+            i = i + 1;
+>i : Symbol(i, Decl(zod.ts, 270, 11))
+>i : Symbol(i, Decl(zod.ts, 270, 11))
+        }
+        nums = [...nums, n];
+>nums : Symbol(nums, Decl(zod.ts, 266, 7))
+>nums : Symbol(nums, Decl(zod.ts, 266, 7))
+>n : Symbol(n, Decl(zod.ts, 269, 11))
+    }
+    let result: Record<string, any> = {};
+>result : Symbol(result, Decl(zod.ts, 279, 7))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+    result['major'] = nums[0];
+>result : Symbol(result, Decl(zod.ts, 279, 7))
+>nums : Symbol(nums, Decl(zod.ts, 266, 7))
+
+    result['minor'] = nums[1];
+>result : Symbol(result, Decl(zod.ts, 279, 7))
+>nums : Symbol(nums, Decl(zod.ts, 266, 7))
+
+    result['patch'] = nums[2];
+>result : Symbol(result, Decl(zod.ts, 279, 7))
+>nums : Symbol(nums, Decl(zod.ts, 266, 7))
+
+    return result;
+>result : Symbol(result, Decl(zod.ts, 279, 7))
+
+};
+
+const _parseConnectionString = (s: any) => {
+>_parseConnectionString : Symbol(_parseConnectionString, Decl(zod.ts, 286, 5))
+>s : Symbol(s, Decl(zod.ts, 286, 32))
+
+    if (typeof s != 'string') return void "never";
+>s : Symbol(s, Decl(zod.ts, 286, 32))
+
+    let protocolEnd: number = s.indexOf('://');
+>protocolEnd : Symbol(protocolEnd, Decl(zod.ts, 288, 7))
+>s.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 286, 32))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+
+    if (protocolEnd == -1) return void "never";
+>protocolEnd : Symbol(protocolEnd, Decl(zod.ts, 288, 7))
+
+    let protocol: string = s.slice(0, protocolEnd);
+>protocol : Symbol(protocol, Decl(zod.ts, 290, 7))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 286, 32))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>protocolEnd : Symbol(protocolEnd, Decl(zod.ts, 288, 7))
+
+    let rest: string = s.slice(protocolEnd + 3);
+>rest : Symbol(rest, Decl(zod.ts, 291, 7))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 286, 32))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>protocolEnd : Symbol(protocolEnd, Decl(zod.ts, 288, 7))
+
+    let pathStart: number = rest.indexOf('/');
+>pathStart : Symbol(pathStart, Decl(zod.ts, 292, 7))
+>rest.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>rest : Symbol(rest, Decl(zod.ts, 291, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+
+    let hostPort: string = pathStart == -1 ? rest : rest.slice(0, pathStart);
+>hostPort : Symbol(hostPort, Decl(zod.ts, 293, 7))
+>pathStart : Symbol(pathStart, Decl(zod.ts, 292, 7))
+>rest : Symbol(rest, Decl(zod.ts, 291, 7))
+>rest.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>rest : Symbol(rest, Decl(zod.ts, 291, 7))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>pathStart : Symbol(pathStart, Decl(zod.ts, 292, 7))
+
+    let database: string = pathStart == -1 ? '' : rest.slice(pathStart + 1);
+>database : Symbol(database, Decl(zod.ts, 294, 7))
+>pathStart : Symbol(pathStart, Decl(zod.ts, 292, 7))
+>rest.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>rest : Symbol(rest, Decl(zod.ts, 291, 7))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>pathStart : Symbol(pathStart, Decl(zod.ts, 292, 7))
+
+    let colonIdx: number = hostPort.indexOf(':');
+>colonIdx : Symbol(colonIdx, Decl(zod.ts, 295, 7))
+>hostPort.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>hostPort : Symbol(hostPort, Decl(zod.ts, 293, 7))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+
+    let host: string = colonIdx == -1 ? hostPort : hostPort.slice(0, colonIdx);
+>host : Symbol(host, Decl(zod.ts, 296, 7))
+>colonIdx : Symbol(colonIdx, Decl(zod.ts, 295, 7))
+>hostPort : Symbol(hostPort, Decl(zod.ts, 293, 7))
+>hostPort.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>hostPort : Symbol(hostPort, Decl(zod.ts, 293, 7))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>colonIdx : Symbol(colonIdx, Decl(zod.ts, 295, 7))
+
+    let result: Record<string, any> = {};
+>result : Symbol(result, Decl(zod.ts, 297, 7))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+    result['protocol'] = protocol;
+>result : Symbol(result, Decl(zod.ts, 297, 7))
+>protocol : Symbol(protocol, Decl(zod.ts, 290, 7))
+
+    result['host'] = host;
+>result : Symbol(result, Decl(zod.ts, 297, 7))
+>host : Symbol(host, Decl(zod.ts, 296, 7))
+
+    if (database.length > 0) result['database'] = database;
+>database.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>database : Symbol(database, Decl(zod.ts, 294, 7))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>result : Symbol(result, Decl(zod.ts, 297, 7))
+>database : Symbol(database, Decl(zod.ts, 294, 7))
+
+    return result;
+>result : Symbol(result, Decl(zod.ts, 297, 7))
+
+};
+
+// ---- Pick / Omit ----
+
+const _pick = (obj: any, fields: string[]) => {
+>_pick : Symbol(_pick, Decl(zod.ts, 306, 5))
+>obj : Symbol(obj, Decl(zod.ts, 306, 15))
+>fields : Symbol(fields, Decl(zod.ts, 306, 24))
+
+    if (typeof obj != 'object') return void "never";
+>obj : Symbol(obj, Decl(zod.ts, 306, 15))
+
+    let result: Record<string, any> = {};
+>result : Symbol(result, Decl(zod.ts, 308, 7))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+    for (let f of fields) {
+>f : Symbol(f, Decl(zod.ts, 309, 12))
+>fields : Symbol(fields, Decl(zod.ts, 306, 24))
+
+        if (obj[f] != undefined) result[f] = obj[f];
+>obj : Symbol(obj, Decl(zod.ts, 306, 15))
+>f : Symbol(f, Decl(zod.ts, 309, 12))
+>undefined : Symbol(undefined)
+>result : Symbol(result, Decl(zod.ts, 308, 7))
+>f : Symbol(f, Decl(zod.ts, 309, 12))
+>obj : Symbol(obj, Decl(zod.ts, 306, 15))
+>f : Symbol(f, Decl(zod.ts, 309, 12))
+    }
+    return result;
+>result : Symbol(result, Decl(zod.ts, 308, 7))
+
+};
+
+const _omit = (obj: any, fields: string[]) => {
+>_omit : Symbol(_omit, Decl(zod.ts, 315, 5))
+>obj : Symbol(obj, Decl(zod.ts, 315, 15))
+>fields : Symbol(fields, Decl(zod.ts, 315, 24))
+
+    if (typeof obj != 'object') return void "never";
+>obj : Symbol(obj, Decl(zod.ts, 315, 15))
+
+    let result: Record<string, any> = {};
+>result : Symbol(result, Decl(zod.ts, 317, 7))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+    for (let k of Object.keys(obj)) {
+>k : Symbol(k, Decl(zod.ts, 318, 12))
+>Object.keys : Symbol(ObjectConstructor.keys, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --))
+>Object : Symbol(Object, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --))
+>keys : Symbol(ObjectConstructor.keys, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --))
+>obj : Symbol(obj, Decl(zod.ts, 315, 15))
+
+        if (!fields.includes(k)) result[k] = obj[k];
+>fields.includes : Symbol(Array.includes, Decl(lib.es2016.array.include.d.ts, --, --))
+>fields : Symbol(fields, Decl(zod.ts, 315, 24))
+>includes : Symbol(Array.includes, Decl(lib.es2016.array.include.d.ts, --, --))
+>k : Symbol(k, Decl(zod.ts, 318, 12))
+>result : Symbol(result, Decl(zod.ts, 317, 7))
+>k : Symbol(k, Decl(zod.ts, 318, 12))
+>obj : Symbol(obj, Decl(zod.ts, 315, 15))
+>k : Symbol(k, Decl(zod.ts, 318, 12))
+    }
+    return result;
+>result : Symbol(result, Decl(zod.ts, 317, 7))
+
+};
+
+const _enrichUser = (u: any) => {
+>_enrichUser : Symbol(_enrichUser, Decl(zod.ts, 324, 5))
+>u : Symbol(u, Decl(zod.ts, 324, 21))
+
+    if (typeof u != 'object') return void "never";
+>u : Symbol(u, Decl(zod.ts, 324, 21))
+
+    if (typeof u['firstName'] != 'string' || typeof u['lastName'] != 'string') return void "never";
+>u : Symbol(u, Decl(zod.ts, 324, 21))
+>u : Symbol(u, Decl(zod.ts, 324, 21))
+
+    let result: Record<string, any> = {};
+>result : Symbol(result, Decl(zod.ts, 327, 7))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+    result['firstName'] = u['firstName'];
+>result : Symbol(result, Decl(zod.ts, 327, 7))
+>u : Symbol(u, Decl(zod.ts, 324, 21))
+
+    result['lastName'] = u['lastName'];
+>result : Symbol(result, Decl(zod.ts, 327, 7))
+>u : Symbol(u, Decl(zod.ts, 324, 21))
+
+    result['email'] = u['email'];
+>result : Symbol(result, Decl(zod.ts, 327, 7))
+>u : Symbol(u, Decl(zod.ts, 324, 21))
+
+    result['fullName'] = u['firstName'] + ' ' + u['lastName'];
+>result : Symbol(result, Decl(zod.ts, 327, 7))
+>u : Symbol(u, Decl(zod.ts, 324, 21))
+>u : Symbol(u, Decl(zod.ts, 324, 21))
+
+    result['handle'] = u['firstName'].toLowerCase() + u['lastName'].toLowerCase();
+>result : Symbol(result, Decl(zod.ts, 327, 7))
+>u['firstName'].toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+>u : Symbol(u, Decl(zod.ts, 324, 21))
+>toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+>u['lastName'].toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+>u : Symbol(u, Decl(zod.ts, 324, 21))
+>toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+
+    return result;
+>result : Symbol(result, Decl(zod.ts, 327, 7))
+
+};
+
+// ---- Validators with custom error messages ----
+// Use void "error:message" to produce compile-time diagnostics.
+
+const _strictEmail = (s: any) => {
+>_strictEmail : Symbol(_strictEmail, Decl(zod.ts, 339, 5))
+>s : Symbol(s, Decl(zod.ts, 339, 22))
+
+    if (typeof s != 'string') return void { error: "Expected a string, got " + typeof s };
+>s : Symbol(s, Decl(zod.ts, 339, 22))
+>error : Symbol(error, Decl(zod.ts, 340, 43))
+>s : Symbol(s, Decl(zod.ts, 339, 22))
+
+    let at: number = s.indexOf('@');
+>at : Symbol(at, Decl(zod.ts, 341, 7))
+>s.indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 339, 22))
+>indexOf : Symbol(String.indexOf, Decl(lib.es5.d.ts, --, --))
+
+    if (at < 1) return void { error: "Invalid email '" + s + "': missing @ sign" };
+>at : Symbol(at, Decl(zod.ts, 341, 7))
+>error : Symbol(error, Decl(zod.ts, 342, 29))
+>s : Symbol(s, Decl(zod.ts, 339, 22))
+
+    let domain: string = s.slice(at + 1);
+>domain : Symbol(domain, Decl(zod.ts, 343, 7))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(zod.ts, 339, 22))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>at : Symbol(at, Decl(zod.ts, 341, 7))
+
+    if (!domain.includes('.')) return void { error: "Invalid email '" + s + "': domain has no dot" };
+>domain.includes : Symbol(String.includes, Decl(lib.es2015.core.d.ts, --, --))
+>domain : Symbol(domain, Decl(zod.ts, 343, 7))
+>includes : Symbol(String.includes, Decl(lib.es2015.core.d.ts, --, --))
+>error : Symbol(error, Decl(zod.ts, 344, 44))
+>s : Symbol(s, Decl(zod.ts, 339, 22))
+
+    return s;
+>s : Symbol(s, Decl(zod.ts, 339, 22))
+
+};
+
+const _strictPort = (n: any) => {
+>_strictPort : Symbol(_strictPort, Decl(zod.ts, 348, 5))
+>n : Symbol(n, Decl(zod.ts, 348, 21))
+
+    if (typeof n != 'number') return void { error: "Port must be a number, got " + typeof n };
+>n : Symbol(n, Decl(zod.ts, 348, 21))
+>error : Symbol(error, Decl(zod.ts, 349, 43))
+>n : Symbol(n, Decl(zod.ts, 348, 21))
+
+    if (n < 1 || n > 65535) return void { error: "Port " + n + " is out of range (1-65535)" };
+>n : Symbol(n, Decl(zod.ts, 348, 21))
+>n : Symbol(n, Decl(zod.ts, 348, 21))
+>error : Symbol(error, Decl(zod.ts, 350, 41))
+>n : Symbol(n, Decl(zod.ts, 348, 21))
+
+    if (Math.floor(n) != n) return void { error: "Port must be an integer, got " + n };
+>Math.floor : Symbol(Math.floor, Decl(lib.es5.d.ts, --, --))
+>Math : Symbol(Math, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --), Decl(lib.es2025.float16.d.ts, --, --))
+>floor : Symbol(Math.floor, Decl(lib.es5.d.ts, --, --))
+>n : Symbol(n, Decl(zod.ts, 348, 21))
+>n : Symbol(n, Decl(zod.ts, 348, 21))
+>error : Symbol(error, Decl(zod.ts, 351, 41))
+>n : Symbol(n, Decl(zod.ts, 348, 21))
+
+    return n;
+>n : Symbol(n, Decl(zod.ts, 348, 21))
+
+};
+
+const _strictPositive = (n: any) => {
+>_strictPositive : Symbol(_strictPositive, Decl(zod.ts, 355, 5))
+>n : Symbol(n, Decl(zod.ts, 355, 25))
+
+    if (typeof n != 'number') return void { error: "Expected a number, got " + typeof n };
+>n : Symbol(n, Decl(zod.ts, 355, 25))
+>error : Symbol(error, Decl(zod.ts, 356, 43))
+>n : Symbol(n, Decl(zod.ts, 355, 25))
+
+    if (n <= 0) return void { error: "Expected a positive number, got " + n };
+>n : Symbol(n, Decl(zod.ts, 355, 25))
+>error : Symbol(error, Decl(zod.ts, 357, 29))
+>n : Symbol(n, Decl(zod.ts, 355, 25))
+
+    return n;
+>n : Symbol(n, Decl(zod.ts, 355, 25))
+
+};
+
+// ---- Exported type aliases (the public API) ----
+
+export type ZString<T> = Intrinsic<typeof _string, [T]>;
+>ZString : Symbol(ZString, Decl(zod.ts, 359, 2))
+>T : Symbol(T, Decl(zod.ts, 363, 20))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_string : Symbol(_string, Decl(zod.ts, 12, 5))
+>T : Symbol(T, Decl(zod.ts, 363, 20))
+
+export type ZNumber<T> = Intrinsic<typeof _number, [T]>;
+>ZNumber : Symbol(ZNumber, Decl(zod.ts, 363, 56))
+>T : Symbol(T, Decl(zod.ts, 364, 20))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_number : Symbol(_number, Decl(zod.ts, 16, 5))
+>T : Symbol(T, Decl(zod.ts, 364, 20))
+
+export type ZBoolean<T> = Intrinsic<typeof _boolean, [T]>;
+>ZBoolean : Symbol(ZBoolean, Decl(zod.ts, 364, 56))
+>T : Symbol(T, Decl(zod.ts, 365, 21))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_boolean : Symbol(_boolean, Decl(zod.ts, 20, 5))
+>T : Symbol(T, Decl(zod.ts, 365, 21))
+
+export type ZEmail<T> = Intrinsic<typeof _email, [T]>;
+>ZEmail : Symbol(ZEmail, Decl(zod.ts, 365, 58))
+>T : Symbol(T, Decl(zod.ts, 366, 19))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_email : Symbol(_email, Decl(zod.ts, 27, 5))
+>T : Symbol(T, Decl(zod.ts, 366, 19))
+
+export type ZUrl<T> = Intrinsic<typeof _url, [T]>;
+>ZUrl : Symbol(ZUrl, Decl(zod.ts, 366, 54))
+>T : Symbol(T, Decl(zod.ts, 367, 17))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_url : Symbol(_url, Decl(zod.ts, 38, 5))
+>T : Symbol(T, Decl(zod.ts, 367, 17))
+
+export type ZUuid<T> = Intrinsic<typeof _uuid, [T]>;
+>ZUuid : Symbol(ZUuid, Decl(zod.ts, 367, 50))
+>T : Symbol(T, Decl(zod.ts, 368, 18))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_uuid : Symbol(_uuid, Decl(zod.ts, 45, 5))
+>T : Symbol(T, Decl(zod.ts, 368, 18))
+
+export type ZNonEmpty<T> = Intrinsic<typeof _nonEmpty, [T]>;
+>ZNonEmpty : Symbol(ZNonEmpty, Decl(zod.ts, 368, 52))
+>T : Symbol(T, Decl(zod.ts, 369, 22))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_nonEmpty : Symbol(_nonEmpty, Decl(zod.ts, 62, 5))
+>T : Symbol(T, Decl(zod.ts, 369, 22))
+
+export type ZTrimmed<T> = Intrinsic<typeof _trimmed, [T]>;
+>ZTrimmed : Symbol(ZTrimmed, Decl(zod.ts, 369, 60))
+>T : Symbol(T, Decl(zod.ts, 370, 21))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_trimmed : Symbol(_trimmed, Decl(zod.ts, 68, 5))
+>T : Symbol(T, Decl(zod.ts, 370, 21))
+
+export type ZInt<T> = Intrinsic<typeof _int, [T]>;
+>ZInt : Symbol(ZInt, Decl(zod.ts, 370, 58))
+>T : Symbol(T, Decl(zod.ts, 371, 17))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_int : Symbol(_int, Decl(zod.ts, 75, 5))
+>T : Symbol(T, Decl(zod.ts, 371, 17))
+
+export type ZPositive<T> = Intrinsic<typeof _positive, [T]>;
+>ZPositive : Symbol(ZPositive, Decl(zod.ts, 371, 50))
+>T : Symbol(T, Decl(zod.ts, 372, 22))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_positive : Symbol(_positive, Decl(zod.ts, 81, 5))
+>T : Symbol(T, Decl(zod.ts, 372, 22))
+
+export type ZNonnegative<T> = Intrinsic<typeof _nonnegative, [T]>;
+>ZNonnegative : Symbol(ZNonnegative, Decl(zod.ts, 372, 60))
+>T : Symbol(T, Decl(zod.ts, 373, 25))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_nonnegative : Symbol(_nonnegative, Decl(zod.ts, 87, 5))
+>T : Symbol(T, Decl(zod.ts, 373, 25))
+
+export type ZPort<T> = Intrinsic<typeof _port, [T]>;
+>ZPort : Symbol(ZPort, Decl(zod.ts, 373, 66))
+>T : Symbol(T, Decl(zod.ts, 374, 18))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_port : Symbol(_port, Decl(zod.ts, 93, 5))
+>T : Symbol(T, Decl(zod.ts, 374, 18))
+
+export type ZCoerceNumber<T> = Intrinsic<typeof _coerceNumber, [T]>;
+>ZCoerceNumber : Symbol(ZCoerceNumber, Decl(zod.ts, 374, 52))
+>T : Symbol(T, Decl(zod.ts, 375, 26))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_coerceNumber : Symbol(_coerceNumber, Decl(zod.ts, 102, 5))
+>T : Symbol(T, Decl(zod.ts, 375, 26))
+
+export type ZCoerceBoolean<T> = Intrinsic<typeof _coerceBoolean, [T]>;
+>ZCoerceBoolean : Symbol(ZCoerceBoolean, Decl(zod.ts, 375, 68))
+>T : Symbol(T, Decl(zod.ts, 376, 27))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_coerceBoolean : Symbol(_coerceBoolean, Decl(zod.ts, 121, 5))
+>T : Symbol(T, Decl(zod.ts, 376, 27))
+
+export type ZToLowerCase<T> = Intrinsic<typeof _toLowerCase, [T]>;
+>ZToLowerCase : Symbol(ZToLowerCase, Decl(zod.ts, 376, 70))
+>T : Symbol(T, Decl(zod.ts, 377, 25))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_toLowerCase : Symbol(_toLowerCase, Decl(zod.ts, 130, 5))
+>T : Symbol(T, Decl(zod.ts, 377, 25))
+
+export type ZToUpperCase<T> = Intrinsic<typeof _toUpperCase, [T]>;
+>ZToUpperCase : Symbol(ZToUpperCase, Decl(zod.ts, 377, 66))
+>T : Symbol(T, Decl(zod.ts, 378, 25))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_toUpperCase : Symbol(_toUpperCase, Decl(zod.ts, 135, 5))
+>T : Symbol(T, Decl(zod.ts, 378, 25))
+
+export type ZToSlug<T> = Intrinsic<typeof _toSlug, [T]>;
+>ZToSlug : Symbol(ZToSlug, Decl(zod.ts, 378, 66))
+>T : Symbol(T, Decl(zod.ts, 379, 20))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_toSlug : Symbol(_toSlug, Decl(zod.ts, 140, 5))
+>T : Symbol(T, Decl(zod.ts, 379, 20))
+
+export type ZToCamelCase<T> = Intrinsic<typeof _toCamelCase, [T]>;
+>ZToCamelCase : Symbol(ZToCamelCase, Decl(zod.ts, 379, 56))
+>T : Symbol(T, Decl(zod.ts, 380, 25))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_toCamelCase : Symbol(_toCamelCase, Decl(zod.ts, 144, 5))
+>T : Symbol(T, Decl(zod.ts, 380, 25))
+
+export type ZServerConfig<T> = Intrinsic<typeof _serverConfig, [T]>;
+>ZServerConfig : Symbol(ZServerConfig, Decl(zod.ts, 380, 66))
+>T : Symbol(T, Decl(zod.ts, 381, 26))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_serverConfig : Symbol(_serverConfig, Decl(zod.ts, 151, 5))
+>T : Symbol(T, Decl(zod.ts, 381, 26))
+
+export type ZUser<T> = Intrinsic<typeof _user, [T]>;
+>ZUser : Symbol(ZUser, Decl(zod.ts, 381, 68))
+>T : Symbol(T, Decl(zod.ts, 382, 18))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_user : Symbol(_user, Decl(zod.ts, 160, 5))
+>T : Symbol(T, Decl(zod.ts, 382, 18))
+
+export type ZDbConfig<T> = Intrinsic<typeof _dbConfig, [T]>;
+>ZDbConfig : Symbol(ZDbConfig, Decl(zod.ts, 382, 52))
+>T : Symbol(T, Decl(zod.ts, 383, 22))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_dbConfig : Symbol(_dbConfig, Decl(zod.ts, 172, 5))
+>T : Symbol(T, Decl(zod.ts, 383, 22))
+
+export type ZEnvConfig<T> = Intrinsic<typeof _envConfig, [T]>;
+>ZEnvConfig : Symbol(ZEnvConfig, Decl(zod.ts, 383, 60))
+>T : Symbol(T, Decl(zod.ts, 384, 23))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_envConfig : Symbol(_envConfig, Decl(zod.ts, 183, 5))
+>T : Symbol(T, Decl(zod.ts, 384, 23))
+
+export type ZCamelCaseKeys<T> = Intrinsic<typeof _camelCaseKeys, [T]>;
+>ZCamelCaseKeys : Symbol(ZCamelCaseKeys, Decl(zod.ts, 384, 62))
+>T : Symbol(T, Decl(zod.ts, 385, 27))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_camelCaseKeys : Symbol(_camelCaseKeys, Decl(zod.ts, 195, 5))
+>T : Symbol(T, Decl(zod.ts, 385, 27))
+
+export type ZBuildUrl<T> = Intrinsic<typeof _buildUrl, [T]>;
+>ZBuildUrl : Symbol(ZBuildUrl, Decl(zod.ts, 385, 70))
+>T : Symbol(T, Decl(zod.ts, 386, 22))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_buildUrl : Symbol(_buildUrl, Decl(zod.ts, 205, 5))
+>T : Symbol(T, Decl(zod.ts, 386, 22))
+
+export type ZParseDate<T> = Intrinsic<typeof _parseDate, [T]>;
+>ZParseDate : Symbol(ZParseDate, Decl(zod.ts, 386, 60))
+>T : Symbol(T, Decl(zod.ts, 387, 23))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_parseDate : Symbol(_parseDate, Decl(zod.ts, 213, 5))
+>T : Symbol(T, Decl(zod.ts, 387, 23))
+
+export type ZParseRoute<T> = Intrinsic<typeof _parseRoute, [T]>;
+>ZParseRoute : Symbol(ZParseRoute, Decl(zod.ts, 387, 62))
+>T : Symbol(T, Decl(zod.ts, 388, 24))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_parseRoute : Symbol(_parseRoute, Decl(zod.ts, 233, 5))
+>T : Symbol(T, Decl(zod.ts, 388, 24))
+
+export type ZHexToRgb<T> = Intrinsic<typeof _hexToRgb, [T]>;
+>ZHexToRgb : Symbol(ZHexToRgb, Decl(zod.ts, 388, 64))
+>T : Symbol(T, Decl(zod.ts, 389, 22))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_hexToRgb : Symbol(_hexToRgb, Decl(zod.ts, 244, 5))
+>T : Symbol(T, Decl(zod.ts, 389, 22))
+
+export type ZParseSemver<T> = Intrinsic<typeof _parseSemver, [T]>;
+>ZParseSemver : Symbol(ZParseSemver, Decl(zod.ts, 389, 60))
+>T : Symbol(T, Decl(zod.ts, 390, 25))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_parseSemver : Symbol(_parseSemver, Decl(zod.ts, 261, 5))
+>T : Symbol(T, Decl(zod.ts, 390, 25))
+
+export type ZParseConnectionString<T> = Intrinsic<typeof _parseConnectionString, [T]>;
+>ZParseConnectionString : Symbol(ZParseConnectionString, Decl(zod.ts, 390, 66))
+>T : Symbol(T, Decl(zod.ts, 391, 35))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_parseConnectionString : Symbol(_parseConnectionString, Decl(zod.ts, 286, 5))
+>T : Symbol(T, Decl(zod.ts, 391, 35))
+
+export type Pick_<T, F extends string[]> = Intrinsic<typeof _pick, [T, F]>;
+>Pick_ : Symbol(Pick_, Decl(zod.ts, 391, 86))
+>T : Symbol(T, Decl(zod.ts, 392, 18))
+>F : Symbol(F, Decl(zod.ts, 392, 20))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_pick : Symbol(_pick, Decl(zod.ts, 306, 5))
+>T : Symbol(T, Decl(zod.ts, 392, 18))
+>F : Symbol(F, Decl(zod.ts, 392, 20))
+
+export type Omit_<T, F extends string[]> = Intrinsic<typeof _omit, [T, F]>;
+>Omit_ : Symbol(Omit_, Decl(zod.ts, 392, 75))
+>T : Symbol(T, Decl(zod.ts, 393, 18))
+>F : Symbol(F, Decl(zod.ts, 393, 20))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_omit : Symbol(_omit, Decl(zod.ts, 315, 5))
+>T : Symbol(T, Decl(zod.ts, 393, 18))
+>F : Symbol(F, Decl(zod.ts, 393, 20))
+
+export type ZEnrichUser<T> = Intrinsic<typeof _enrichUser, [T]>;
+>ZEnrichUser : Symbol(ZEnrichUser, Decl(zod.ts, 393, 75))
+>T : Symbol(T, Decl(zod.ts, 394, 24))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_enrichUser : Symbol(_enrichUser, Decl(zod.ts, 324, 5))
+>T : Symbol(T, Decl(zod.ts, 394, 24))
+
+export type ZStrictEmail<T> = Intrinsic<typeof _strictEmail, [T]>;
+>ZStrictEmail : Symbol(ZStrictEmail, Decl(zod.ts, 394, 64))
+>T : Symbol(T, Decl(zod.ts, 395, 25))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_strictEmail : Symbol(_strictEmail, Decl(zod.ts, 339, 5))
+>T : Symbol(T, Decl(zod.ts, 395, 25))
+
+export type ZStrictPort<T> = Intrinsic<typeof _strictPort, [T]>;
+>ZStrictPort : Symbol(ZStrictPort, Decl(zod.ts, 395, 66))
+>T : Symbol(T, Decl(zod.ts, 396, 24))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_strictPort : Symbol(_strictPort, Decl(zod.ts, 348, 5))
+>T : Symbol(T, Decl(zod.ts, 396, 24))
+
+export type ZStrictPositive<T> = Intrinsic<typeof _strictPositive, [T]>;
+>ZStrictPositive : Symbol(ZStrictPositive, Decl(zod.ts, 396, 64))
+>T : Symbol(T, Decl(zod.ts, 397, 28))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>_strictPositive : Symbol(_strictPositive, Decl(zod.ts, 355, 5))
+>T : Symbol(T, Decl(zod.ts, 397, 28))
+
+
+=== zod_test.ts ===
+// Consumer file - imports type aliases and uses them.
+
+import type {
+    ZString, ZNumber, ZBoolean,
+>ZString : Symbol(ZString, Decl(zod_test.ts, 2, 13))
+>ZNumber : Symbol(ZNumber, Decl(zod_test.ts, 3, 12))
+>ZBoolean : Symbol(ZBoolean, Decl(zod_test.ts, 3, 21))
+
+    ZEmail, ZUrl, ZUuid, ZNonEmpty, ZTrimmed,
+>ZEmail : Symbol(ZEmail, Decl(zod_test.ts, 3, 31))
+>ZUrl : Symbol(ZUrl, Decl(zod_test.ts, 4, 11))
+>ZUuid : Symbol(ZUuid, Decl(zod_test.ts, 4, 17))
+>ZNonEmpty : Symbol(ZNonEmpty, Decl(zod_test.ts, 4, 24))
+>ZTrimmed : Symbol(ZTrimmed, Decl(zod_test.ts, 4, 35))
+
+    ZInt, ZPositive, ZNonnegative, ZPort,
+>ZInt : Symbol(ZInt, Decl(zod_test.ts, 4, 45))
+>ZPositive : Symbol(ZPositive, Decl(zod_test.ts, 5, 9))
+>ZNonnegative : Symbol(ZNonnegative, Decl(zod_test.ts, 5, 20))
+>ZPort : Symbol(ZPort, Decl(zod_test.ts, 5, 34))
+
+    ZCoerceNumber, ZCoerceBoolean,
+>ZCoerceNumber : Symbol(ZCoerceNumber, Decl(zod_test.ts, 5, 41))
+>ZCoerceBoolean : Symbol(ZCoerceBoolean, Decl(zod_test.ts, 6, 18))
+
+    ZToLowerCase, ZToUpperCase, ZToSlug, ZToCamelCase,
+>ZToLowerCase : Symbol(ZToLowerCase, Decl(zod_test.ts, 6, 34))
+>ZToUpperCase : Symbol(ZToUpperCase, Decl(zod_test.ts, 7, 17))
+>ZToSlug : Symbol(ZToSlug, Decl(zod_test.ts, 7, 31))
+>ZToCamelCase : Symbol(ZToCamelCase, Decl(zod_test.ts, 7, 40))
+
+    ZServerConfig, ZUser, ZDbConfig, ZEnvConfig,
+>ZServerConfig : Symbol(ZServerConfig, Decl(zod_test.ts, 7, 54))
+>ZUser : Symbol(ZUser, Decl(zod_test.ts, 8, 18))
+>ZDbConfig : Symbol(ZDbConfig, Decl(zod_test.ts, 8, 25))
+>ZEnvConfig : Symbol(ZEnvConfig, Decl(zod_test.ts, 8, 36))
+
+    ZCamelCaseKeys, ZBuildUrl, ZParseDate,
+>ZCamelCaseKeys : Symbol(ZCamelCaseKeys, Decl(zod_test.ts, 8, 48))
+>ZBuildUrl : Symbol(ZBuildUrl, Decl(zod_test.ts, 9, 19))
+>ZParseDate : Symbol(ZParseDate, Decl(zod_test.ts, 9, 30))
+
+    ZParseRoute, ZHexToRgb, ZParseSemver, ZParseConnectionString,
+>ZParseRoute : Symbol(ZParseRoute, Decl(zod_test.ts, 9, 42))
+>ZHexToRgb : Symbol(ZHexToRgb, Decl(zod_test.ts, 10, 16))
+>ZParseSemver : Symbol(ZParseSemver, Decl(zod_test.ts, 10, 27))
+>ZParseConnectionString : Symbol(ZParseConnectionString, Decl(zod_test.ts, 10, 41))
+
+    Pick_, Omit_, ZEnrichUser,
+>Pick_ : Symbol(Pick_, Decl(zod_test.ts, 10, 65))
+>Omit_ : Symbol(Omit_, Decl(zod_test.ts, 11, 10))
+>ZEnrichUser : Symbol(ZEnrichUser, Decl(zod_test.ts, 11, 17))
+
+    ZStrictEmail, ZStrictPort, ZStrictPositive,
+>ZStrictEmail : Symbol(ZStrictEmail, Decl(zod_test.ts, 11, 30))
+>ZStrictPort : Symbol(ZStrictPort, Decl(zod_test.ts, 12, 17))
+>ZStrictPositive : Symbol(ZStrictPositive, Decl(zod_test.ts, 12, 30))
+
+} from './zod';
+
+// ==== Primitive validation ====
+
+type T01 = ZString<"hello">;       // "hello"
+>T01 : Symbol(T01, Decl(zod_test.ts, 13, 15))
+>ZString : Symbol(ZString, Decl(zod_test.ts, 2, 13))
+
+type T02 = ZString<42>;            // never
+>T02 : Symbol(T02, Decl(zod_test.ts, 17, 28))
+>ZString : Symbol(ZString, Decl(zod_test.ts, 2, 13))
+
+type T03 = ZNumber<42>;            // 42
+>T03 : Symbol(T03, Decl(zod_test.ts, 18, 23))
+>ZNumber : Symbol(ZNumber, Decl(zod_test.ts, 3, 12))
+
+type T04 = ZNumber<"nope">;        // never
+>T04 : Symbol(T04, Decl(zod_test.ts, 19, 23))
+>ZNumber : Symbol(ZNumber, Decl(zod_test.ts, 3, 12))
+
+type T05 = ZBoolean<true>;         // true
+>T05 : Symbol(T05, Decl(zod_test.ts, 20, 27))
+>ZBoolean : Symbol(ZBoolean, Decl(zod_test.ts, 3, 21))
+
+type T06 = ZBoolean<"yes">;        // never
+>T06 : Symbol(T06, Decl(zod_test.ts, 21, 26))
+>ZBoolean : Symbol(ZBoolean, Decl(zod_test.ts, 3, 21))
+
+// ==== String format validation ====
+
+type T10 = ZEmail<"user@example.com">;     // "user@example.com"
+>T10 : Symbol(T10, Decl(zod_test.ts, 22, 27))
+>ZEmail : Symbol(ZEmail, Decl(zod_test.ts, 3, 31))
+
+type T11 = ZEmail<"bad">;                   // never
+>T11 : Symbol(T11, Decl(zod_test.ts, 26, 38))
+>ZEmail : Symbol(ZEmail, Decl(zod_test.ts, 3, 31))
+
+type T12 = ZUrl<"https://example.com">;     // "https://example.com"
+>T12 : Symbol(T12, Decl(zod_test.ts, 27, 25))
+>ZUrl : Symbol(ZUrl, Decl(zod_test.ts, 4, 11))
+
+type T13 = ZUrl<"not-a-url">;               // never
+>T13 : Symbol(T13, Decl(zod_test.ts, 28, 39))
+>ZUrl : Symbol(ZUrl, Decl(zod_test.ts, 4, 11))
+
+type T14 = ZUuid<"550e8400-e29b-41d4-a716-446655440000">;  // the uuid
+>T14 : Symbol(T14, Decl(zod_test.ts, 29, 29))
+>ZUuid : Symbol(ZUuid, Decl(zod_test.ts, 4, 17))
+
+type T15 = ZUuid<"not-a-uuid">;             // never
+>T15 : Symbol(T15, Decl(zod_test.ts, 30, 57))
+>ZUuid : Symbol(ZUuid, Decl(zod_test.ts, 4, 17))
+
+type T16 = ZNonEmpty<"hi">;                 // "hi"
+>T16 : Symbol(T16, Decl(zod_test.ts, 31, 31))
+>ZNonEmpty : Symbol(ZNonEmpty, Decl(zod_test.ts, 4, 24))
+
+type T17 = ZNonEmpty<"">;                   // never
+>T17 : Symbol(T17, Decl(zod_test.ts, 32, 27))
+>ZNonEmpty : Symbol(ZNonEmpty, Decl(zod_test.ts, 4, 24))
+
+// ==== Number validation ====
+
+type T20 = ZInt<42>;           // 42
+>T20 : Symbol(T20, Decl(zod_test.ts, 33, 25))
+>ZInt : Symbol(ZInt, Decl(zod_test.ts, 4, 45))
+
+type T21 = ZInt<3.14>;         // never
+>T21 : Symbol(T21, Decl(zod_test.ts, 37, 20))
+>ZInt : Symbol(ZInt, Decl(zod_test.ts, 4, 45))
+
+type T22 = ZPositive<5>;       // 5
+>T22 : Symbol(T22, Decl(zod_test.ts, 38, 22))
+>ZPositive : Symbol(ZPositive, Decl(zod_test.ts, 5, 9))
+
+type T23 = ZPositive<0>;       // never
+>T23 : Symbol(T23, Decl(zod_test.ts, 39, 24))
+>ZPositive : Symbol(ZPositive, Decl(zod_test.ts, 5, 9))
+
+type T24 = ZPositive<-1>;      // never
+>T24 : Symbol(T24, Decl(zod_test.ts, 40, 24))
+>ZPositive : Symbol(ZPositive, Decl(zod_test.ts, 5, 9))
+
+type T25 = ZNonnegative<0>;    // 0
+>T25 : Symbol(T25, Decl(zod_test.ts, 41, 25))
+>ZNonnegative : Symbol(ZNonnegative, Decl(zod_test.ts, 5, 20))
+
+type T26 = ZNonnegative<-1>;   // never
+>T26 : Symbol(T26, Decl(zod_test.ts, 42, 27))
+>ZNonnegative : Symbol(ZNonnegative, Decl(zod_test.ts, 5, 20))
+
+type T27 = ZPort<443>;         // 443
+>T27 : Symbol(T27, Decl(zod_test.ts, 43, 28))
+>ZPort : Symbol(ZPort, Decl(zod_test.ts, 5, 34))
+
+type T28 = ZPort<0>;           // never
+>T28 : Symbol(T28, Decl(zod_test.ts, 44, 22))
+>ZPort : Symbol(ZPort, Decl(zod_test.ts, 5, 34))
+
+type T29 = ZPort<70000>;       // never
+>T29 : Symbol(T29, Decl(zod_test.ts, 45, 20))
+>ZPort : Symbol(ZPort, Decl(zod_test.ts, 5, 34))
+
+// ==== Coercions ====
+
+type T30 = ZCoerceNumber<"42">;      // 42
+>T30 : Symbol(T30, Decl(zod_test.ts, 46, 24))
+>ZCoerceNumber : Symbol(ZCoerceNumber, Decl(zod_test.ts, 5, 41))
+
+type T31 = ZCoerceNumber<"-7">;      // -7
+>T31 : Symbol(T31, Decl(zod_test.ts, 50, 31))
+>ZCoerceNumber : Symbol(ZCoerceNumber, Decl(zod_test.ts, 5, 41))
+
+type T32 = ZCoerceNumber<"abc">;     // never
+>T32 : Symbol(T32, Decl(zod_test.ts, 51, 31))
+>ZCoerceNumber : Symbol(ZCoerceNumber, Decl(zod_test.ts, 5, 41))
+
+type T33 = ZCoerceNumber<100>;       // 100 (passthrough)
+>T33 : Symbol(T33, Decl(zod_test.ts, 52, 32))
+>ZCoerceNumber : Symbol(ZCoerceNumber, Decl(zod_test.ts, 5, 41))
+
+type T34 = ZCoerceBoolean<"true">;   // true
+>T34 : Symbol(T34, Decl(zod_test.ts, 53, 30))
+>ZCoerceBoolean : Symbol(ZCoerceBoolean, Decl(zod_test.ts, 6, 18))
+
+type T35 = ZCoerceBoolean<"false">;  // false
+>T35 : Symbol(T35, Decl(zod_test.ts, 54, 34))
+>ZCoerceBoolean : Symbol(ZCoerceBoolean, Decl(zod_test.ts, 6, 18))
+
+type T36 = ZCoerceBoolean<true>;     // true (passthrough)
+>T36 : Symbol(T36, Decl(zod_test.ts, 55, 35))
+>ZCoerceBoolean : Symbol(ZCoerceBoolean, Decl(zod_test.ts, 6, 18))
+
+// ==== Transforms ====
+
+type T40 = ZToLowerCase<"HELLO">;                // "hello"
+>T40 : Symbol(T40, Decl(zod_test.ts, 56, 32))
+>ZToLowerCase : Symbol(ZToLowerCase, Decl(zod_test.ts, 6, 34))
+
+type T41 = ZToUpperCase<"hello">;                // "HELLO"
+>T41 : Symbol(T41, Decl(zod_test.ts, 60, 33))
+>ZToUpperCase : Symbol(ZToUpperCase, Decl(zod_test.ts, 7, 17))
+
+type T42 = ZToSlug<"Hello World">;               // "hello-world"
+>T42 : Symbol(T42, Decl(zod_test.ts, 61, 33))
+>ZToSlug : Symbol(ZToSlug, Decl(zod_test.ts, 7, 31))
+
+type T43 = ZToCamelCase<"user_first_name">;      // "userFirstName"
+>T43 : Symbol(T43, Decl(zod_test.ts, 62, 34))
+>ZToCamelCase : Symbol(ZToCamelCase, Decl(zod_test.ts, 7, 40))
+
+type T44 = ZTrimmed<"  hello  ">;                // "hello"
+>T44 : Symbol(T44, Decl(zod_test.ts, 63, 43))
+>ZTrimmed : Symbol(ZTrimmed, Decl(zod_test.ts, 4, 35))
+
+// ==== Object validation ====
+
+type T50 = ZServerConfig<{ host: "localhost", port: 3000, protocol: "http" }>;
+>T50 : Symbol(T50, Decl(zod_test.ts, 64, 33))
+>ZServerConfig : Symbol(ZServerConfig, Decl(zod_test.ts, 7, 54))
+>host : Symbol(host, Decl(zod_test.ts, 68, 26))
+>port : Symbol(port, Decl(zod_test.ts, 68, 45))
+>protocol : Symbol(protocol, Decl(zod_test.ts, 68, 57))
+
+type T51 = ZServerConfig<{ host: "api.example.com", port: 443, protocol: "https" }>;
+>T51 : Symbol(T51, Decl(zod_test.ts, 68, 78))
+>ZServerConfig : Symbol(ZServerConfig, Decl(zod_test.ts, 7, 54))
+>host : Symbol(host, Decl(zod_test.ts, 69, 26))
+>port : Symbol(port, Decl(zod_test.ts, 69, 51))
+>protocol : Symbol(protocol, Decl(zod_test.ts, 69, 62))
+
+type T52 = ZServerConfig<{ host: "", port: 3000, protocol: "http" }>;          // never
+>T52 : Symbol(T52, Decl(zod_test.ts, 69, 84))
+>ZServerConfig : Symbol(ZServerConfig, Decl(zod_test.ts, 7, 54))
+>host : Symbol(host, Decl(zod_test.ts, 70, 26))
+>port : Symbol(port, Decl(zod_test.ts, 70, 36))
+>protocol : Symbol(protocol, Decl(zod_test.ts, 70, 48))
+
+type T53 = ZServerConfig<{ host: "localhost", port: 0, protocol: "http" }>;     // never
+>T53 : Symbol(T53, Decl(zod_test.ts, 70, 69))
+>ZServerConfig : Symbol(ZServerConfig, Decl(zod_test.ts, 7, 54))
+>host : Symbol(host, Decl(zod_test.ts, 71, 26))
+>port : Symbol(port, Decl(zod_test.ts, 71, 45))
+>protocol : Symbol(protocol, Decl(zod_test.ts, 71, 54))
+
+type T60 = ZUser<{ name: "Alice", email: "alice@example.com", age: 30 }>;
+>T60 : Symbol(T60, Decl(zod_test.ts, 71, 75))
+>ZUser : Symbol(ZUser, Decl(zod_test.ts, 8, 18))
+>name : Symbol(name, Decl(zod_test.ts, 73, 18))
+>email : Symbol(email, Decl(zod_test.ts, 73, 33))
+>age : Symbol(age, Decl(zod_test.ts, 73, 61))
+
+type T61 = ZUser<{ name: "", email: "alice@example.com", age: 30 }>;           // never
+>T61 : Symbol(T61, Decl(zod_test.ts, 73, 73))
+>ZUser : Symbol(ZUser, Decl(zod_test.ts, 8, 18))
+>name : Symbol(name, Decl(zod_test.ts, 74, 18))
+>email : Symbol(email, Decl(zod_test.ts, 74, 28))
+>age : Symbol(age, Decl(zod_test.ts, 74, 56))
+
+type T62 = ZUser<{ name: "Bob", email: "invalid", age: 25 }>;                  // never
+>T62 : Symbol(T62, Decl(zod_test.ts, 74, 68))
+>ZUser : Symbol(ZUser, Decl(zod_test.ts, 8, 18))
+>name : Symbol(name, Decl(zod_test.ts, 75, 18))
+>email : Symbol(email, Decl(zod_test.ts, 75, 31))
+>age : Symbol(age, Decl(zod_test.ts, 75, 49))
+
+type T63 = ZUser<{ name: "Eve", email: "eve@test.com", age: -1 }>;             // never
+>T63 : Symbol(T63, Decl(zod_test.ts, 75, 61))
+>ZUser : Symbol(ZUser, Decl(zod_test.ts, 8, 18))
+>name : Symbol(name, Decl(zod_test.ts, 76, 18))
+>email : Symbol(email, Decl(zod_test.ts, 76, 31))
+>age : Symbol(age, Decl(zod_test.ts, 76, 54))
+
+type T70 = ZDbConfig<{ driver: "postgres", host: "localhost", port: 5432, database: "myapp" }>;
+>T70 : Symbol(T70, Decl(zod_test.ts, 76, 66))
+>ZDbConfig : Symbol(ZDbConfig, Decl(zod_test.ts, 8, 25))
+>driver : Symbol(driver, Decl(zod_test.ts, 78, 22))
+>host : Symbol(host, Decl(zod_test.ts, 78, 42))
+>port : Symbol(port, Decl(zod_test.ts, 78, 61))
+>database : Symbol(database, Decl(zod_test.ts, 78, 73))
+
+type T71 = ZDbConfig<{ driver: "mysql", host: "db.internal", port: 3306, database: "users" }>;
+>T71 : Symbol(T71, Decl(zod_test.ts, 78, 95))
+>ZDbConfig : Symbol(ZDbConfig, Decl(zod_test.ts, 8, 25))
+>driver : Symbol(driver, Decl(zod_test.ts, 79, 22))
+>host : Symbol(host, Decl(zod_test.ts, 79, 39))
+>port : Symbol(port, Decl(zod_test.ts, 79, 60))
+>database : Symbol(database, Decl(zod_test.ts, 79, 72))
+
+type T72 = ZDbConfig<{ driver: "redis", host: "localhost", port: 6379, database: "cache" }>;  // never
+>T72 : Symbol(T72, Decl(zod_test.ts, 79, 94))
+>ZDbConfig : Symbol(ZDbConfig, Decl(zod_test.ts, 8, 25))
+>driver : Symbol(driver, Decl(zod_test.ts, 80, 22))
+>host : Symbol(host, Decl(zod_test.ts, 80, 39))
+>port : Symbol(port, Decl(zod_test.ts, 80, 58))
+>database : Symbol(database, Decl(zod_test.ts, 80, 70))
+
+type T80 = ZEnvConfig<{ NODE_ENV: "production", PORT: 3000, DATABASE_URL: "postgres://localhost/db", DEBUG: false }>;
+>T80 : Symbol(T80, Decl(zod_test.ts, 80, 92))
+>ZEnvConfig : Symbol(ZEnvConfig, Decl(zod_test.ts, 8, 36))
+>NODE_ENV : Symbol(NODE_ENV, Decl(zod_test.ts, 82, 23))
+>PORT : Symbol(PORT, Decl(zod_test.ts, 82, 47))
+>DATABASE_URL : Symbol(DATABASE_URL, Decl(zod_test.ts, 82, 59))
+>DEBUG : Symbol(DEBUG, Decl(zod_test.ts, 82, 100))
+
+type T81 = ZEnvConfig<{ NODE_ENV: "invalid", PORT: 3000, DATABASE_URL: "postgres://localhost/db", DEBUG: false }>;  // never
+>T81 : Symbol(T81, Decl(zod_test.ts, 82, 117))
+>ZEnvConfig : Symbol(ZEnvConfig, Decl(zod_test.ts, 8, 36))
+>NODE_ENV : Symbol(NODE_ENV, Decl(zod_test.ts, 83, 23))
+>PORT : Symbol(PORT, Decl(zod_test.ts, 83, 44))
+>DATABASE_URL : Symbol(DATABASE_URL, Decl(zod_test.ts, 83, 56))
+>DEBUG : Symbol(DEBUG, Decl(zod_test.ts, 83, 97))
+
+// ==== Object transforms ====
+
+type T90 = ZCamelCaseKeys<{ user_id: 1, first_name: "Alice", is_active: true }>;
+>T90 : Symbol(T90, Decl(zod_test.ts, 83, 114))
+>ZCamelCaseKeys : Symbol(ZCamelCaseKeys, Decl(zod_test.ts, 8, 48))
+>user_id : Symbol(user_id, Decl(zod_test.ts, 87, 27))
+>first_name : Symbol(first_name, Decl(zod_test.ts, 87, 39))
+>is_active : Symbol(is_active, Decl(zod_test.ts, 87, 60))
+
+type T91 = ZCamelCaseKeys<{ created_at: "2024-01-01", updated_at: "2024-03-15" }>;
+>T91 : Symbol(T91, Decl(zod_test.ts, 87, 80))
+>ZCamelCaseKeys : Symbol(ZCamelCaseKeys, Decl(zod_test.ts, 8, 48))
+>created_at : Symbol(created_at, Decl(zod_test.ts, 88, 27))
+>updated_at : Symbol(updated_at, Decl(zod_test.ts, 88, 53))
+
+type T92 = ZBuildUrl<{ protocol: "https", host: "api.example.com", port: 443, path: "/v1/users" }>;
+>T92 : Symbol(T92, Decl(zod_test.ts, 88, 82))
+>ZBuildUrl : Symbol(ZBuildUrl, Decl(zod_test.ts, 9, 19))
+>protocol : Symbol(protocol, Decl(zod_test.ts, 90, 22))
+>host : Symbol(host, Decl(zod_test.ts, 90, 41))
+>port : Symbol(port, Decl(zod_test.ts, 90, 66))
+>path : Symbol(path, Decl(zod_test.ts, 90, 77))
+
+type T93 = ZBuildUrl<{ protocol: "http", host: "localhost", port: 8080, path: "/health" }>;
+>T93 : Symbol(T93, Decl(zod_test.ts, 90, 99))
+>ZBuildUrl : Symbol(ZBuildUrl, Decl(zod_test.ts, 9, 19))
+>protocol : Symbol(protocol, Decl(zod_test.ts, 91, 22))
+>host : Symbol(host, Decl(zod_test.ts, 91, 40))
+>port : Symbol(port, Decl(zod_test.ts, 91, 59))
+>path : Symbol(path, Decl(zod_test.ts, 91, 71))
+
+type T94 = ZParseDate<"2024-03-15">;
+>T94 : Symbol(T94, Decl(zod_test.ts, 91, 91))
+>ZParseDate : Symbol(ZParseDate, Decl(zod_test.ts, 9, 30))
+
+type T95 = ZParseDate<"1999-12-31">;
+>T95 : Symbol(T95, Decl(zod_test.ts, 93, 36))
+>ZParseDate : Symbol(ZParseDate, Decl(zod_test.ts, 9, 30))
+
+type T96 = ZParseDate<"2024-13-01">;   // never
+>T96 : Symbol(T96, Decl(zod_test.ts, 94, 36))
+>ZParseDate : Symbol(ZParseDate, Decl(zod_test.ts, 9, 30))
+
+type T97 = ZParseDate<"not-a-date">;   // never
+>T97 : Symbol(T97, Decl(zod_test.ts, 95, 36))
+>ZParseDate : Symbol(ZParseDate, Decl(zod_test.ts, 9, 30))
+
+// ==== Route / color / semver parsing ====
+
+type P1 = ZParseRoute<"/api/v1/users">;        // { version: "v1", resource: "users" }
+>P1 : Symbol(P1, Decl(zod_test.ts, 96, 36))
+>ZParseRoute : Symbol(ZParseRoute, Decl(zod_test.ts, 9, 42))
+
+type P2 = ZParseRoute<"/api/v2/posts/42">;     // { version: "v2", resource: "posts", id: "42" }
+>P2 : Symbol(P2, Decl(zod_test.ts, 100, 39))
+>ZParseRoute : Symbol(ZParseRoute, Decl(zod_test.ts, 9, 42))
+
+type P3 = ZParseRoute<"/not/api">;              // never
+>P3 : Symbol(P3, Decl(zod_test.ts, 101, 42))
+>ZParseRoute : Symbol(ZParseRoute, Decl(zod_test.ts, 9, 42))
+
+type C1 = ZHexToRgb<"#ff0000">;   // { r: 255, g: 0, b: 0 }
+>C1 : Symbol(C1, Decl(zod_test.ts, 102, 34))
+>ZHexToRgb : Symbol(ZHexToRgb, Decl(zod_test.ts, 10, 16))
+
+type C2 = ZHexToRgb<"#00ff00">;   // { r: 0, g: 255, b: 0 }
+>C2 : Symbol(C2, Decl(zod_test.ts, 104, 31))
+>ZHexToRgb : Symbol(ZHexToRgb, Decl(zod_test.ts, 10, 16))
+
+type C3 = ZHexToRgb<"#1a2b3c">;   // { r: 26, g: 43, b: 60 }
+>C3 : Symbol(C3, Decl(zod_test.ts, 105, 31))
+>ZHexToRgb : Symbol(ZHexToRgb, Decl(zod_test.ts, 10, 16))
+
+type C4 = ZHexToRgb<"red">;        // never
+>C4 : Symbol(C4, Decl(zod_test.ts, 106, 31))
+>ZHexToRgb : Symbol(ZHexToRgb, Decl(zod_test.ts, 10, 16))
+
+type V1 = ZParseSemver<"1.0.0">;    // { major: 1, minor: 0, patch: 0 }
+>V1 : Symbol(V1, Decl(zod_test.ts, 107, 27))
+>ZParseSemver : Symbol(ZParseSemver, Decl(zod_test.ts, 10, 27))
+
+type V2 = ZParseSemver<"16.4.2">;   // { major: 16, minor: 4, patch: 2 }
+>V2 : Symbol(V2, Decl(zod_test.ts, 109, 32))
+>ZParseSemver : Symbol(ZParseSemver, Decl(zod_test.ts, 10, 27))
+
+type V3 = ZParseSemver<"1.0">;       // never
+>V3 : Symbol(V3, Decl(zod_test.ts, 110, 33))
+>ZParseSemver : Symbol(ZParseSemver, Decl(zod_test.ts, 10, 27))
+
+type V4 = ZParseSemver<"a.b.c">;     // never
+>V4 : Symbol(V4, Decl(zod_test.ts, 111, 30))
+>ZParseSemver : Symbol(ZParseSemver, Decl(zod_test.ts, 10, 27))
+
+// ==== Connection string ====
+
+type CS1 = ZParseConnectionString<"postgres://localhost/mydb">;
+>CS1 : Symbol(CS1, Decl(zod_test.ts, 112, 32))
+>ZParseConnectionString : Symbol(ZParseConnectionString, Decl(zod_test.ts, 10, 41))
+
+type CS2 = ZParseConnectionString<"redis://cache.internal">;
+>CS2 : Symbol(CS2, Decl(zod_test.ts, 116, 63))
+>ZParseConnectionString : Symbol(ZParseConnectionString, Decl(zod_test.ts, 10, 41))
+
+type CS3 = ZParseConnectionString<"mysql://db.prod:3306/users">;
+>CS3 : Symbol(CS3, Decl(zod_test.ts, 117, 60))
+>ZParseConnectionString : Symbol(ZParseConnectionString, Decl(zod_test.ts, 10, 41))
+
+type CS4 = ZParseConnectionString<"not-a-connection-string">;  // never
+>CS4 : Symbol(CS4, Decl(zod_test.ts, 118, 64))
+>ZParseConnectionString : Symbol(ZParseConnectionString, Decl(zod_test.ts, 10, 41))
+
+// ==== Pick / Omit / Enrich ====
+
+type FullUser = { id: 1, name: "Alice", email: "alice@test.com", password: "secret" };
+>FullUser : Symbol(FullUser, Decl(zod_test.ts, 119, 61))
+>id : Symbol(id, Decl(zod_test.ts, 123, 17))
+>name : Symbol(name, Decl(zod_test.ts, 123, 24))
+>email : Symbol(email, Decl(zod_test.ts, 123, 39))
+>password : Symbol(password, Decl(zod_test.ts, 123, 64))
+
+type PublicUser = Omit_<FullUser, ["password"]>;   // { id: 1, name: "Alice", email: "alice@test.com" }
+>PublicUser : Symbol(PublicUser, Decl(zod_test.ts, 123, 86))
+>Omit_ : Symbol(Omit_, Decl(zod_test.ts, 11, 10))
+>FullUser : Symbol(FullUser, Decl(zod_test.ts, 119, 61))
+
+type UserRef = Pick_<FullUser, ["id", "name"]>;    // { id: 1, name: "Alice" }
+>UserRef : Symbol(UserRef, Decl(zod_test.ts, 124, 48))
+>Pick_ : Symbol(Pick_, Decl(zod_test.ts, 10, 65))
+>FullUser : Symbol(FullUser, Decl(zod_test.ts, 119, 61))
+
+type D1 = ZEnrichUser<{ firstName: "Alice", lastName: "Smith", email: "a@b.c" }>;
+>D1 : Symbol(D1, Decl(zod_test.ts, 125, 47))
+>ZEnrichUser : Symbol(ZEnrichUser, Decl(zod_test.ts, 11, 17))
+>firstName : Symbol(firstName, Decl(zod_test.ts, 127, 23))
+>lastName : Symbol(lastName, Decl(zod_test.ts, 127, 43))
+>email : Symbol(email, Decl(zod_test.ts, 127, 62))
+
+// { firstName: "Alice", lastName: "Smith", email: "a@b.c", fullName: "Alice Smith", handle: "alicesmith" }
+
+// ==== Custom error messages (void "error:...") ====
+
+// Valid inputs - no errors, types resolve normally
+type SE1 = ZStrictEmail<"user@example.com">;       // "user@example.com"
+>SE1 : Symbol(SE1, Decl(zod_test.ts, 127, 81))
+>ZStrictEmail : Symbol(ZStrictEmail, Decl(zod_test.ts, 11, 30))
+
+type SP1 = ZStrictPort<443>;                        // 443
+>SP1 : Symbol(SP1, Decl(zod_test.ts, 133, 44))
+>ZStrictPort : Symbol(ZStrictPort, Decl(zod_test.ts, 12, 17))
+
+type SN1 = ZStrictPositive<42>;                     // 42
+>SN1 : Symbol(SN1, Decl(zod_test.ts, 134, 28))
+>ZStrictPositive : Symbol(ZStrictPositive, Decl(zod_test.ts, 12, 30))
+
+// Invalid inputs - should produce compile errors with custom messages
+type SE2 = ZStrictEmail<"no-at-sign">;              // error: Invalid email 'no-at-sign': missing @ sign
+>SE2 : Symbol(SE2, Decl(zod_test.ts, 135, 31))
+>ZStrictEmail : Symbol(ZStrictEmail, Decl(zod_test.ts, 11, 30))
+
+type SE3 = ZStrictEmail<"user@nodot">;              // error: Invalid email 'user@nodot': domain has no dot
+>SE3 : Symbol(SE3, Decl(zod_test.ts, 138, 38))
+>ZStrictEmail : Symbol(ZStrictEmail, Decl(zod_test.ts, 11, 30))
+
+type SE4 = ZStrictEmail<42>;                        // error: Expected a string, got number
+>SE4 : Symbol(SE4, Decl(zod_test.ts, 139, 38))
+>ZStrictEmail : Symbol(ZStrictEmail, Decl(zod_test.ts, 11, 30))
+
+type SP2 = ZStrictPort<0>;                          // error: Port 0 is out of range (1-65535)
+>SP2 : Symbol(SP2, Decl(zod_test.ts, 140, 28))
+>ZStrictPort : Symbol(ZStrictPort, Decl(zod_test.ts, 12, 17))
+
+type SP3 = ZStrictPort<99999>;                      // error: Port 99999 is out of range (1-65535)
+>SP3 : Symbol(SP3, Decl(zod_test.ts, 141, 26))
+>ZStrictPort : Symbol(ZStrictPort, Decl(zod_test.ts, 12, 17))
+
+type SN2 = ZStrictPositive<-5>;                     // error: Expected a positive number, got -5
+>SN2 : Symbol(SN2, Decl(zod_test.ts, 142, 30))
+>ZStrictPositive : Symbol(ZStrictPositive, Decl(zod_test.ts, 12, 30))
+
+type SN3 = ZStrictPositive<0>;                      // error: Expected a positive number, got 0
+>SN3 : Symbol(SN3, Decl(zod_test.ts, 143, 31))
+>ZStrictPositive : Symbol(ZStrictPositive, Decl(zod_test.ts, 12, 30))
+

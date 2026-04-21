@@ -1,0 +1,1001 @@
+//// [tests/cases/compiler/intrinsic/openapi.ts] ////
+
+=== openapi.ts ===
+// Resolve a $ref pointer like "#/components/schemas/Widget"
+export const resolve = (spec: any, node: any) => {
+>resolve : Symbol(resolve, Decl(openapi.ts, 1, 12))
+>spec : Symbol(spec, Decl(openapi.ts, 1, 24))
+>node : Symbol(node, Decl(openapi.ts, 1, 34))
+
+    let cur: any = node;
+>cur : Symbol(cur, Decl(openapi.ts, 2, 7))
+>node : Symbol(node, Decl(openapi.ts, 1, 34))
+
+    while (cur != undefined && cur['$ref'] != undefined) {
+>cur : Symbol(cur, Decl(openapi.ts, 2, 7))
+>undefined : Symbol(undefined)
+>cur : Symbol(cur, Decl(openapi.ts, 2, 7))
+>undefined : Symbol(undefined)
+
+        let ref: string = cur['$ref'];
+>ref : Symbol(ref, Decl(openapi.ts, 4, 11))
+>cur : Symbol(cur, Decl(openapi.ts, 2, 7))
+
+        let parts = ref.slice(2).split('/');
+>parts : Symbol(parts, Decl(openapi.ts, 5, 11))
+>ref.slice(2).split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+>ref.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>ref : Symbol(ref, Decl(openapi.ts, 4, 11))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+
+        let target: any = spec;
+>target : Symbol(target, Decl(openapi.ts, 6, 11))
+>spec : Symbol(spec, Decl(openapi.ts, 1, 24))
+
+        for (let p of parts) {
+>p : Symbol(p, Decl(openapi.ts, 7, 16))
+>parts : Symbol(parts, Decl(openapi.ts, 5, 11))
+
+            if (target == undefined) return undefined;
+>target : Symbol(target, Decl(openapi.ts, 6, 11))
+>undefined : Symbol(undefined)
+>undefined : Symbol(undefined)
+
+            target = target[p];
+>target : Symbol(target, Decl(openapi.ts, 6, 11))
+>target : Symbol(target, Decl(openapi.ts, 6, 11))
+>p : Symbol(p, Decl(openapi.ts, 7, 16))
+        }
+        cur = target;
+>cur : Symbol(cur, Decl(openapi.ts, 2, 7))
+>target : Symbol(target, Decl(openapi.ts, 6, 11))
+    }
+    return cur;
+>cur : Symbol(cur, Decl(openapi.ts, 2, 7))
+
+};
+
+// Convert a primitive/enum schema to a shape descriptor.
+export const leafShape = (spec: any, rawSchema: any) => {
+>leafShape : Symbol(leafShape, Decl(openapi.ts, 17, 12))
+>spec : Symbol(spec, Decl(openapi.ts, 17, 26))
+>rawSchema : Symbol(rawSchema, Decl(openapi.ts, 17, 36))
+
+    let schema = resolve(spec, rawSchema);
+>schema : Symbol(schema, Decl(openapi.ts, 18, 7))
+>resolve : Symbol(resolve, Decl(openapi.ts, 1, 12))
+>spec : Symbol(spec, Decl(openapi.ts, 17, 26))
+>rawSchema : Symbol(rawSchema, Decl(openapi.ts, 17, 36))
+
+    if (schema == undefined) return "any";
+>schema : Symbol(schema, Decl(openapi.ts, 18, 7))
+>undefined : Symbol(undefined)
+
+    let t = schema['type'];
+>t : Symbol(t, Decl(openapi.ts, 20, 7))
+>schema : Symbol(schema, Decl(openapi.ts, 18, 7))
+
+    if (t == 'string') {
+>t : Symbol(t, Decl(openapi.ts, 20, 7))
+
+        let en = schema['enum'];
+>en : Symbol(en, Decl(openapi.ts, 22, 11))
+>schema : Symbol(schema, Decl(openapi.ts, 18, 7))
+
+        if (en != undefined) {
+>en : Symbol(en, Decl(openapi.ts, 22, 11))
+>undefined : Symbol(undefined)
+
+            let result: Record<string, any> = {};
+>result : Symbol(result, Decl(openapi.ts, 24, 15))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+            result['_enum'] = en;
+>result : Symbol(result, Decl(openapi.ts, 24, 15))
+>en : Symbol(en, Decl(openapi.ts, 22, 11))
+
+            return result;
+>result : Symbol(result, Decl(openapi.ts, 24, 15))
+        }
+        return "string";
+    }
+    if (t == 'integer' || t == 'number') return "number";
+>t : Symbol(t, Decl(openapi.ts, 20, 7))
+>t : Symbol(t, Decl(openapi.ts, 20, 7))
+
+    if (t == 'boolean') return "boolean";
+>t : Symbol(t, Decl(openapi.ts, 20, 7))
+
+    return "any";
+};
+
+// Convert an object schema to a property-shape map.
+export const objectShape = (spec: any, rawSchema: any, forInput: any) => {
+>objectShape : Symbol(objectShape, Decl(openapi.ts, 36, 12))
+>spec : Symbol(spec, Decl(openapi.ts, 36, 28))
+>rawSchema : Symbol(rawSchema, Decl(openapi.ts, 36, 38))
+>forInput : Symbol(forInput, Decl(openapi.ts, 36, 54))
+
+    let schema = resolve(spec, rawSchema);
+>schema : Symbol(schema, Decl(openapi.ts, 37, 7))
+>resolve : Symbol(resolve, Decl(openapi.ts, 1, 12))
+>spec : Symbol(spec, Decl(openapi.ts, 36, 28))
+>rawSchema : Symbol(rawSchema, Decl(openapi.ts, 36, 38))
+
+    if (schema == undefined) return "any";
+>schema : Symbol(schema, Decl(openapi.ts, 37, 7))
+>undefined : Symbol(undefined)
+
+    if (schema['type'] != 'object') return leafShape(spec, rawSchema);
+>schema : Symbol(schema, Decl(openapi.ts, 37, 7))
+>leafShape : Symbol(leafShape, Decl(openapi.ts, 17, 12))
+>spec : Symbol(spec, Decl(openapi.ts, 36, 28))
+>rawSchema : Symbol(rawSchema, Decl(openapi.ts, 36, 38))
+
+    let props = schema['properties'];
+>props : Symbol(props, Decl(openapi.ts, 40, 7))
+>schema : Symbol(schema, Decl(openapi.ts, 37, 7))
+
+    if (props == undefined) return {};
+>props : Symbol(props, Decl(openapi.ts, 40, 7))
+>undefined : Symbol(undefined)
+
+    let result: Record<string, any> = {};
+>result : Symbol(result, Decl(openapi.ts, 42, 7))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+    for (let k of Object.keys(props)) {
+>k : Symbol(k, Decl(openapi.ts, 43, 12))
+>Object.keys : Symbol(ObjectConstructor.keys, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --))
+>Object : Symbol(Object, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --))
+>keys : Symbol(ObjectConstructor.keys, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --))
+>props : Symbol(props, Decl(openapi.ts, 40, 7))
+
+        let ps = resolve(spec, props[k]);
+>ps : Symbol(ps, Decl(openapi.ts, 44, 11))
+>resolve : Symbol(resolve, Decl(openapi.ts, 1, 12))
+>spec : Symbol(spec, Decl(openapi.ts, 36, 28))
+>props : Symbol(props, Decl(openapi.ts, 40, 7))
+>k : Symbol(k, Decl(openapi.ts, 43, 12))
+
+        if (forInput == true && ps != undefined && ps['readOnly'] == true) { }
+>forInput : Symbol(forInput, Decl(openapi.ts, 36, 54))
+>ps : Symbol(ps, Decl(openapi.ts, 44, 11))
+>undefined : Symbol(undefined)
+>ps : Symbol(ps, Decl(openapi.ts, 44, 11))
+
+        else {
+            result[k] = leafShape(spec, props[k]);
+>result : Symbol(result, Decl(openapi.ts, 42, 7))
+>k : Symbol(k, Decl(openapi.ts, 43, 12))
+>leafShape : Symbol(leafShape, Decl(openapi.ts, 17, 12))
+>spec : Symbol(spec, Decl(openapi.ts, 36, 28))
+>props : Symbol(props, Decl(openapi.ts, 40, 7))
+>k : Symbol(k, Decl(openapi.ts, 43, 12))
+        }
+    }
+    return result;
+>result : Symbol(result, Decl(openapi.ts, 42, 7))
+
+};
+
+// Convert any schema to a shape. Dispatches to leafShape/objectShape, handles arrays.
+export const schemaToShape = (spec: any, rawSchema: any, forInput: any) => {
+>schemaToShape : Symbol(schemaToShape, Decl(openapi.ts, 54, 12))
+>spec : Symbol(spec, Decl(openapi.ts, 54, 30))
+>rawSchema : Symbol(rawSchema, Decl(openapi.ts, 54, 40))
+>forInput : Symbol(forInput, Decl(openapi.ts, 54, 56))
+
+    let schema = resolve(spec, rawSchema);
+>schema : Symbol(schema, Decl(openapi.ts, 55, 7))
+>resolve : Symbol(resolve, Decl(openapi.ts, 1, 12))
+>spec : Symbol(spec, Decl(openapi.ts, 54, 30))
+>rawSchema : Symbol(rawSchema, Decl(openapi.ts, 54, 40))
+
+    if (schema == undefined) return "any";
+>schema : Symbol(schema, Decl(openapi.ts, 55, 7))
+>undefined : Symbol(undefined)
+
+    let t = schema['type'];
+>t : Symbol(t, Decl(openapi.ts, 57, 7))
+>schema : Symbol(schema, Decl(openapi.ts, 55, 7))
+
+    if (t == 'array') {
+>t : Symbol(t, Decl(openapi.ts, 57, 7))
+
+        let r: Record<string, any> = {};
+>r : Symbol(r, Decl(openapi.ts, 59, 11))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+        r['_array'] = objectShape(spec, schema['items'], false);
+>r : Symbol(r, Decl(openapi.ts, 59, 11))
+>objectShape : Symbol(objectShape, Decl(openapi.ts, 36, 12))
+>spec : Symbol(spec, Decl(openapi.ts, 54, 30))
+>schema : Symbol(schema, Decl(openapi.ts, 55, 7))
+
+        return r;
+>r : Symbol(r, Decl(openapi.ts, 59, 11))
+    }
+    if (t == 'object') return objectShape(spec, rawSchema, forInput);
+>t : Symbol(t, Decl(openapi.ts, 57, 7))
+>objectShape : Symbol(objectShape, Decl(openapi.ts, 36, 12))
+>spec : Symbol(spec, Decl(openapi.ts, 54, 30))
+>rawSchema : Symbol(rawSchema, Decl(openapi.ts, 54, 40))
+>forInput : Symbol(forInput, Decl(openapi.ts, 54, 56))
+
+    return leafShape(spec, rawSchema);
+>leafShape : Symbol(leafShape, Decl(openapi.ts, 17, 12))
+>spec : Symbol(spec, Decl(openapi.ts, 54, 30))
+>rawSchema : Symbol(rawSchema, Decl(openapi.ts, 54, 40))
+
+};
+
+// Build paths descriptor: { "/path": { get: { params?, body?, data?, error? }, ... }, ... }
+export const pathsType = (spec: any) => {
+>pathsType : Symbol(pathsType, Decl(openapi.ts, 68, 12))
+>spec : Symbol(spec, Decl(openapi.ts, 68, 26))
+
+    if (typeof spec != 'object') return void { error: "Expected an OpenAPI spec" };
+>spec : Symbol(spec, Decl(openapi.ts, 68, 26))
+>error : Symbol(error, Decl(openapi.ts, 69, 46))
+
+    let specPaths = spec['paths'];
+>specPaths : Symbol(specPaths, Decl(openapi.ts, 70, 7))
+>spec : Symbol(spec, Decl(openapi.ts, 68, 26))
+
+    if (specPaths == undefined) return void { error: "No paths defined" };
+>specPaths : Symbol(specPaths, Decl(openapi.ts, 70, 7))
+>undefined : Symbol(undefined)
+>error : Symbol(error, Decl(openapi.ts, 71, 45))
+
+    let result: Record<string, any> = {};
+>result : Symbol(result, Decl(openapi.ts, 72, 7))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+    for (let path of Object.keys(specPaths)) {
+>path : Symbol(path, Decl(openapi.ts, 73, 12))
+>Object.keys : Symbol(ObjectConstructor.keys, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --))
+>Object : Symbol(Object, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --))
+>keys : Symbol(ObjectConstructor.keys, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --))
+>specPaths : Symbol(specPaths, Decl(openapi.ts, 70, 7))
+
+        let pathItem = specPaths[path];
+>pathItem : Symbol(pathItem, Decl(openapi.ts, 74, 11))
+>specPaths : Symbol(specPaths, Decl(openapi.ts, 70, 7))
+>path : Symbol(path, Decl(openapi.ts, 73, 12))
+
+        let methods: Record<string, any> = {};
+>methods : Symbol(methods, Decl(openapi.ts, 75, 11))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+        for (let m of ['get', 'post', 'put', 'patch', 'delete']) {
+>m : Symbol(m, Decl(openapi.ts, 76, 16))
+
+            let op = pathItem[m];
+>op : Symbol(op, Decl(openapi.ts, 77, 15))
+>pathItem : Symbol(pathItem, Decl(openapi.ts, 74, 11))
+>m : Symbol(m, Decl(openapi.ts, 76, 16))
+
+            if (op == undefined) { }
+>op : Symbol(op, Decl(openapi.ts, 77, 15))
+>undefined : Symbol(undefined)
+
+            else {
+                let entry: Record<string, any> = {};
+>entry : Symbol(entry, Decl(openapi.ts, 80, 19))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+                // Path parameters
+                let params = op['parameters'];
+>params : Symbol(params, Decl(openapi.ts, 82, 19))
+>op : Symbol(op, Decl(openapi.ts, 77, 15))
+
+                if (params != undefined) {
+>params : Symbol(params, Decl(openapi.ts, 82, 19))
+>undefined : Symbol(undefined)
+
+                    let pathP: Record<string, any> = {};
+>pathP : Symbol(pathP, Decl(openapi.ts, 84, 23))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+                    let hasP = false;
+>hasP : Symbol(hasP, Decl(openapi.ts, 85, 23))
+
+                    for (let param of params) {
+>param : Symbol(param, Decl(openapi.ts, 86, 28))
+>params : Symbol(params, Decl(openapi.ts, 82, 19))
+
+                        if (param['in'] == 'path') {
+>param : Symbol(param, Decl(openapi.ts, 86, 28))
+
+                            pathP[param['name']] = leafShape(spec, param['schema']);
+>pathP : Symbol(pathP, Decl(openapi.ts, 84, 23))
+>param : Symbol(param, Decl(openapi.ts, 86, 28))
+>leafShape : Symbol(leafShape, Decl(openapi.ts, 17, 12))
+>spec : Symbol(spec, Decl(openapi.ts, 68, 26))
+>param : Symbol(param, Decl(openapi.ts, 86, 28))
+
+                            hasP = true;
+>hasP : Symbol(hasP, Decl(openapi.ts, 85, 23))
+                        }
+                    }
+                    if (hasP) {
+>hasP : Symbol(hasP, Decl(openapi.ts, 85, 23))
+
+                        let p: Record<string, any> = {};
+>p : Symbol(p, Decl(openapi.ts, 93, 27))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+                        p['path'] = pathP;
+>p : Symbol(p, Decl(openapi.ts, 93, 27))
+>pathP : Symbol(pathP, Decl(openapi.ts, 84, 23))
+
+                        entry['params'] = p;
+>entry : Symbol(entry, Decl(openapi.ts, 80, 19))
+>p : Symbol(p, Decl(openapi.ts, 93, 27))
+                    }
+                }
+                // Request body
+                let rb = op['requestBody'];
+>rb : Symbol(rb, Decl(openapi.ts, 99, 19))
+>op : Symbol(op, Decl(openapi.ts, 77, 15))
+
+                if (rb != undefined) {
+>rb : Symbol(rb, Decl(openapi.ts, 99, 19))
+>undefined : Symbol(undefined)
+
+                    let content = rb['content'];
+>content : Symbol(content, Decl(openapi.ts, 101, 23))
+>rb : Symbol(rb, Decl(openapi.ts, 99, 19))
+
+                    if (content != undefined) {
+>content : Symbol(content, Decl(openapi.ts, 101, 23))
+>undefined : Symbol(undefined)
+
+                        let cts = Object.keys(content);
+>cts : Symbol(cts, Decl(openapi.ts, 103, 27))
+>Object.keys : Symbol(ObjectConstructor.keys, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --))
+>Object : Symbol(Object, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --))
+>keys : Symbol(ObjectConstructor.keys, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --))
+>content : Symbol(content, Decl(openapi.ts, 101, 23))
+
+                        if (cts.length > 0) {
+>cts.length : Symbol(Array.length, Decl(lib.es5.d.ts, --, --))
+>cts : Symbol(cts, Decl(openapi.ts, 103, 27))
+>length : Symbol(Array.length, Decl(lib.es5.d.ts, --, --))
+
+                            let bodySchema = resolve(spec, content[cts[0]]['schema']);
+>bodySchema : Symbol(bodySchema, Decl(openapi.ts, 105, 31))
+>resolve : Symbol(resolve, Decl(openapi.ts, 1, 12))
+>spec : Symbol(spec, Decl(openapi.ts, 68, 26))
+>content : Symbol(content, Decl(openapi.ts, 101, 23))
+>cts : Symbol(cts, Decl(openapi.ts, 103, 27))
+
+                            if (bodySchema != undefined) {
+>bodySchema : Symbol(bodySchema, Decl(openapi.ts, 105, 31))
+>undefined : Symbol(undefined)
+
+                                entry['body'] = objectShape(spec, content[cts[0]]['schema'], true);
+>entry : Symbol(entry, Decl(openapi.ts, 80, 19))
+>objectShape : Symbol(objectShape, Decl(openapi.ts, 36, 12))
+>spec : Symbol(spec, Decl(openapi.ts, 68, 26))
+>content : Symbol(content, Decl(openapi.ts, 101, 23))
+>cts : Symbol(cts, Decl(openapi.ts, 103, 27))
+
+                                if (bodySchema['required'] == undefined) entry['bodyPartial'] = true;
+>bodySchema : Symbol(bodySchema, Decl(openapi.ts, 105, 31))
+>undefined : Symbol(undefined)
+>entry : Symbol(entry, Decl(openapi.ts, 80, 19))
+                            }
+                        }
+                    }
+                }
+                // Success response
+                let responses = op['responses'];
+>responses : Symbol(responses, Decl(openapi.ts, 114, 19))
+>op : Symbol(op, Decl(openapi.ts, 77, 15))
+
+                if (responses != undefined) {
+>responses : Symbol(responses, Decl(openapi.ts, 114, 19))
+>undefined : Symbol(undefined)
+
+                    for (let status of Object.keys(responses)) {
+>status : Symbol(status, Decl(openapi.ts, 116, 28))
+>Object.keys : Symbol(ObjectConstructor.keys, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --))
+>Object : Symbol(Object, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --))
+>keys : Symbol(ObjectConstructor.keys, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --))
+>responses : Symbol(responses, Decl(openapi.ts, 114, 19))
+
+                        if (status == '200' || status == '201') {
+>status : Symbol(status, Decl(openapi.ts, 116, 28))
+>status : Symbol(status, Decl(openapi.ts, 116, 28))
+
+                            let resp = responses[status];
+>resp : Symbol(resp, Decl(openapi.ts, 118, 31))
+>responses : Symbol(responses, Decl(openapi.ts, 114, 19))
+>status : Symbol(status, Decl(openapi.ts, 116, 28))
+
+                            let rc = resp['content'];
+>rc : Symbol(rc, Decl(openapi.ts, 119, 31))
+>resp : Symbol(resp, Decl(openapi.ts, 118, 31))
+
+                            if (rc != undefined) {
+>rc : Symbol(rc, Decl(openapi.ts, 119, 31))
+>undefined : Symbol(undefined)
+
+                                let rcts = Object.keys(rc);
+>rcts : Symbol(rcts, Decl(openapi.ts, 121, 35))
+>Object.keys : Symbol(ObjectConstructor.keys, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --))
+>Object : Symbol(Object, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --))
+>keys : Symbol(ObjectConstructor.keys, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --))
+>rc : Symbol(rc, Decl(openapi.ts, 119, 31))
+
+                                if (rcts.length > 0) {
+>rcts.length : Symbol(Array.length, Decl(lib.es5.d.ts, --, --))
+>rcts : Symbol(rcts, Decl(openapi.ts, 121, 35))
+>length : Symbol(Array.length, Decl(lib.es5.d.ts, --, --))
+
+                                    entry['data'] = schemaToShape(spec, rc[rcts[0]]['schema'], false);
+>entry : Symbol(entry, Decl(openapi.ts, 80, 19))
+>schemaToShape : Symbol(schemaToShape, Decl(openapi.ts, 54, 12))
+>spec : Symbol(spec, Decl(openapi.ts, 68, 26))
+>rc : Symbol(rc, Decl(openapi.ts, 119, 31))
+>rcts : Symbol(rcts, Decl(openapi.ts, 121, 35))
+                                }
+                            }
+                        }
+                    }
+                    // Error response (from "default")
+                    let errResp = responses['default'];
+>errResp : Symbol(errResp, Decl(openapi.ts, 129, 23))
+>responses : Symbol(responses, Decl(openapi.ts, 114, 19))
+
+                    if (errResp != undefined) {
+>errResp : Symbol(errResp, Decl(openapi.ts, 129, 23))
+>undefined : Symbol(undefined)
+
+                        let erc = errResp['content'];
+>erc : Symbol(erc, Decl(openapi.ts, 131, 27))
+>errResp : Symbol(errResp, Decl(openapi.ts, 129, 23))
+
+                        if (erc != undefined) {
+>erc : Symbol(erc, Decl(openapi.ts, 131, 27))
+>undefined : Symbol(undefined)
+
+                            let ercts = Object.keys(erc);
+>ercts : Symbol(ercts, Decl(openapi.ts, 133, 31))
+>Object.keys : Symbol(ObjectConstructor.keys, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --))
+>Object : Symbol(Object, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --))
+>keys : Symbol(ObjectConstructor.keys, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.core.d.ts, --, --))
+>erc : Symbol(erc, Decl(openapi.ts, 131, 27))
+
+                            if (ercts.length > 0) {
+>ercts.length : Symbol(Array.length, Decl(lib.es5.d.ts, --, --))
+>ercts : Symbol(ercts, Decl(openapi.ts, 133, 31))
+>length : Symbol(Array.length, Decl(lib.es5.d.ts, --, --))
+
+                                entry['error'] = schemaToShape(spec, erc[ercts[0]]['schema'], false);
+>entry : Symbol(entry, Decl(openapi.ts, 80, 19))
+>schemaToShape : Symbol(schemaToShape, Decl(openapi.ts, 54, 12))
+>spec : Symbol(spec, Decl(openapi.ts, 68, 26))
+>erc : Symbol(erc, Decl(openapi.ts, 131, 27))
+>ercts : Symbol(ercts, Decl(openapi.ts, 133, 31))
+                            }
+                        }
+                    }
+                }
+                methods[m] = entry;
+>methods : Symbol(methods, Decl(openapi.ts, 75, 11))
+>m : Symbol(m, Decl(openapi.ts, 76, 16))
+>entry : Symbol(entry, Decl(openapi.ts, 80, 19))
+            }
+        }
+        result[path] = methods;
+>result : Symbol(result, Decl(openapi.ts, 72, 7))
+>path : Symbol(path, Decl(openapi.ts, 73, 12))
+>methods : Symbol(methods, Decl(openapi.ts, 75, 11))
+    }
+    return result;
+>result : Symbol(result, Decl(openapi.ts, 72, 7))
+
+};
+
+export type Paths<Spec> = Intrinsic<typeof pathsType, [Spec]>;
+>Paths : Symbol(Paths, Decl(openapi.ts, 146, 2))
+>Spec : Symbol(Spec, Decl(openapi.ts, 148, 18))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>pathsType : Symbol(pathsType, Decl(openapi.ts, 68, 12))
+>Spec : Symbol(Spec, Decl(openapi.ts, 148, 18))
+
+// Convert intrinsic shape descriptors to TypeScript types.
+export type Widen<T> =
+>Widen : Symbol(Widen, Decl(openapi.ts, 148, 62))
+>T : Symbol(T, Decl(openapi.ts, 151, 18))
+
+    T extends "string" ? string :
+>T : Symbol(T, Decl(openapi.ts, 151, 18))
+
+    T extends "number" ? number :
+>T : Symbol(T, Decl(openapi.ts, 151, 18))
+
+    T extends "boolean" ? boolean :
+>T : Symbol(T, Decl(openapi.ts, 151, 18))
+
+    T extends { _enum: infer E } ? E extends readonly (infer U)[] ? U : never :
+>T : Symbol(T, Decl(openapi.ts, 151, 18))
+>_enum : Symbol(_enum, Decl(openapi.ts, 155, 15))
+>E : Symbol(E, Decl(openapi.ts, 155, 28))
+>E : Symbol(E, Decl(openapi.ts, 155, 28))
+>U : Symbol(U, Decl(openapi.ts, 155, 60))
+>U : Symbol(U, Decl(openapi.ts, 155, 60))
+
+    T extends { _array: infer I } ? Widen<I>[] :
+>T : Symbol(T, Decl(openapi.ts, 151, 18))
+>_array : Symbol(_array, Decl(openapi.ts, 156, 15))
+>I : Symbol(I, Decl(openapi.ts, 156, 29))
+>Widen : Symbol(Widen, Decl(openapi.ts, 148, 62))
+>I : Symbol(I, Decl(openapi.ts, 156, 29))
+
+    T extends object ? { [K in keyof T]: Widen<T[K]> } :
+>T : Symbol(T, Decl(openapi.ts, 151, 18))
+>K : Symbol(K, Decl(openapi.ts, 157, 26))
+>T : Symbol(T, Decl(openapi.ts, 151, 18))
+>Widen : Symbol(Widen, Decl(openapi.ts, 148, 62))
+>T : Symbol(T, Decl(openapi.ts, 151, 18))
+>K : Symbol(K, Decl(openapi.ts, 157, 26))
+
+    T;
+>T : Symbol(T, Decl(openapi.ts, 151, 18))
+
+=== openapi_userland.ts ===
+import { Paths, Widen } from "./openapi";
+>Paths : Symbol(Paths, Decl(openapi_userland.ts, 0, 8))
+>Widen : Symbol(Widen, Decl(openapi_userland.ts, 0, 15))
+
+const spec = {
+>spec : Symbol(spec, Decl(openapi_userland.ts, 2, 5))
+
+    openapi: "3.0.0",
+>openapi : Symbol(openapi, Decl(openapi_userland.ts, 2, 14))
+
+    info: { title: "Widget Service", version: "0.0.0" },
+>info : Symbol(info, Decl(openapi_userland.ts, 3, 21))
+>title : Symbol(title, Decl(openapi_userland.ts, 4, 11))
+>version : Symbol(version, Decl(openapi_userland.ts, 4, 36))
+
+    paths: {
+>paths : Symbol(paths, Decl(openapi_userland.ts, 4, 56))
+
+        "/widgets": {
+>"/widgets" : Symbol("/widgets", Decl(openapi_userland.ts, 5, 12))
+
+            get: {
+>get : Symbol(get, Decl(openapi_userland.ts, 6, 21))
+
+                operationId: "Widgets_list",
+>operationId : Symbol(operationId, Decl(openapi_userland.ts, 7, 18))
+
+                description: "List widgets",
+>description : Symbol(description, Decl(openapi_userland.ts, 8, 44))
+
+                parameters: [],
+>parameters : Symbol(parameters, Decl(openapi_userland.ts, 9, 44))
+
+                responses: {
+>responses : Symbol(responses, Decl(openapi_userland.ts, 10, 31))
+
+                    "200": {
+>"200" : Symbol("200", Decl(openapi_userland.ts, 11, 28))
+
+                        description: "The request has succeeded.",
+>description : Symbol(description, Decl(openapi_userland.ts, 12, 28))
+
+                        content: { "application/json": { schema: { type: "array", items: { "$ref": "#/components/schemas/Widget" } } } }
+>content : Symbol(content, Decl(openapi_userland.ts, 13, 66))
+>"application/json" : Symbol("application/json", Decl(openapi_userland.ts, 14, 34))
+>schema : Symbol(schema, Decl(openapi_userland.ts, 14, 56))
+>type : Symbol(type, Decl(openapi_userland.ts, 14, 66))
+>items : Symbol(items, Decl(openapi_userland.ts, 14, 81))
+>"$ref" : Symbol("$ref", Decl(openapi_userland.ts, 14, 90))
+
+                    },
+                    "default": {
+>"default" : Symbol("default", Decl(openapi_userland.ts, 15, 22))
+
+                        description: "An unexpected error response.",
+>description : Symbol(description, Decl(openapi_userland.ts, 16, 32))
+
+                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }
+>content : Symbol(content, Decl(openapi_userland.ts, 17, 69))
+>"application/json" : Symbol("application/json", Decl(openapi_userland.ts, 18, 34))
+>schema : Symbol(schema, Decl(openapi_userland.ts, 18, 56))
+>"$ref" : Symbol("$ref", Decl(openapi_userland.ts, 18, 66))
+                    }
+                }
+            },
+            post: {
+>post : Symbol(post, Decl(openapi_userland.ts, 21, 14))
+
+                operationId: "Widgets_create",
+>operationId : Symbol(operationId, Decl(openapi_userland.ts, 22, 19))
+
+                description: "Create a widget",
+>description : Symbol(description, Decl(openapi_userland.ts, 23, 46))
+
+                parameters: [],
+>parameters : Symbol(parameters, Decl(openapi_userland.ts, 24, 47))
+
+                responses: {
+>responses : Symbol(responses, Decl(openapi_userland.ts, 25, 31))
+
+                    "200": {
+>"200" : Symbol("200", Decl(openapi_userland.ts, 26, 28))
+
+                        description: "The request has succeeded.",
+>description : Symbol(description, Decl(openapi_userland.ts, 27, 28))
+
+                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }
+>content : Symbol(content, Decl(openapi_userland.ts, 28, 66))
+>"application/json" : Symbol("application/json", Decl(openapi_userland.ts, 29, 34))
+>schema : Symbol(schema, Decl(openapi_userland.ts, 29, 56))
+>"$ref" : Symbol("$ref", Decl(openapi_userland.ts, 29, 66))
+
+                    },
+                    "default": {
+>"default" : Symbol("default", Decl(openapi_userland.ts, 30, 22))
+
+                        description: "An unexpected error response.",
+>description : Symbol(description, Decl(openapi_userland.ts, 31, 32))
+
+                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }
+>content : Symbol(content, Decl(openapi_userland.ts, 32, 69))
+>"application/json" : Symbol("application/json", Decl(openapi_userland.ts, 33, 34))
+>schema : Symbol(schema, Decl(openapi_userland.ts, 33, 56))
+>"$ref" : Symbol("$ref", Decl(openapi_userland.ts, 33, 66))
+                    }
+                },
+                requestBody: {
+>requestBody : Symbol(requestBody, Decl(openapi_userland.ts, 35, 18))
+
+                    required: true,
+>required : Symbol(required, Decl(openapi_userland.ts, 36, 30))
+
+                    content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }
+>content : Symbol(content, Decl(openapi_userland.ts, 37, 35))
+>"application/json" : Symbol("application/json", Decl(openapi_userland.ts, 38, 30))
+>schema : Symbol(schema, Decl(openapi_userland.ts, 38, 52))
+>"$ref" : Symbol("$ref", Decl(openapi_userland.ts, 38, 62))
+                }
+            }
+        },
+        "/widgets/{id}": {
+>"/widgets/{id}" : Symbol("/widgets/{id}", Decl(openapi_userland.ts, 41, 10))
+
+            get: {
+>get : Symbol(get, Decl(openapi_userland.ts, 42, 26))
+
+                operationId: "Widgets_read",
+>operationId : Symbol(operationId, Decl(openapi_userland.ts, 43, 18))
+
+                description: "Read a widget",
+>description : Symbol(description, Decl(openapi_userland.ts, 44, 44))
+
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],
+>parameters : Symbol(parameters, Decl(openapi_userland.ts, 45, 45))
+>name : Symbol(name, Decl(openapi_userland.ts, 46, 30))
+>in : Symbol(in, Decl(openapi_userland.ts, 46, 42))
+>required : Symbol(required, Decl(openapi_userland.ts, 46, 54))
+>schema : Symbol(schema, Decl(openapi_userland.ts, 46, 70))
+>type : Symbol(type, Decl(openapi_userland.ts, 46, 80))
+>readOnly : Symbol(readOnly, Decl(openapi_userland.ts, 46, 96))
+
+                responses: {
+>responses : Symbol(responses, Decl(openapi_userland.ts, 46, 117))
+
+                    "200": {
+>"200" : Symbol("200", Decl(openapi_userland.ts, 47, 28))
+
+                        description: "The request has succeeded.",
+>description : Symbol(description, Decl(openapi_userland.ts, 48, 28))
+
+                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }
+>content : Symbol(content, Decl(openapi_userland.ts, 49, 66))
+>"application/json" : Symbol("application/json", Decl(openapi_userland.ts, 50, 34))
+>schema : Symbol(schema, Decl(openapi_userland.ts, 50, 56))
+>"$ref" : Symbol("$ref", Decl(openapi_userland.ts, 50, 66))
+
+                    },
+                    "default": {
+>"default" : Symbol("default", Decl(openapi_userland.ts, 51, 22))
+
+                        description: "An unexpected error response.",
+>description : Symbol(description, Decl(openapi_userland.ts, 52, 32))
+
+                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }
+>content : Symbol(content, Decl(openapi_userland.ts, 53, 69))
+>"application/json" : Symbol("application/json", Decl(openapi_userland.ts, 54, 34))
+>schema : Symbol(schema, Decl(openapi_userland.ts, 54, 56))
+>"$ref" : Symbol("$ref", Decl(openapi_userland.ts, 54, 66))
+                    }
+                }
+            },
+            patch: {
+>patch : Symbol(patch, Decl(openapi_userland.ts, 57, 14))
+
+                operationId: "Widgets_update",
+>operationId : Symbol(operationId, Decl(openapi_userland.ts, 58, 20))
+
+                description: "Update a widget",
+>description : Symbol(description, Decl(openapi_userland.ts, 59, 46))
+
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],
+>parameters : Symbol(parameters, Decl(openapi_userland.ts, 60, 47))
+>name : Symbol(name, Decl(openapi_userland.ts, 61, 30))
+>in : Symbol(in, Decl(openapi_userland.ts, 61, 42))
+>required : Symbol(required, Decl(openapi_userland.ts, 61, 54))
+>schema : Symbol(schema, Decl(openapi_userland.ts, 61, 70))
+>type : Symbol(type, Decl(openapi_userland.ts, 61, 80))
+>readOnly : Symbol(readOnly, Decl(openapi_userland.ts, 61, 96))
+
+                responses: {
+>responses : Symbol(responses, Decl(openapi_userland.ts, 61, 117))
+
+                    "200": {
+>"200" : Symbol("200", Decl(openapi_userland.ts, 62, 28))
+
+                        description: "The request has succeeded.",
+>description : Symbol(description, Decl(openapi_userland.ts, 63, 28))
+
+                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Widget" } } }
+>content : Symbol(content, Decl(openapi_userland.ts, 64, 66))
+>"application/json" : Symbol("application/json", Decl(openapi_userland.ts, 65, 34))
+>schema : Symbol(schema, Decl(openapi_userland.ts, 65, 56))
+>"$ref" : Symbol("$ref", Decl(openapi_userland.ts, 65, 66))
+
+                    },
+                    "default": {
+>"default" : Symbol("default", Decl(openapi_userland.ts, 66, 22))
+
+                        description: "An unexpected error response.",
+>description : Symbol(description, Decl(openapi_userland.ts, 67, 32))
+
+                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }
+>content : Symbol(content, Decl(openapi_userland.ts, 68, 69))
+>"application/json" : Symbol("application/json", Decl(openapi_userland.ts, 69, 34))
+>schema : Symbol(schema, Decl(openapi_userland.ts, 69, 56))
+>"$ref" : Symbol("$ref", Decl(openapi_userland.ts, 69, 66))
+                    }
+                },
+                requestBody: {
+>requestBody : Symbol(requestBody, Decl(openapi_userland.ts, 71, 18))
+
+                    required: true,
+>required : Symbol(required, Decl(openapi_userland.ts, 72, 30))
+
+                    content: { "application/merge-patch+json": { schema: { "$ref": "#/components/schemas/WidgetMergePatchUpdate" } } }
+>content : Symbol(content, Decl(openapi_userland.ts, 73, 35))
+>"application/merge-patch+json" : Symbol("application/merge-patch+json", Decl(openapi_userland.ts, 74, 30))
+>schema : Symbol(schema, Decl(openapi_userland.ts, 74, 64))
+>"$ref" : Symbol("$ref", Decl(openapi_userland.ts, 74, 74))
+                }
+            },
+            delete: {
+>delete : Symbol(delete, Decl(openapi_userland.ts, 76, 14))
+
+                operationId: "Widgets_delete",
+>operationId : Symbol(operationId, Decl(openapi_userland.ts, 77, 21))
+
+                description: "Delete a widget",
+>description : Symbol(description, Decl(openapi_userland.ts, 78, 46))
+
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],
+>parameters : Symbol(parameters, Decl(openapi_userland.ts, 79, 47))
+>name : Symbol(name, Decl(openapi_userland.ts, 80, 30))
+>in : Symbol(in, Decl(openapi_userland.ts, 80, 42))
+>required : Symbol(required, Decl(openapi_userland.ts, 80, 54))
+>schema : Symbol(schema, Decl(openapi_userland.ts, 80, 70))
+>type : Symbol(type, Decl(openapi_userland.ts, 80, 80))
+>readOnly : Symbol(readOnly, Decl(openapi_userland.ts, 80, 96))
+
+                responses: {
+>responses : Symbol(responses, Decl(openapi_userland.ts, 80, 117))
+
+                    "204": { description: "No content" },
+>"204" : Symbol("204", Decl(openapi_userland.ts, 81, 28))
+>description : Symbol(description, Decl(openapi_userland.ts, 82, 28))
+
+                    "default": {
+>"default" : Symbol("default", Decl(openapi_userland.ts, 82, 57))
+
+                        description: "An unexpected error response.",
+>description : Symbol(description, Decl(openapi_userland.ts, 83, 32))
+
+                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }
+>content : Symbol(content, Decl(openapi_userland.ts, 84, 69))
+>"application/json" : Symbol("application/json", Decl(openapi_userland.ts, 85, 34))
+>schema : Symbol(schema, Decl(openapi_userland.ts, 85, 56))
+>"$ref" : Symbol("$ref", Decl(openapi_userland.ts, 85, 66))
+                    }
+                }
+            }
+        },
+        "/widgets/{id}/analyze": {
+>"/widgets/{id}/analyze" : Symbol("/widgets/{id}/analyze", Decl(openapi_userland.ts, 89, 10))
+
+            post: {
+>post : Symbol(post, Decl(openapi_userland.ts, 90, 34))
+
+                operationId: "Widgets_analyze",
+>operationId : Symbol(operationId, Decl(openapi_userland.ts, 91, 19))
+
+                description: "Analyze a widget",
+>description : Symbol(description, Decl(openapi_userland.ts, 92, 47))
+
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", readOnly: true } }],
+>parameters : Symbol(parameters, Decl(openapi_userland.ts, 93, 48))
+>name : Symbol(name, Decl(openapi_userland.ts, 94, 30))
+>in : Symbol(in, Decl(openapi_userland.ts, 94, 42))
+>required : Symbol(required, Decl(openapi_userland.ts, 94, 54))
+>schema : Symbol(schema, Decl(openapi_userland.ts, 94, 70))
+>type : Symbol(type, Decl(openapi_userland.ts, 94, 80))
+>readOnly : Symbol(readOnly, Decl(openapi_userland.ts, 94, 96))
+
+                responses: {
+>responses : Symbol(responses, Decl(openapi_userland.ts, 94, 117))
+
+                    "200": {
+>"200" : Symbol("200", Decl(openapi_userland.ts, 95, 28))
+
+                        description: "The request has succeeded.",
+>description : Symbol(description, Decl(openapi_userland.ts, 96, 28))
+
+                        content: { "text/plain": { schema: { type: "string" } } }
+>content : Symbol(content, Decl(openapi_userland.ts, 97, 66))
+>"text/plain" : Symbol("text/plain", Decl(openapi_userland.ts, 98, 34))
+>schema : Symbol(schema, Decl(openapi_userland.ts, 98, 50))
+>type : Symbol(type, Decl(openapi_userland.ts, 98, 60))
+
+                    },
+                    "default": {
+>"default" : Symbol("default", Decl(openapi_userland.ts, 99, 22))
+
+                        description: "An unexpected error response.",
+>description : Symbol(description, Decl(openapi_userland.ts, 100, 32))
+
+                        content: { "application/json": { schema: { "$ref": "#/components/schemas/Error" } } }
+>content : Symbol(content, Decl(openapi_userland.ts, 101, 69))
+>"application/json" : Symbol("application/json", Decl(openapi_userland.ts, 102, 34))
+>schema : Symbol(schema, Decl(openapi_userland.ts, 102, 56))
+>"$ref" : Symbol("$ref", Decl(openapi_userland.ts, 102, 66))
+                    }
+                }
+            }
+        }
+    },
+    components: {
+>components : Symbol(components, Decl(openapi_userland.ts, 107, 6))
+
+        schemas: {
+>schemas : Symbol(schemas, Decl(openapi_userland.ts, 108, 17))
+
+            Widget: {
+>Widget : Symbol(Widget, Decl(openapi_userland.ts, 109, 18))
+
+                type: "object",
+>type : Symbol(type, Decl(openapi_userland.ts, 110, 21))
+
+                required: ["id", "weight", "color"],
+>required : Symbol(required, Decl(openapi_userland.ts, 111, 31))
+
+                properties: {
+>properties : Symbol(properties, Decl(openapi_userland.ts, 112, 52))
+
+                    id: { type: "string", readOnly: true },
+>id : Symbol(id, Decl(openapi_userland.ts, 113, 29))
+>type : Symbol(type, Decl(openapi_userland.ts, 114, 25))
+>readOnly : Symbol(readOnly, Decl(openapi_userland.ts, 114, 41))
+
+                    weight: { type: "integer", format: "int32" },
+>weight : Symbol(weight, Decl(openapi_userland.ts, 114, 59))
+>type : Symbol(type, Decl(openapi_userland.ts, 115, 29))
+>format : Symbol(format, Decl(openapi_userland.ts, 115, 46))
+
+                    color: { type: "string", enum: ["red", "blue"] }
+>color : Symbol(color, Decl(openapi_userland.ts, 115, 65))
+>type : Symbol(type, Decl(openapi_userland.ts, 116, 28))
+>enum : Symbol(enum, Decl(openapi_userland.ts, 116, 44))
+                }
+            },
+            WidgetMergePatchUpdate: {
+>WidgetMergePatchUpdate : Symbol(WidgetMergePatchUpdate, Decl(openapi_userland.ts, 118, 14))
+
+                type: "object",
+>type : Symbol(type, Decl(openapi_userland.ts, 119, 37))
+
+                properties: {
+>properties : Symbol(properties, Decl(openapi_userland.ts, 120, 31))
+
+                    weight: { type: "integer", format: "int32" },
+>weight : Symbol(weight, Decl(openapi_userland.ts, 121, 29))
+>type : Symbol(type, Decl(openapi_userland.ts, 122, 29))
+>format : Symbol(format, Decl(openapi_userland.ts, 122, 46))
+
+                    color: { type: "string", enum: ["red", "blue"] }
+>color : Symbol(color, Decl(openapi_userland.ts, 122, 65))
+>type : Symbol(type, Decl(openapi_userland.ts, 123, 28))
+>enum : Symbol(enum, Decl(openapi_userland.ts, 123, 44))
+                }
+            },
+            Error: {
+>Error : Symbol(Error, Decl(openapi_userland.ts, 125, 14))
+
+                type: "object",
+>type : Symbol(type, Decl(openapi_userland.ts, 126, 20))
+
+                required: ["code", "message"],
+>required : Symbol(required, Decl(openapi_userland.ts, 127, 31))
+
+                properties: {
+>properties : Symbol(properties, Decl(openapi_userland.ts, 128, 46))
+
+                    code: { type: "integer", format: "int32" },
+>code : Symbol(code, Decl(openapi_userland.ts, 129, 29))
+>type : Symbol(type, Decl(openapi_userland.ts, 130, 27))
+>format : Symbol(format, Decl(openapi_userland.ts, 130, 44))
+
+                    message: { type: "string" }
+>message : Symbol(message, Decl(openapi_userland.ts, 130, 63))
+>type : Symbol(type, Decl(openapi_userland.ts, 131, 30))
+                }
+            }
+        }
+    }
+} as const;
+>const : Symbol(const)
+
+type SpecPaths = Paths<typeof spec>;
+>SpecPaths : Symbol(SpecPaths, Decl(openapi_userland.ts, 136, 11))
+>Paths : Symbol(Paths, Decl(openapi_userland.ts, 0, 8))
+>spec : Symbol(spec, Decl(openapi_userland.ts, 2, 5))
+
+type WidgetsList = Widen<SpecPaths["/widgets"]["get"]["data"]>;
+>WidgetsList : Symbol(WidgetsList, Decl(openapi_userland.ts, 138, 36))
+>Widen : Symbol(Widen, Decl(openapi_userland.ts, 0, 15))
+>SpecPaths : Symbol(SpecPaths, Decl(openapi_userland.ts, 136, 11))
+
+type WidgetsCreateBody = Widen<SpecPaths["/widgets"]["post"]["body"]>;
+>WidgetsCreateBody : Symbol(WidgetsCreateBody, Decl(openapi_userland.ts, 140, 63))
+>Widen : Symbol(Widen, Decl(openapi_userland.ts, 0, 15))
+>SpecPaths : Symbol(SpecPaths, Decl(openapi_userland.ts, 136, 11))
+
+type WidgetsCreateData = Widen<SpecPaths["/widgets"]["post"]["data"]>;
+>WidgetsCreateData : Symbol(WidgetsCreateData, Decl(openapi_userland.ts, 141, 70))
+>Widen : Symbol(Widen, Decl(openapi_userland.ts, 0, 15))
+>SpecPaths : Symbol(SpecPaths, Decl(openapi_userland.ts, 136, 11))
+
+type WidgetsCreateError = Widen<SpecPaths["/widgets"]["post"]["error"]>;
+>WidgetsCreateError : Symbol(WidgetsCreateError, Decl(openapi_userland.ts, 142, 70))
+>Widen : Symbol(Widen, Decl(openapi_userland.ts, 0, 15))
+>SpecPaths : Symbol(SpecPaths, Decl(openapi_userland.ts, 136, 11))
+
+type WidgetReadParams = Widen<SpecPaths["/widgets/{id}"]["get"]["params"]>;
+>WidgetReadParams : Symbol(WidgetReadParams, Decl(openapi_userland.ts, 143, 72))
+>Widen : Symbol(Widen, Decl(openapi_userland.ts, 0, 15))
+>SpecPaths : Symbol(SpecPaths, Decl(openapi_userland.ts, 136, 11))
+
+type WidgetReadData = Widen<SpecPaths["/widgets/{id}"]["get"]["data"]>;
+>WidgetReadData : Symbol(WidgetReadData, Decl(openapi_userland.ts, 145, 75))
+>Widen : Symbol(Widen, Decl(openapi_userland.ts, 0, 15))
+>SpecPaths : Symbol(SpecPaths, Decl(openapi_userland.ts, 136, 11))
+
+type WidgetUpdateBody = Widen<SpecPaths["/widgets/{id}"]["patch"]["body"]>;
+>WidgetUpdateBody : Symbol(WidgetUpdateBody, Decl(openapi_userland.ts, 146, 71))
+>Widen : Symbol(Widen, Decl(openapi_userland.ts, 0, 15))
+>SpecPaths : Symbol(SpecPaths, Decl(openapi_userland.ts, 136, 11))
+
+type WidgetAnalyzeData = Widen<SpecPaths["/widgets/{id}/analyze"]["post"]["data"]>;
+>WidgetAnalyzeData : Symbol(WidgetAnalyzeData, Decl(openapi_userland.ts, 147, 75))
+>Widen : Symbol(Widen, Decl(openapi_userland.ts, 0, 15))
+>SpecPaths : Symbol(SpecPaths, Decl(openapi_userland.ts, 136, 11))
+

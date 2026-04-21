@@ -1,0 +1,316 @@
+//// [tests/cases/compiler/intrinsic/intrinsicDeps.ts] ////
+
+=== intrinsicDeps.ts ===
+// Same-file dependency resolution for intrinsic functions.
+
+const double = (n: number) => n * 2;
+>double : Symbol(double, Decl(intrinsicDeps.ts, 2, 5))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 2, 16))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 2, 16))
+
+const useDouble = (x: number) => double(x) + 1;
+>useDouble : Symbol(useDouble, Decl(intrinsicDeps.ts, 3, 5))
+>x : Symbol(x, Decl(intrinsicDeps.ts, 3, 19))
+>double : Symbol(double, Decl(intrinsicDeps.ts, 2, 5))
+>x : Symbol(x, Decl(intrinsicDeps.ts, 3, 19))
+
+type D1 = Intrinsic<typeof useDouble, [5]>;  // 11
+>D1 : Symbol(D1, Decl(intrinsicDeps.ts, 3, 47))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>useDouble : Symbol(useDouble, Decl(intrinsicDeps.ts, 3, 5))
+
+// Transitive: add4 -> add2 -> add1
+const add1 = (n: number) => n + 1;
+>add1 : Symbol(add1, Decl(intrinsicDeps.ts, 7, 5))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 7, 14))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 7, 14))
+
+const add2 = (n: number) => add1(add1(n));
+>add2 : Symbol(add2, Decl(intrinsicDeps.ts, 8, 5))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 8, 14))
+>add1 : Symbol(add1, Decl(intrinsicDeps.ts, 7, 5))
+>add1 : Symbol(add1, Decl(intrinsicDeps.ts, 7, 5))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 8, 14))
+
+const add4 = (n: number) => add2(add2(n));
+>add4 : Symbol(add4, Decl(intrinsicDeps.ts, 9, 5))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 9, 14))
+>add2 : Symbol(add2, Decl(intrinsicDeps.ts, 8, 5))
+>add2 : Symbol(add2, Decl(intrinsicDeps.ts, 8, 5))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 9, 14))
+
+type D2 = Intrinsic<typeof add4, [10]>;  // 14
+>D2 : Symbol(D2, Decl(intrinsicDeps.ts, 9, 42))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>add4 : Symbol(add4, Decl(intrinsicDeps.ts, 9, 5))
+
+// Shared helper
+const normalize = (s: string) => s.trim().toLowerCase();
+>normalize : Symbol(normalize, Decl(intrinsicDeps.ts, 13, 5))
+>s : Symbol(s, Decl(intrinsicDeps.ts, 13, 19))
+>s.trim().toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+>s.trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(intrinsicDeps.ts, 13, 19))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+
+const greet = (name: string) => "hello " + normalize(name);
+>greet : Symbol(greet, Decl(intrinsicDeps.ts, 14, 5))
+>name : Symbol(name, Decl(intrinsicDeps.ts, 14, 15))
+>normalize : Symbol(normalize, Decl(intrinsicDeps.ts, 13, 5))
+>name : Symbol(name, Decl(intrinsicDeps.ts, 14, 15))
+
+type D3 = Intrinsic<typeof greet, ["  World  "]>;  // "hello world"
+>D3 : Symbol(D3, Decl(intrinsicDeps.ts, 14, 59))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>greet : Symbol(greet, Decl(intrinsicDeps.ts, 14, 5))
+
+const shout = (name: string) => normalize(name).toUpperCase();
+>shout : Symbol(shout, Decl(intrinsicDeps.ts, 16, 5))
+>name : Symbol(name, Decl(intrinsicDeps.ts, 16, 15))
+>normalize(name).toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>normalize : Symbol(normalize, Decl(intrinsicDeps.ts, 13, 5))
+>name : Symbol(name, Decl(intrinsicDeps.ts, 16, 15))
+>toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+
+type D4 = Intrinsic<typeof shout, ["  World  "]>;  // "WORLD"
+>D4 : Symbol(D4, Decl(intrinsicDeps.ts, 16, 62))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>shout : Symbol(shout, Decl(intrinsicDeps.ts, 16, 5))
+
+// Const value dependency
+const PREFIX = "test_";
+>PREFIX : Symbol(PREFIX, Decl(intrinsicDeps.ts, 20, 5))
+
+const withPrefix = (s: string) => PREFIX + s;
+>withPrefix : Symbol(withPrefix, Decl(intrinsicDeps.ts, 21, 5))
+>s : Symbol(s, Decl(intrinsicDeps.ts, 21, 20))
+>PREFIX : Symbol(PREFIX, Decl(intrinsicDeps.ts, 20, 5))
+>s : Symbol(s, Decl(intrinsicDeps.ts, 21, 20))
+
+type D5 = Intrinsic<typeof withPrefix, ["hello"]>;  // "test_hello"
+>D5 : Symbol(D5, Decl(intrinsicDeps.ts, 21, 45))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>withPrefix : Symbol(withPrefix, Decl(intrinsicDeps.ts, 21, 5))
+
+// Multiple helpers
+const square = (n: number) => n * n;
+>square : Symbol(square, Decl(intrinsicDeps.ts, 25, 5))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 25, 16))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 25, 16))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 25, 16))
+
+const negate = (n: number) => 0 - n;
+>negate : Symbol(negate, Decl(intrinsicDeps.ts, 26, 5))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 26, 16))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 26, 16))
+
+const negSquare = (x: number) => negate(square(x));
+>negSquare : Symbol(negSquare, Decl(intrinsicDeps.ts, 27, 5))
+>x : Symbol(x, Decl(intrinsicDeps.ts, 27, 19))
+>negate : Symbol(negate, Decl(intrinsicDeps.ts, 26, 5))
+>square : Symbol(square, Decl(intrinsicDeps.ts, 25, 5))
+>x : Symbol(x, Decl(intrinsicDeps.ts, 27, 19))
+
+type D6 = Intrinsic<typeof negSquare, [3]>;  // -9
+>D6 : Symbol(D6, Decl(intrinsicDeps.ts, 27, 51))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>negSquare : Symbol(negSquare, Decl(intrinsicDeps.ts, 27, 5))
+
+// Helper referenced inside a closure
+const isEven = (n: number) => n % 2 == 0;
+>isEven : Symbol(isEven, Decl(intrinsicDeps.ts, 31, 5))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 31, 16))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 31, 16))
+
+const filterEvens = (arr: number[]) => arr.filter((x: number) => isEven(x));
+>filterEvens : Symbol(filterEvens, Decl(intrinsicDeps.ts, 32, 5))
+>arr : Symbol(arr, Decl(intrinsicDeps.ts, 32, 21))
+>arr.filter : Symbol(Array.filter, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --))
+>arr : Symbol(arr, Decl(intrinsicDeps.ts, 32, 21))
+>filter : Symbol(Array.filter, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --))
+>x : Symbol(x, Decl(intrinsicDeps.ts, 32, 51))
+>isEven : Symbol(isEven, Decl(intrinsicDeps.ts, 31, 5))
+>x : Symbol(x, Decl(intrinsicDeps.ts, 32, 51))
+
+type D7 = Intrinsic<typeof filterEvens, [[1, 2, 3, 4, 5, 6]]>;  // [2, 4, 6]
+>D7 : Symbol(D7, Decl(intrinsicDeps.ts, 32, 76))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>filterEvens : Symbol(filterEvens, Decl(intrinsicDeps.ts, 32, 5))
+
+// Object return
+const makePoint = (x: number, y: number) => {
+>makePoint : Symbol(makePoint, Decl(intrinsicDeps.ts, 36, 5))
+>x : Symbol(x, Decl(intrinsicDeps.ts, 36, 19))
+>y : Symbol(y, Decl(intrinsicDeps.ts, 36, 29))
+
+    let result: Record<string, any> = {};
+>result : Symbol(result, Decl(intrinsicDeps.ts, 37, 7))
+>Record : Symbol(Record, Decl(lib.es5.d.ts, --, --))
+
+    result["x"] = x;
+>result : Symbol(result, Decl(intrinsicDeps.ts, 37, 7))
+>x : Symbol(x, Decl(intrinsicDeps.ts, 36, 19))
+
+    result["y"] = y;
+>result : Symbol(result, Decl(intrinsicDeps.ts, 37, 7))
+>y : Symbol(y, Decl(intrinsicDeps.ts, 36, 29))
+
+    return result;
+>result : Symbol(result, Decl(intrinsicDeps.ts, 37, 7))
+
+};
+const shiftPoint = (x: number, y: number, dx: number, dy: number) => makePoint(x + dx, y + dy);
+>shiftPoint : Symbol(shiftPoint, Decl(intrinsicDeps.ts, 42, 5))
+>x : Symbol(x, Decl(intrinsicDeps.ts, 42, 20))
+>y : Symbol(y, Decl(intrinsicDeps.ts, 42, 30))
+>dx : Symbol(dx, Decl(intrinsicDeps.ts, 42, 41))
+>dy : Symbol(dy, Decl(intrinsicDeps.ts, 42, 53))
+>makePoint : Symbol(makePoint, Decl(intrinsicDeps.ts, 36, 5))
+>x : Symbol(x, Decl(intrinsicDeps.ts, 42, 20))
+>dx : Symbol(dx, Decl(intrinsicDeps.ts, 42, 41))
+>y : Symbol(y, Decl(intrinsicDeps.ts, 42, 30))
+>dy : Symbol(dy, Decl(intrinsicDeps.ts, 42, 53))
+
+type D8 = Intrinsic<typeof shiftPoint, [1, 2, 10, 20]>;  // { x: 11, y: 22 }
+>D8 : Symbol(D8, Decl(intrinsicDeps.ts, 42, 95))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>shiftPoint : Symbol(shiftPoint, Decl(intrinsicDeps.ts, 42, 5))
+
+// Diamond: combined -> doubleInc -> inc, combined -> tripleInc -> inc
+const inc = (n: number) => n + 1;
+>inc : Symbol(inc, Decl(intrinsicDeps.ts, 46, 5))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 46, 13))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 46, 13))
+
+const doubleInc = (n: number) => inc(n) * 2;
+>doubleInc : Symbol(doubleInc, Decl(intrinsicDeps.ts, 47, 5))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 47, 19))
+>inc : Symbol(inc, Decl(intrinsicDeps.ts, 46, 5))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 47, 19))
+
+const tripleInc = (n: number) => inc(n) * 3;
+>tripleInc : Symbol(tripleInc, Decl(intrinsicDeps.ts, 48, 5))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 48, 19))
+>inc : Symbol(inc, Decl(intrinsicDeps.ts, 46, 5))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 48, 19))
+
+const combined = (n: number) => doubleInc(n) + tripleInc(n);
+>combined : Symbol(combined, Decl(intrinsicDeps.ts, 49, 5))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 49, 18))
+>doubleInc : Symbol(doubleInc, Decl(intrinsicDeps.ts, 47, 5))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 49, 18))
+>tripleInc : Symbol(tripleInc, Decl(intrinsicDeps.ts, 48, 5))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 49, 18))
+
+type D9 = Intrinsic<typeof combined, [4]>;  // 10 + 15 = 25
+>D9 : Symbol(D9, Decl(intrinsicDeps.ts, 49, 60))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>combined : Symbol(combined, Decl(intrinsicDeps.ts, 49, 5))
+
+// Helper calling helper
+const capitalize = (s: string) => {
+>capitalize : Symbol(capitalize, Decl(intrinsicDeps.ts, 53, 5))
+>s : Symbol(s, Decl(intrinsicDeps.ts, 53, 20))
+
+    if (s.length == 0) return s;
+>s.length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(intrinsicDeps.ts, 53, 20))
+>length : Symbol(String.length, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(intrinsicDeps.ts, 53, 20))
+
+    return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+>s.charAt(0).toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>s.charAt : Symbol(String.charAt, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(intrinsicDeps.ts, 53, 20))
+>charAt : Symbol(String.charAt, Decl(lib.es5.d.ts, --, --))
+>toUpperCase : Symbol(String.toUpperCase, Decl(lib.es5.d.ts, --, --))
+>s.slice(1).toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+>s.slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(intrinsicDeps.ts, 53, 20))
+>slice : Symbol(String.slice, Decl(lib.es5.d.ts, --, --))
+>toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+
+};
+const titleCase = (s: string) => s.split(" ").map((w: string) => capitalize(w)).join(" ");
+>titleCase : Symbol(titleCase, Decl(intrinsicDeps.ts, 57, 5))
+>s : Symbol(s, Decl(intrinsicDeps.ts, 57, 19))
+>s.split(" ").map((w: string) => capitalize(w)).join : Symbol(Array.join, Decl(lib.es5.d.ts, --, --))
+>s.split(" ").map : Symbol(Array.map, Decl(lib.es5.d.ts, --, --))
+>s.split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+>s : Symbol(s, Decl(intrinsicDeps.ts, 57, 19))
+>split : Symbol(String.split, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+>map : Symbol(Array.map, Decl(lib.es5.d.ts, --, --))
+>w : Symbol(w, Decl(intrinsicDeps.ts, 57, 51))
+>capitalize : Symbol(capitalize, Decl(intrinsicDeps.ts, 53, 5))
+>w : Symbol(w, Decl(intrinsicDeps.ts, 57, 51))
+>join : Symbol(Array.join, Decl(lib.es5.d.ts, --, --))
+
+type D10 = Intrinsic<typeof titleCase, ["hello world foo"]>;  // "Hello World Foo"
+>D10 : Symbol(D10, Decl(intrinsicDeps.ts, 57, 90))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>titleCase : Symbol(titleCase, Decl(intrinsicDeps.ts, 57, 5))
+
+// Comments in function bodies
+const withLineComments = (n: number) => {
+>withLineComments : Symbol(withLineComments, Decl(intrinsicDeps.ts, 61, 5))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 61, 26))
+
+    // double it
+    let x: number = n * 2;
+>x : Symbol(x, Decl(intrinsicDeps.ts, 63, 7))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 61, 26))
+
+    // then add one
+    return x + 1;
+>x : Symbol(x, Decl(intrinsicDeps.ts, 63, 7))
+
+};
+type D11 = Intrinsic<typeof withLineComments, [5]>;  // 11
+>D11 : Symbol(D11, Decl(intrinsicDeps.ts, 66, 2))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>withLineComments : Symbol(withLineComments, Decl(intrinsicDeps.ts, 61, 5))
+
+const withBlockComments = (n: number) => {
+>withBlockComments : Symbol(withBlockComments, Decl(intrinsicDeps.ts, 69, 5))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 69, 27))
+
+    let x: number = n /* input */ + 1;
+>x : Symbol(x, Decl(intrinsicDeps.ts, 70, 7))
+>n : Symbol(n, Decl(intrinsicDeps.ts, 69, 27))
+
+    /* square */
+    return x * x;
+>x : Symbol(x, Decl(intrinsicDeps.ts, 70, 7))
+>x : Symbol(x, Decl(intrinsicDeps.ts, 70, 7))
+
+};
+type D12 = Intrinsic<typeof withBlockComments, [3]>;  // 16
+>D12 : Symbol(D12, Decl(intrinsicDeps.ts, 73, 2))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>withBlockComments : Symbol(withBlockComments, Decl(intrinsicDeps.ts, 69, 5))
+
+const commented_helper = (s: string) => {
+>commented_helper : Symbol(commented_helper, Decl(intrinsicDeps.ts, 76, 5))
+>s : Symbol(s, Decl(intrinsicDeps.ts, 76, 26))
+
+    // trim and lowercase
+    return s.trim().toLowerCase();
+>s.trim().toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+>s.trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>s : Symbol(s, Decl(intrinsicDeps.ts, 76, 26))
+>trim : Symbol(String.trim, Decl(lib.es5.d.ts, --, --))
+>toLowerCase : Symbol(String.toLowerCase, Decl(lib.es5.d.ts, --, --))
+
+};
+const use_commented = (s: string) => commented_helper(s) + "!";
+>use_commented : Symbol(use_commented, Decl(intrinsicDeps.ts, 80, 5))
+>s : Symbol(s, Decl(intrinsicDeps.ts, 80, 23))
+>commented_helper : Symbol(commented_helper, Decl(intrinsicDeps.ts, 76, 5))
+>s : Symbol(s, Decl(intrinsicDeps.ts, 80, 23))
+
+type D13 = Intrinsic<typeof use_commented, ["  HI  "]>;  // "hi!"
+>D13 : Symbol(D13, Decl(intrinsicDeps.ts, 80, 63))
+>Intrinsic : Symbol(Intrinsic, Decl(lib.es5.d.ts, --, --))
+>use_commented : Symbol(use_commented, Decl(intrinsicDeps.ts, 80, 5))
+
